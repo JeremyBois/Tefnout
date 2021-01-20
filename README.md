@@ -28,13 +28,15 @@ The server need a `compile_commands.json` file to provide IDE features.
 
 `cmake` can built this file for us with by adding `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` and also add header information using `compdb` as below:
 ```bash
+    # Go into the build directory (create it if needed)
     cd build/
 
-    # Generic command
+    # Cmake template
     cmake .. -G <build_generator> -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-
     # Cmake with Ninja
     cmake .. -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    # Cmake with Make
+    cmake .. -G "Unix Makefiles" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
     # Add header information to compile commands for better completion
     compdb -p . list > ../compile_commands.json

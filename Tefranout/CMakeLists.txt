@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
-PROJECT("Tefranout-engine")
+PROJECT("Tefranout")
 
 
 
@@ -44,7 +44,7 @@ endif()
 # Create a static and shared library target.
 # ------------------------------------------------------------------------------
 # Allow the developer to select if Dynamic or Static libraries are built
-OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
+OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 if (BUILD_SHARED_LIBS)
     set (MY_LIB_NAME tefranout-shared)
     set (LIB_TYPE SHARED)  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
@@ -60,7 +60,8 @@ message("*** ${MY_LIB_NAME} will be build as ${LIB_TYPE} library (${CMAKE_BUILD_
 file(
     GLOB
     library_SOURCES
-    ${PROJECT_SOURCE_DIR}/src/*
+    src/*
+    src/Tefranout/Core/*
 )
 
 add_library(${MY_LIB_NAME} ${LIB_TYPE} ${library_SOURCES})
@@ -69,7 +70,8 @@ add_library(${MY_LIB_NAME} ${LIB_TYPE} ${library_SOURCES})
 if (BUILD_SHARED_LIBS)
     # Shared library
     target_include_directories(${MY_LIB_NAME}
-        PRIVATE BEFORE ${PROJECT_SOURCE_DIR}/src
+        PRIVATE BEFORE
+            ${PROJECT_SOURCE_DIR}/src
         PRIVATE
             ${PROJECT_SOURCE_DIR}/vendors/glm/glm
     )
@@ -82,7 +84,8 @@ if (BUILD_SHARED_LIBS)
 else()
     # Static library
     target_include_directories(${MY_LIB_NAME}
-        PUBLIC BEFORE ${PROJECT_SOURCE_DIR}/src
+        PUBLIC BEFORE
+            ${PROJECT_SOURCE_DIR}/src
         PUBLIC
             ${PROJECT_SOURCE_DIR}/vendors/glm/glm
     )
@@ -90,9 +93,9 @@ endif()
 
 set_target_properties(${MY_LIB_NAME}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
     LINKER_LANGUAGE CXX
