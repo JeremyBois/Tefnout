@@ -20,6 +20,7 @@ Cmake is used to generate the build files for any build tool.
 
 ## Dependencies
   - `glm` - [Version 0.9.9.8](https://github.com/g-truc/glm/releases/tag/0.9.9.8)
+  - `spdlog` - [Version v1.8.2](https://github.com/gabime/spdlog/releases/tag/v1.8.2)
 
 
 ## Sublime-text
