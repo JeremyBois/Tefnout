@@ -43,9 +43,9 @@ else()
 endif()
 
 
-###
-# Find GLM
-###
+# ------------------------------------------------------------------------------
+# Find - GLM
+# ------------------------------------------------------------------------------
 # Header only
 set(Tefrenout_GLM_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/glm
     CACHE STRING "Path used to search first for GLM header files." FORCE)
@@ -60,9 +60,9 @@ endif()
 
 
 
-###
-# Find SPDLOG
-###
+# ------------------------------------------------------------------------------
+# Find - SPDLOG
+# ------------------------------------------------------------------------------
 # Precompiled library (local)
 # https://github.com/gabime/spdlog/issues/1286
 set(Tefrenout_SPDLOG_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/spdlog/build/install
@@ -79,44 +79,43 @@ find_package(spdlog REQUIRED)
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (Tefrenout_BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 if (Tefrenout_BUILD_SHARED_LIBS)
-    set (MY_LIB_NAME tefrenout-shared)
+    set (Tefrenout_LIB_NAME tefrenout-shared)
     set (LIB_TYPE SHARED)  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
 else()
-    set (MY_LIB_NAME tefrenout-static)
+    set (Tefrenout_LIB_NAME tefrenout-static)
     set (LIB_TYPE STATIC)  # Set the LIB_TYPE variable to STATIC
 endif ()
 
 # Display information about the build parameters
-message("*** ${MY_LIB_NAME} will be build as ${LIB_TYPE} library (${CMAKE_BUILD_TYPE})")
+message("*** ${Tefrenout_LIB_NAME} will be build as ${LIB_TYPE} library (${CMAKE_BUILD_TYPE})")
 
 
 file(
     GLOB
-    library_SOURCES
+    Tefrenout_SOURCES
     src/*
     src/Tefrenout/Core/*
 )
-
-add_library(${MY_LIB_NAME} ${LIB_TYPE} ${library_SOURCES})
+add_library(${Tefrenout_LIB_NAME} ${LIB_TYPE} ${Tefrenout_SOURCES})
 
 # See https://cmake.org/pipermail/cmake/2016-May/063400.html
 if (Tefrenout_BUILD_SHARED_LIBS)
     # Shared library
-    target_include_directories(${MY_LIB_NAME}
+    target_include_directories(${Tefrenout_LIB_NAME}
         PRIVATE BEFORE
             ${PROJECT_SOURCE_DIR}/src
         PRIVATE
             ${GLM_INCLUDE_DIRS}
     )
     # Set pre processor command for Shared lib export
-    target_compile_definitions(${MY_LIB_NAME}
+    target_compile_definitions(${Tefrenout_LIB_NAME}
     PRIVATE
         TEFRENOUT_SHARED="USED"
         TEFRENOUT_SHARED_EXPORTS="USED"
     )
 else()
     # Static library
-    target_include_directories(${MY_LIB_NAME}
+    target_include_directories(${Tefrenout_LIB_NAME}
         PUBLIC BEFORE
             ${PROJECT_SOURCE_DIR}/src
         PUBLIC
@@ -126,12 +125,11 @@ endif()
 
 # Expose SPDLOG as a PUBLIC dependency
 # because it is used in both header and source files
-target_link_libraries(${MY_LIB_NAME}
+target_link_libraries(${Tefrenout_LIB_NAME}
     PUBLIC
         spdlog::spdlog
 )
-
-set_target_properties(${MY_LIB_NAME}
+set_target_properties(${Tefrenout_LIB_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
@@ -144,17 +142,17 @@ set_target_properties(${MY_LIB_NAME}
 # More warnings
 if (MSVC)
     # warning level 4 and all warnings as errors
-    target_compile_options(${MY_LIB_NAME}
+    target_compile_options(${Tefrenout_LIB_NAME}
         PUBLIC /W4
         # PUBLIC /WX
     )
 else()
     # lots of warnings and all warnings as errors
-    target_compile_options(${MY_LIB_NAME}
+    target_compile_options(${Tefrenout_LIB_NAME}
         PUBLIC -Wall -Wextra -pedantic
         # PUBLIC -Werror
     )
 endif()
 
 # Read only alias
-add_library(tefrenout ALIAS ${MY_LIB_NAME})
+add_library(tefrenout ALIAS ${Tefrenout_LIB_NAME})

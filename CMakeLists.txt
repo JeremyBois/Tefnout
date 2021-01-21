@@ -39,22 +39,20 @@ endif()
 
 
 
-###
+# ------------------------------------------------------------------------------
 # Engine (tefrenout) LIB
-###
+# ------------------------------------------------------------------------------
 add_subdirectory(Tefrenout)
 
 
-###
+# ------------------------------------------------------------------------------
 # Samples EXE
-###
-
+# ------------------------------------------------------------------------------
 file(
     GLOB
     samples_SOURCES
     ${CMAKE_SOURCE_DIR}/Samples/src/*
 )
-
 add_executable(
     tefrenout-samples ${samples_SOURCES}
 )
@@ -93,7 +91,6 @@ set_target_properties(tefrenout-samples
     CXX_STANDARD_REQUIRED ON
     LINKER_LANGUAGE CXX
 )
-
 # Using dynamic or static lib based on previous flag (see ${MY_LIB_NAME})
 target_link_libraries(tefrenout-samples
     PRIVATE

@@ -106,6 +106,7 @@ GitHub.sublime-settings
 .cache
 build
 bin
+logs
 
 # Clangd
 compile_commands.json
