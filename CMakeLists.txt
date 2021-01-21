@@ -74,7 +74,7 @@ if (BUILD_SHARED_LIBS)
     target_include_directories(tefrenout-samples
         PRIVATE
             ${CMAKE_SOURCE_DIR}/Tefrenout/src
-            ${CMAKE_SOURCE_DIR}/Tefrenout/vendors/glm/glm
+            ${GLM_INCLUDE_DIRS}
             ${CMAKE_SOURCE_DIR}/Samples/src
     )
 

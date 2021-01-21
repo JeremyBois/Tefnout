@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
 PROJECT("Tefrenout")
 
 
+# We need a CMAKE_DIR with some code to find external dependencies
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules/")
+
 
 # ------------------------------------------------------------------------------
 # Provide default for non multi-configuration generator (like Visual Studio)
@@ -40,6 +43,24 @@ else()
 endif()
 
 
+#
+# Find GLM
+#
+set(GLM_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/glm)
+find_package(GLM REQUIRED)
+if(NOT GLM_FOUND)
+    message(FATAL_ERROR "GLM library not found - Required for math")
+endif()
+
+# #
+# # Find SPDLOG
+# #
+# find_package(spdlog REQUIRED)
+# if(NOT SPDLOG_FOUND)
+#     message(FATAL_ERROR "Spdlog library not found - Required for logging")
+# endif()
+
+
 # ------------------------------------------------------------------------------
 # Create a static and shared library target.
 # ------------------------------------------------------------------------------
@@ -73,7 +94,7 @@ if (BUILD_SHARED_LIBS)
         PRIVATE BEFORE
             ${PROJECT_SOURCE_DIR}/src
         PRIVATE
-            ${PROJECT_SOURCE_DIR}/vendors/glm/glm
+            ${GLM_INCLUDE_DIRS}
     )
     # Set pre processor command for Shared lib export
     target_compile_definitions(${MY_LIB_NAME}
@@ -87,7 +108,7 @@ else()
         PUBLIC BEFORE
             ${PROJECT_SOURCE_DIR}/src
         PUBLIC
-            ${PROJECT_SOURCE_DIR}/vendors/glm/glm
+            ${GLM_INCLUDE_DIRS}
     )
 endif()
 
