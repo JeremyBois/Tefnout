@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
 project("Tefrenout-Samples")
 
-
-
 # ------------------------------------------------------------------------------
 # Provide default for non multi-configuration generator (like Visual Studio)
 # ------------------------------------------------------------------------------
@@ -32,13 +30,7 @@ if (NOT CMAKE_CONFIGURATION_TYPES)
           set_property(CACHE CMAKE_CXX_COMPILER PROPERTY STRINGS "clang++" "gcc++" "MSVC")
     endif()
 
-    # x64 as default platform
-    # if(NOT CMAKE_GENERATOR_PLATFORM )
-    #     message("*** Setting Target platform architecture because none was specified.")
-    #     set(CMAKE_GENERATOR_PLATFORM x64 CACHE STRING "Choose the target platform architecture." FORCE)
-    #     set_property(CACHE CMAKE_GENERATOR_PLATFORM PROPERTY STRINGS "x86" "x64")
-    # endif()
-    message("*** ${PROJECT_NAME} build as ${CMAKE_BUILD_TYPE} for architecture ${CMAKE_GENERATOR_PLATFORM}.")
+    message("*** ${PROJECT_NAME} build as ${CMAKE_BUILD_TYPE}.")
     message("*** C++ compiler is ${CMAKE_CXX_COMPILER} and C compiler is ${CMAKE_C_COMPILER}.")
 else()
     # Display information about the build parameters
@@ -68,7 +60,7 @@ add_executable(
 )
 
 # See https://cmake.org/pipermail/cmake/2016-May/063400.html
-if (BUILD_SHARED_LIBS)
+if (Tefrenout_BUILD_SHARED_LIBS)
     # Shared lib need to know includes directories
     message("*** Using shared library.")
     target_include_directories(tefrenout-samples
@@ -84,6 +76,7 @@ if (BUILD_SHARED_LIBS)
         TEFRENOUT_SHARED="USED"
     )
 else()
+    message("*** Using static library.")
     target_include_directories(tefrenout-samples
         PRIVATE
             ${CMAKE_SOURCE_DIR}/Samples/src
@@ -103,5 +96,6 @@ set_target_properties(tefrenout-samples
 
 # Using dynamic or static lib based on previous flag (see ${MY_LIB_NAME})
 target_link_libraries(tefrenout-samples
-    PRIVATE tefrenout
+    PRIVATE
+      tefrenout
 )

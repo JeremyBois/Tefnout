@@ -35,7 +35,7 @@ if (NOT CMAKE_CONFIGURATION_TYPES)
           set_property(CACHE CMAKE_CXX_COMPILER PROPERTY STRINGS "clang++" "gcc++" "MSVC")
     endif()
 
-    message("*** ${PROJECT_NAME} build as ${CMAKE_BUILD_TYPE} for architecture ${CMAKE_GENERATOR_PLATFORM}.")
+    message("*** ${PROJECT_NAME} build as ${CMAKE_BUILD_TYPE}.")
     message("*** C++ compiler is ${CMAKE_CXX_COMPILER} and C compiler is ${CMAKE_C_COMPILER}.")
 else()
     # Display information about the build parameters
@@ -43,10 +43,14 @@ else()
 endif()
 
 
-#
+###
 # Find GLM
-#
-set(GLM_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/glm)
+###
+# Header only
+set(Tefrenout_GLM_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/glm
+    CACHE STRING "Path used to search first for GLM header files." FORCE)
+set(GLM_ROOT_DIR ${Tefrenout_GLM_ROOT_DIR})
+
 find_package(GLM REQUIRED)
 if(NOT GLM_FOUND)
     message(FATAL_ERROR "GLM library not found - Required for math")
@@ -54,25 +58,33 @@ else()
     message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
 endif()
 
-#
+
+
+###
 # Find SPDLOG
-#
-add_subdirectory(${PROJECT_SOURCE_DIR}/vendors/spdlog)
+###
+# Precompiled library (local)
+# https://github.com/gabime/spdlog/issues/1286
+set(Tefrenout_SPDLOG_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/spdlog/build/install
+    CACHE STRING "Path of SPDLOG installation directory." FORCE)
+set(SPDLOG_DIR ${Tefrenout_SPDLOG_ROOT_DIR})
 find_package(spdlog REQUIRED)
+
+
 
 
 # ------------------------------------------------------------------------------
 # Create a static and shared library target.
 # ------------------------------------------------------------------------------
 # Allow the developer to select if Dynamic or Static libraries are built
-OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
-if (BUILD_SHARED_LIBS)
+OPTION (Tefrenout_BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+if (Tefrenout_BUILD_SHARED_LIBS)
     set (MY_LIB_NAME tefrenout-shared)
     set (LIB_TYPE SHARED)  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
 else()
     set (MY_LIB_NAME tefrenout-static)
     set (LIB_TYPE STATIC)  # Set the LIB_TYPE variable to STATIC
-endif (BUILD_SHARED_LIBS)
+endif ()
 
 # Display information about the build parameters
 message("*** ${MY_LIB_NAME} will be build as ${LIB_TYPE} library (${CMAKE_BUILD_TYPE})")
@@ -88,7 +100,7 @@ file(
 add_library(${MY_LIB_NAME} ${LIB_TYPE} ${library_SOURCES})
 
 # See https://cmake.org/pipermail/cmake/2016-May/063400.html
-if (BUILD_SHARED_LIBS)
+if (Tefrenout_BUILD_SHARED_LIBS)
     # Shared library
     target_include_directories(${MY_LIB_NAME}
         PRIVATE BEFORE
@@ -112,9 +124,10 @@ else()
     )
 endif()
 
-# Get
+# Expose SPDLOG as a PUBLIC dependency
+# because it is used in both header and source files
 target_link_libraries(${MY_LIB_NAME}
-    PRIVATE
+    PUBLIC
         spdlog::spdlog
 )
 
