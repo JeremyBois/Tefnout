@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
-project("Tefranout-Samples")
+project("Tefrenout-Samples")
 
 
 
@@ -48,9 +48,9 @@ endif()
 
 
 ###
-# Engine (tefranout) LIB
+# Engine (tefrenout) LIB
 ###
-add_subdirectory(Tefranout)
+add_subdirectory(Tefrenout)
 
 
 ###
@@ -64,34 +64,34 @@ file(
 )
 
 add_executable(
-    tefranout-samples ${samples_SOURCES}
+    tefrenout-samples ${samples_SOURCES}
 )
 
 # See https://cmake.org/pipermail/cmake/2016-May/063400.html
 if (BUILD_SHARED_LIBS)
     # Shared lib need to know includes directories
     message("*** Using shared library.")
-    target_include_directories(tefranout-samples
+    target_include_directories(tefrenout-samples
         PRIVATE
-            ${CMAKE_SOURCE_DIR}/Tefranout/src
-            ${CMAKE_SOURCE_DIR}/Tefranout/vendors/glm/glm
+            ${CMAKE_SOURCE_DIR}/Tefrenout/src
+            ${CMAKE_SOURCE_DIR}/Tefrenout/vendors/glm/glm
             ${CMAKE_SOURCE_DIR}/Samples/src
     )
 
     # Set pre processor command for Shared lib import
-    target_compile_definitions(tefranout-samples
+    target_compile_definitions(tefrenout-samples
     PRIVATE
-        TEFRANOUT_SHARED="USED"
+        TEFRENOUT_SHARED="USED"
     )
 else()
-    target_include_directories(tefranout-samples
+    target_include_directories(tefrenout-samples
         PRIVATE
             ${CMAKE_SOURCE_DIR}/Samples/src
     )
 endif()
 
 
-set_target_properties(tefranout-samples
+set_target_properties(tefrenout-samples
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
@@ -102,6 +102,6 @@ set_target_properties(tefranout-samples
 )
 
 # Using dynamic or static lib based on previous flag (see ${MY_LIB_NAME})
-target_link_libraries(tefranout-samples
-    PRIVATE tefranout
+target_link_libraries(tefrenout-samples
+    PRIVATE tefrenout
 )

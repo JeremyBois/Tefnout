@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
-PROJECT("Tefranout")
+PROJECT("Tefrenout")
 
 
 
@@ -46,10 +46,10 @@ endif()
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 if (BUILD_SHARED_LIBS)
-    set (MY_LIB_NAME tefranout-shared)
+    set (MY_LIB_NAME tefrenout-shared)
     set (LIB_TYPE SHARED)  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
 else()
-    set (MY_LIB_NAME tefranout-static)
+    set (MY_LIB_NAME tefrenout-static)
     set (LIB_TYPE STATIC)  # Set the LIB_TYPE variable to STATIC
 endif (BUILD_SHARED_LIBS)
 
@@ -61,7 +61,7 @@ file(
     GLOB
     library_SOURCES
     src/*
-    src/Tefranout/Core/*
+    src/Tefrenout/Core/*
 )
 
 add_library(${MY_LIB_NAME} ${LIB_TYPE} ${library_SOURCES})
@@ -78,8 +78,8 @@ if (BUILD_SHARED_LIBS)
     # Set pre processor command for Shared lib export
     target_compile_definitions(${MY_LIB_NAME}
     PRIVATE
-        TEFRANOUT_SHARED="USED"
-        TEFRANOUT_SHARED_EXPORTS="USED"
+        TEFRENOUT_SHARED="USED"
+        TEFRENOUT_SHARED_EXPORTS="USED"
     )
 else()
     # Static library
@@ -117,4 +117,4 @@ else()
 endif()
 
 # Read only alias
-add_library(tefranout ALIAS ${MY_LIB_NAME})
+add_library(tefrenout ALIAS ${MY_LIB_NAME})

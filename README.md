@@ -1,4 +1,4 @@
-# Tefranout Engine
+# Tefrenout Engine
 
 ## Getting started
 ### Dev

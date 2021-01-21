@@ -1,14 +1,14 @@
-#include <Tefranout.hpp>
+#include <Tefrenout.hpp>
 
 
-class SampleApp : public Tefranout::Application
+class SampleApp : public Tefrenout::Application
 {
 public:
-    SampleApp() {};
-    ~SampleApp() {};
+    SampleApp() = default;
+    ~SampleApp() = default;
 };
 
-Tefranout::Application* Tefranout::CreateApplication()
+Tefrenout::Application* Tefrenout::CreateApplication()
 {
     return new SampleApp();
 }
