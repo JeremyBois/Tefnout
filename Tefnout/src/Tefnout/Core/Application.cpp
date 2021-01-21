@@ -1,6 +1,6 @@
 #include "Application.hpp"
 
-namespace Tefrenout
+namespace Tefnout
 {
 
 void Application::Run()
@@ -10,4 +10,4 @@ void Application::Run()
     };
 }
 
-} // namespace Tefrenout
+} // namespace Tefnout

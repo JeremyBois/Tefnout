@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
-project("Tefrenout-Samples")
+project("Tefnout-Samples")
 
 # ------------------------------------------------------------------------------
 # Provide default for non multi-configuration generator (like Visual Studio)
@@ -40,9 +40,9 @@ endif()
 
 
 # ------------------------------------------------------------------------------
-# Engine (tefrenout) LIB
+# Engine LIB
 # ------------------------------------------------------------------------------
-add_subdirectory(Tefrenout)
+add_subdirectory(Tefnout)
 
 
 # ------------------------------------------------------------------------------
@@ -54,35 +54,35 @@ file(
     ${CMAKE_SOURCE_DIR}/Samples/src/*
 )
 add_executable(
-    tefrenout-samples ${samples_SOURCES}
+    tefnout-samples ${samples_SOURCES}
 )
 
 # See https://cmake.org/pipermail/cmake/2016-May/063400.html
-if (Tefrenout_BUILD_SHARED_LIBS)
+if (Tefnout_BUILD_SHARED_LIBS)
     # Shared lib need to know includes directories
     message("*** Using shared library.")
-    target_include_directories(tefrenout-samples
+    target_include_directories(tefnout-samples
         PRIVATE
-            ${CMAKE_SOURCE_DIR}/Tefrenout/src
+            ${CMAKE_SOURCE_DIR}/Tefnout/src
             ${GLM_INCLUDE_DIRS}
             ${CMAKE_SOURCE_DIR}/Samples/src
     )
 
     # Set pre processor command for Shared lib import
-    target_compile_definitions(tefrenout-samples
+    target_compile_definitions(tefnout-samples
     PRIVATE
-        TEFRENOUT_SHARED="USED"
+        TEFNOUT_SHARED="USED"
     )
 else()
     message("*** Using static library.")
-    target_include_directories(tefrenout-samples
+    target_include_directories(tefnout-samples
         PRIVATE
             ${CMAKE_SOURCE_DIR}/Samples/src
     )
 endif()
 
 
-set_target_properties(tefrenout-samples
+set_target_properties(tefnout-samples
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
@@ -92,7 +92,7 @@ set_target_properties(tefrenout-samples
     LINKER_LANGUAGE CXX
 )
 # Using dynamic or static lib based on previous flag (see ${MY_LIB_NAME})
-target_link_libraries(tefrenout-samples
+target_link_libraries(tefnout-samples
     PRIVATE
-      tefrenout
+      tefnout
 )

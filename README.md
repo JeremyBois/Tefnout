@@ -1,4 +1,4 @@
-# Tefrenout Engine
+# Tefnout Engine
 
 Cmake is used to generate the build files for any build tool.
 
@@ -19,7 +19,7 @@ Nothing to do.
 In order to reduce compilation time, pre-compiled `spdlog` is used. After u
 ```bash
 # Move to spdlog sub-module
-cd Tefrenout/vendors/spdlog/
+cd Tefnout/vendors/spdlog/
 # Create the build directory
 mkdir build && cd build
 # Prepare library installation

@@ -1,6 +1,6 @@
-[submodule "Tefrenout/vendors/glm"]
-	path = Tefrenout/vendors/glm
+[submodule "Tefnout/vendors/glm"]
+	path = Tefnout/vendors/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "Tefrenout/vendors/spdlog"]
-	path = Tefrenout/vendors/spdlog
+[submodule "Tefnout/vendors/spdlog"]
+	path = Tefnout/vendors/spdlog
 	url = https://github.com/gabime/spdlog.git
