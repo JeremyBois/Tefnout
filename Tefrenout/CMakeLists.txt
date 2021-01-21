@@ -50,15 +50,15 @@ set(GLM_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/glm)
 find_package(GLM REQUIRED)
 if(NOT GLM_FOUND)
     message(FATAL_ERROR "GLM library not found - Required for math")
+else()
+    message(STATUS "GLM included at ${GLM_INCLUDE_DIRS}")
 endif()
 
-# #
-# # Find SPDLOG
-# #
-# find_package(spdlog REQUIRED)
-# if(NOT SPDLOG_FOUND)
-#     message(FATAL_ERROR "Spdlog library not found - Required for logging")
-# endif()
+#
+# Find SPDLOG
+#
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendors/spdlog)
+find_package(spdlog REQUIRED)
 
 
 # ------------------------------------------------------------------------------
@@ -111,6 +111,12 @@ else()
             ${GLM_INCLUDE_DIRS}
     )
 endif()
+
+# Get
+target_link_libraries(${MY_LIB_NAME}
+    PRIVATE
+        spdlog::spdlog
+)
 
 set_target_properties(${MY_LIB_NAME}
     PROPERTIES
