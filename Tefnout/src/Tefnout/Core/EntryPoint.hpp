@@ -1,8 +1,6 @@
 #ifndef __ENTRYPOINT__HPP
 #define __ENTRYPOINT__HPP
 
-#include "Tefnout_macro.hpp" // Needed for macro definition
-
 #include "Application.hpp"
 #include "Logger.hpp"
 

@@ -1,6 +1,5 @@
-#ifndef __TEFNOUTMACRO__HPP
-#define __TEFNOUTMACRO__HPP
-
+#ifndef __PLATFORM__HPP
+#define __PLATFORM__HPP
 
 // More at
 // https://cmake.org/Wiki/BuildingWinDLL
@@ -48,14 +47,6 @@
     #define TEFNOUT_API
     #define TEFNOUT_LOCAL
 #endif // TEFNOUT_SHARED
-
-// STL
-// #include <string>
-#include <iostream>
-// #include <map>
-
-using std::cout;
-using std::endl;
 
 
 #endif

@@ -204,3 +204,14 @@ if (NOT CMAKE_CONFIGURATION_TYPES)  # Only for generator without multi-configura
             TEFNOUT_LOG_LEVEL=${TEFNOUT_LOG_LEVEL}
     )
 endif()
+
+
+
+# ------------------------------------------------------------------------------
+# Add a list of header files to precompile.
+# https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
+# ------------------------------------------------------------------------------
+target_precompile_headers(${Tefnout_LIB_NAME}
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/src/TefnoutPCH.hpp
+)

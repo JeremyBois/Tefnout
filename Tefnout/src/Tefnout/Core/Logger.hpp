@@ -1,15 +1,13 @@
 #ifndef __LOGGER__HPP
 #define __LOGGER__HPP
 
+#include "TefnoutPCH.hpp"
+
+#if !defined(TEFNOUT_LOG_LEVEL)
 // Define to enable / disable log function at compile time based on build type
 // See CmakeLists.txt for more information
-#include <bits/stdint-uintn.h>
-#if !defined(TEFNOUT_LOG_LEVEL)
 #define TEFNOUT_LOG_LEVEL TEFNOUT_LEVEL_INFO
 #endif
-
-#include "Tefnout_macro.hpp" // Needed for macro definition
-#include <memory>
 
 #include "spdlog/logger.h"
 #include "spdlog/spdlog.h"

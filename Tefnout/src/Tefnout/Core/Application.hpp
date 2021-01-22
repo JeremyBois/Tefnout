@@ -1,7 +1,7 @@
 #ifndef __APPLICATION__HPP
 #define __APPLICATION__HPP
 
-#include "Tefnout_macro.hpp" // Needed for macro definition
+#include "Platform.hpp"
 
 namespace Tefnout
 {

@@ -1,17 +1,14 @@
 #include "Logger.hpp"
-#include "spdlog/common.h"
-#include "spdlog/sinks/stdout_sinks.h"
-
-#include <memory>
 
 // This ignores all warnings raised inside External headers (for both clang and GCC)
 // https://nelkinda.com/blog/suppress-warnings-in-gcc-and-clang/#d11e364
 _Pragma("GCC diagnostic push")
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-    _Pragma("GCC diagnostic pop")
+_Pragma("GCC diagnostic pop")
 
-        namespace Tefnout
+
+namespace Tefnout
 {
     std::shared_ptr<spdlog::logger> Logger::s_EngineLogger;
     std::shared_ptr<spdlog::logger> Logger::s_UserLogger;
