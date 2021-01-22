@@ -13,10 +13,14 @@ git submodule update --init --recursive
 ```
 
 ### glm
+**LICENSE - MIT**
+
 Nothing to do.
 
 ### Spdlog
-In order to reduce compilation time, pre-compiled `spdlog` is used. After u
+**LICENSE - MIT**
+
+In order to reduce compilation time, pre-compiled `spdlog` is used.
 ```bash
 # Move to spdlog sub-module
 cd Tefnout/vendors/spdlog/
@@ -36,11 +40,11 @@ make install
   - header and source files should be in the same folder
   - folder are split based on themes / purposes
   - avoid `#pragma once` (not supported on every compilers)
-  - only upper case for macro
-  - camelCase for variables
-    - `variableName`
-  - pascalCase for type (structs, classes, ...)
-    - `TypeName`
+  - Naming convention
+    - only upper case for macro
+    - camelCase for variables like `variableName`
+    - pascalCase for type (structs, classes, ...) like `TypeName`
+    - prefix with `s_` static members like `s_StaticAttribute`
 
 `clangd` is used to run the clang formatter (see `.clang-format`)
 
@@ -64,4 +68,5 @@ The server need a `compile_commands.json` file to provide IDE features.
     # Add header information to compile commands for better completion
     compdb -p . list > ../compile_commands.json
 ```
+
 
