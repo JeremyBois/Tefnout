@@ -2,8 +2,14 @@ cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
 PROJECT("Tefnout")
 
 
+
+
+# ------------------------------------------------------------------------------
 # We need a CMAKE_DIR with some code to find external dependencies
+# ------------------------------------------------------------------------------
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules/")
+
+
 
 
 # ------------------------------------------------------------------------------
@@ -13,15 +19,15 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake-modules/
 # CMAKE_BUILD used only for single configuration
 if (NOT CMAKE_CONFIGURATION_TYPES)
     if(NOT CMAKE_BUILD_TYPE)
-          message("*** Setting build type to 'Debug' because none was specified.")
+          message(VERBOSE "*** Setting build type to 'Debug' because none was specified.")
           set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
           # Set the possible values of build type for cmake-gui
-          set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
+          set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "Distribution")
     endif()
 
     # Use clang if None exists
     if(NOT CMAKE_C_COMPILER)
-          message("*** Setting C compiler to 'clang' because none was specified.")
+          message(VERBOSE "*** Setting C compiler to 'clang' because none was specified.")
           set(CMAKE_C_COMPILER clang CACHE STRING "Choose the compiler." FORCE)
           # Set the possible values of build type for cmake-gui
           set_property(CACHE CMAKE_C_COMPILER PROPERTY STRINGS "clang" "gcc" "MSVC")
@@ -29,18 +35,21 @@ if (NOT CMAKE_CONFIGURATION_TYPES)
 
     # Use clang++ if None exists
     if(NOT CMAKE_CXX_COMPILER)
-          message("*** Setting C++ compiler to 'clang++' because none was specified.")
+          message(VERBOSE "*** Setting C++ compiler to 'clang++' because none was specified.")
           set(CMAKE_CXX_COMPILER clang++ CACHE STRING "Choose the compiler." FORCE)
           # Set the possible values of build type for cmake-gui
           set_property(CACHE CMAKE_CXX_COMPILER PROPERTY STRINGS "clang++" "gcc++" "MSVC")
     endif()
 
-    message("*** ${PROJECT_NAME} build as ${CMAKE_BUILD_TYPE}.")
-    message("*** C++ compiler is ${CMAKE_CXX_COMPILER} and C compiler is ${CMAKE_C_COMPILER}.")
+    message(STATUS "${PROJECT_NAME} build as ${CMAKE_BUILD_TYPE}.")
+    message(STATUS "C++ compiler is ${CMAKE_CXX_COMPILER} and C compiler is ${CMAKE_C_COMPILER}.")
 else()
     # Display information about the build parameters
-    message("*** ${PROJECT_NAME} will be build for multi-configuration generator (${CMAKE_CONFIGURATION_TYPES}")
+    message(STATUS "${PROJECT_NAME} will be build for multi-configuration generator (${CMAKE_CONFIGURATION_TYPES}")
 endif()
+
+
+
 
 
 # ------------------------------------------------------------------------------
@@ -60,21 +69,23 @@ endif()
 
 
 
+
 # ------------------------------------------------------------------------------
 # Find - SPDLOG
 # ------------------------------------------------------------------------------
 # Precompiled library (local)
 # https://github.com/gabime/spdlog/issues/1286
 set(Tefnout_SPDLOG_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/spdlog/build/install
-    CACHE STRING "Path of SPDLOG installation directory." FORCE)
-set(SPDLOG_DIR ${Tefnout_SPDLOG_ROOT_DIR})
+    CACHE FILEPATH "Path of SPDLOG installation directory." FORCE)
+set(spdlog_DIR ${Tefnout_SPDLOG_ROOT_DIR}/lib/cmake/spdlog)
 find_package(spdlog REQUIRED)
+message(STATUS "SPDLOG included at ${spdlog_DIR}")
 
 
 
 
 # ------------------------------------------------------------------------------
-# Create a static and shared library target.
+# Create a static or shared library target.
 # ------------------------------------------------------------------------------
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (Tefnout_BUILD_SHARED_LIBS "Build Shared Libraries" ON)
@@ -87,7 +98,7 @@ else()
 endif ()
 
 # Display information about the build parameters
-message("*** ${Tefnout_LIB_NAME} will be build as ${LIB_TYPE} library (${CMAKE_BUILD_TYPE})")
+message(STATUS "${Tefnout_LIB_NAME} will be build as ${LIB_TYPE} library (${CMAKE_BUILD_TYPE})")
 
 
 file(
@@ -139,20 +150,57 @@ set_target_properties(${Tefnout_LIB_NAME}
     LINKER_LANGUAGE CXX
 )
 
-# More warnings
+# Read only alias
+add_library(tefnout ALIAS ${Tefnout_LIB_NAME})
+
+
+
+
+# ------------------------------------------------------------------------------
+# Build options based on platform (Windows, Unix)
+# ------------------------------------------------------------------------------
 if (MSVC)
     # warning level 4 and all warnings as errors
     target_compile_options(${Tefnout_LIB_NAME}
-        PUBLIC /W4
-        # PUBLIC /WX
+        PUBLIC
+            /W4
+            # /WX
+    )
+    target_link_options(${MY_LIB_NAME}
+        PUBLIC
+            -MACHINE:x64
     )
 else()
     # lots of warnings and all warnings as errors
     target_compile_options(${Tefnout_LIB_NAME}
-        PUBLIC -Wall -Wextra -pedantic
-        # PUBLIC -Werror
+        PUBLIC
+            -Wall -Wextra -pedantic
+            -m64
+            # -Werror
     )
 endif()
 
-# Read only alias
-add_library(tefnout ALIAS ${Tefnout_LIB_NAME})
+
+
+
+# ------------------------------------------------------------------------------
+# Build options based on build type (Debug, Release, Distribution)
+# ------------------------------------------------------------------------------
+if (NOT CMAKE_CONFIGURATION_TYPES)  # Only for generator without multi-configurations
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(TEFNOUT_LOG_LEVEL 1)
+    endif()
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(TEFNOUT_LOG_LEVEL 3)
+    endif()
+    if(CMAKE_BUILD_TYPE STREQUAL "Distribution")
+        set(TEFNOUT_LOG_LEVEL 4)
+    endif()
+
+    message(STATUS "${Tefnout_LIB_NAME} logging level set to ${TEFNOUT_LOG_LEVEL} ${CMAKE_CPP_FLAGS}")
+
+    target_compile_definitions(${Tefnout_LIB_NAME}
+        PRIVATE
+            TEFNOUT_LOG_LEVEL=${TEFNOUT_LOG_LEVEL}
+    )
+endif()

@@ -1,10 +1,12 @@
 #ifndef __LOGGER__HPP
 #define __LOGGER__HPP
 
-// DISABLE / ENABLE macros based on TEFNOUT_ACTIVE_LEVEL
-// Define to enable / disable log function at compile time
-// #define TEFNOUT_ACTIVE_LEVEL SPDLOG_LEVEL_ERROR  // Release
-#define TEFNOUT_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE // Debug
+// Define to enable / disable log function at compile time based on build type
+// See CmakeLists.txt for more information
+#include <bits/stdint-uintn.h>
+#if !defined(TEFNOUT_LOG_LEVEL)
+#define TEFNOUT_LOG_LEVEL TEFNOUT_LEVEL_INFO
+#endif
 
 #include "Tefnout_macro.hpp" // Needed for macro definition
 #include <memory>
@@ -18,9 +20,6 @@ namespace Tefnout
 class TEFNOUT_API Logger
 {
   public:
-    Logger() = delete;
-    ~Logger() = delete;
-
     static void Init();
 
     inline static std::shared_ptr<spdlog::logger> &GetEngineLogger()
@@ -33,6 +32,9 @@ class TEFNOUT_API Logger
     }
 
   private:
+    Logger() = delete;
+    ~Logger() = delete;
+
     static std::shared_ptr<spdlog::logger> s_EngineLogger;
     static std::shared_ptr<spdlog::logger> s_UserLogger;
 };
@@ -40,86 +42,89 @@ class TEFNOUT_API Logger
 } // namespace Tefnout
 
 // General macro
-#define TEFNOUT_LOGGER_CALL(logger, level, ...)                                                                      \
+#define TEFNOUT_LOGGER_CALL(logger, level, ...)                                                                        \
     (logger)->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level, __VA_ARGS__)
 
+// Log levels
+#define TEFNOUT_LEVEL_TRACE 0
+#define TEFNOUT_LEVEL_DEBUG 1
+#define TEFNOUT_LEVEL_INFO 2
+#define TEFNOUT_LEVEL_WARN 3
+#define TEFNOUT_LEVEL_ERROR 4
+#define TEFNOUT_LEVEL_CRITICAL 5
+#define TEFNOUT_LEVEL_OFF 6
+
 // ENGINE LOGS
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE
-#define TEFNOUT_TRACE(...)                                                                                           \
-    TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::trace, __VA_ARGS__)
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_TRACE
+#define TEFNOUT_TRACE(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::trace, __VA_ARGS__)
 #else
 #define TEFNOUT_TRACE(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_DEBUG
-#define TEFNOUT_DEBUG(...)                                                                                           \
-    TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::debug, __VA_ARGS__)
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_DEBUG
+#define TEFNOUT_DEBUG(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::debug, __VA_ARGS__)
 #else
 #define TEFNOUT_DEBUG(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_INFO
-#define TEFNOUT_INFO(...)                                                                                            \
-    TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::info, __VA_ARGS__)
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_INFO
+#define TEFNOUT_INFO(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::info, __VA_ARGS__)
 #else
 #define TEFNOUT_INFO(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_WARN
-#define TEFNOUT_WARN(...)                                                                                            \
-    TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::warn, __VA_ARGS__)
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_WARN
+#define TEFNOUT_WARN(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::warn, __VA_ARGS__)
 #else
 #define TEFNOUT_WARN(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_ERROR
-#define TEFNOUT_ERROR(...)                                                                                           \
-    TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::err, __VA_ARGS__)
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_ERROR
+#define TEFNOUT_ERROR(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::err, __VA_ARGS__)
 #else
 #define TEFNOUT_ERROR(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_CRITICAL
-#define TEFNOUT_CRITICAL(...)                                                                                        \
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_CRITICAL
+#define TEFNOUT_CRITICAL(...)                                                                                          \
     TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetEngineLogger(), spdlog::level::critical, __VA_ARGS__)
 #else
 #define TEFNOUT_CRITICAL(...) (void)0
 #endif
 
 // USER LOGS
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_TRACE
 #define USER_TRACE(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetUserLogger(), spdlog::level::trace, __VA_ARGS__)
 #else
 #define USER_TRACE(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_DEBUG
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_DEBUG
 #define USER_DEBUG(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetUserLogger(), spdlog::level::debug, __VA_ARGS__)
 #else
 #define USER_DEBUG(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_INFO
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_INFO
 #define USER_INFO(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetUserLogger(), spdlog::level::info, __VA_ARGS__)
 #else
 #define USER_INFO(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_WARN
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_WARN
 #define USER_WARN(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetUserLogger(), spdlog::level::warn, __VA_ARGS__)
 #else
 #define USER_WARN(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_ERROR
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_ERROR
 #define USER_ERROR(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetUserLogger(), spdlog::level::err, __VA_ARGS__)
 #else
 #define USER_ERROR(...) (void)0
 #endif
 
-#if TEFNOUT_ACTIVE_LEVEL <= SPDLOG_LEVEL_CRITICAL
-#define USER_CRITICAL(...)                                                                                             \
-    TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetUserLogger(), spdlog::level::critical, __VA_ARGS__)
+#if TEFNOUT_LOG_LEVEL <= TEFNOUT_LEVEL_CRITICAL
+#define USER_CRITICAL(...) TEFNOUT_LOGGER_CALL(::Tefnout::Logger::GetUserLogger(), spdlog::level::critical, __VA_ARGS__)
 #else
 #define USER_CRITICAL(...) (void)0
 #endif
