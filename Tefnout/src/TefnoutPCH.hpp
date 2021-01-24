@@ -13,6 +13,7 @@
 #include "Tefnout/Core/Platform.hpp"
 
 // STL
+#include <stdint.h>
 #include <iostream>
 #include <string>
 

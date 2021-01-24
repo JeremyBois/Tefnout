@@ -1,4 +1,4 @@
-#include <Tefnout.hpp>
+#include "Tefnout.hpp"
 
 
 class SampleApp : public Tefnout::Application
