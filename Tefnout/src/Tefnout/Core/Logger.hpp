@@ -18,6 +18,9 @@ namespace Tefnout
 class TEFNOUT_API Logger
 {
   public:
+    /**
+     * @brief      Initializes internal loggers used in macro.
+     */
     static void Init();
 
     inline static std::shared_ptr<spdlog::logger> &GetEngineLogger()

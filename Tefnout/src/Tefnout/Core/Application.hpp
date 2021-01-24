@@ -5,6 +5,9 @@
 
 namespace Tefnout
 {
+/**
+ * @brief      Engine manager class.
+ */
 class TEFNOUT_API Application
 {
   public:
