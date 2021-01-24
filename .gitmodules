@@ -4,3 +4,6 @@
 [submodule "Tefnout/vendors/spdlog"]
 	path = Tefnout/vendors/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Tefnout/vendors/glfw"]
+	path = Tefnout/vendors/glfw
+	url = https://github.com/glfw/glfw.git
