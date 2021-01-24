@@ -37,14 +37,16 @@ make install
 
 ## General
 ## Code structure
-  - header and source files should be in the same folder
-  - folder are split based on themes / purposes
-  - avoid `#pragma once` (not supported on every compilers)
+  - Header and source files should be in the same folder
+  - Folder are split based on themes / purposes
+  - Avoid `#pragma once` (not supported on every compilers)
+  - `explicit` constructor by default
   - Naming convention
     - only upper case for macro
     - camelCase for variables like `variableName`
     - pascalCase for type (structs, classes, ...) like `TypeName`
     - prefix with `s_` static members like `s_StaticAttribute`
+    - prefix with `m_` private data to distinguish it from public data like `m_height`
 
 `clangd` is used to run the clang formatter (see `.clang-format`)
 
