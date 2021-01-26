@@ -7,6 +7,9 @@
 // Logging support
 #include "Tefnout/Core/Logger.hpp"
 
+// @TEMP
+#include "Tefnout/Container/RingBuffer.hpp"
+
 // Main entry point for application
 #include "Tefnout/Core/EntryPoint.hpp"
 // ------------------------------------
