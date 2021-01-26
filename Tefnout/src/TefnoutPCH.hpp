@@ -6,11 +6,12 @@
     Will be available in the whole project.
 */
 
+// @WARNINGS
 // Platform specific macros
-// WARNINGS
 // Should be manually included where macro is needed
 // because pre-processing happens before compilation
 #include "Tefnout/Core/Platform.hpp"
+// @WARNINGS
 
 // STL
 #include <stdint.h>
@@ -26,5 +27,9 @@
 // Thanks !
 using std::cout;
 using std::endl;
+
+
+// Debug tools should not be updated too often
+#include "Tefnout/Core/Logger.hpp"
 
 #endif

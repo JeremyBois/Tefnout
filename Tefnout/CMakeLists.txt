@@ -188,7 +188,7 @@ endif()
 # ------------------------------------------------------------------------------
 if (NOT CMAKE_CONFIGURATION_TYPES)  # Only for generator without multi-configurations
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(TEFNOUT_LOG_LEVEL 1)
+        set(TEFNOUT_LOG_LEVEL 0)
     endif()
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         set(TEFNOUT_LOG_LEVEL 3)
