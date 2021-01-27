@@ -30,8 +30,19 @@ enum class Response : uint32_t
 template <typename T, std::size_t TCapacity, bool TFlagConst> struct RingIterator;
 
 /**
- * @brief      Ring buffer as described in "Game programming patterns"
+ * @brief      A fixed size container keeping avantages of an array but also allowing to
+ *             queue element without any shifting (as with a linked list) using a cyclic
+ *             array as described in "Game programming patterns"
  *             (https://gameprogrammingpatterns.com/event-queue.html#a-ring-buffer).
+ *
+ *             Items are added to the head (Front) until the tail (Back). Item are removed
+ *             in a FIFO manner.
+ *
+ *             Looping over this structure will move from head to tail (forward) and tail
+ *             to head (backward)
+ *
+ * @note       Items can also be randomly accessed but without any guarantee that asked
+ *             index points to a valid memory address.
  *
  * @tparam     T          Type of stored elements
  * @tparam     TCapacity  Maximal container capacity
@@ -55,26 +66,51 @@ template <typename T, std::size_t TCapacity> class Ring
     {
     }
 
+    /**
+     * @brief      Get reference of the head item.
+     *
+     * @return     Const reference of the first item (head)
+     */
     const_reference Front() const
     {
         return m_container[m_head];
     }
 
+    /**
+     * @brief      Get reference of the tail item
+     *
+     * @return     Const reference of the last item (tail)
+     */
     const_reference Back() const
     {
         return m_container[m_tail];
     }
 
+    /**
+     * @brief      Get reference of the head item.
+     *
+     * @return     Mutable reference of the first item (head)
+     */
     reference Front()
     {
         return m_container[m_head];
     }
 
+    /**
+     * @brief      Get reference of the tail item
+     *
+     * @return     Mutable reference of the last item (tail)
+     */
     reference Back()
     {
         return m_container[m_tail];
     }
 
+    /**
+     * @brief      Pops oldest item from the queue.
+     *
+     * @return     The oldest item
+     */
     value_type Pop()
     {
         auto old_head = m_head;
@@ -82,13 +118,21 @@ template <typename T, std::size_t TCapacity> class Ring
         return m_container[old_head];
     }
 
-    Response TryPush(T obj)
+    /**
+     * @brief      Safe way to add a new item to the queue. Only added if not already
+     *             full.
+     *
+     * @param[in]  item  The item to enqueue
+     *
+     * @return     Buffer response indicating the operation result (@ref Response)
+     */
+    Response TryPush(T item)
     {
         auto response = Response::Unknown;
 
-        if (m_pendingSize != TCapacity)
+        if (!IsFull())
         {
-            m_container[m_tail] = obj;
+            m_container[m_tail] = item;
             UpdateTailAndSize();
             response = Response::Ok;
         }
@@ -102,12 +146,21 @@ template <typename T, std::size_t TCapacity> class Ring
         return response;
     }
 
-    Response Push(T obj)
+    /**
+     * @brief      Add a new item to the queue. In case of overflow, the oldest item is
+     *             discarded.
+     * @see        @ref TryPush for a safer version.
+     *
+     * @param[in]  item  The item to enqueue
+     *
+     * @return     Buffer response indicating the operation result (@ref Response)
+     */
+    Response Push(T item)
     {
-        m_container[m_tail] = obj;
+        m_container[m_tail] = item;
         auto response = Response::Unknown;
 
-        if (m_pendingSize != TCapacity)
+        if (!IsFull())
         {
             UpdateTailAndSize();
             response = Response::Ok;
@@ -127,26 +180,49 @@ template <typename T, std::size_t TCapacity> class Ring
         return response;
     }
 
+    /**
+     * @brief      Determines the number of queued items.
+     *
+     * @return     The number of item inside the queue.
+     */
     size_type Size()
     {
         return m_pendingSize;
     }
 
+    /**
+     * @brief      Determines if full.
+     *
+     * @return     True if full, False otherwise.
+     */
     bool IsFull()
     {
         return m_pendingSize == TCapacity;
     }
 
+    /**
+     * @brief      Determines if empty.
+     *
+     * @return     True if empty, False otherwise.
+     */
     bool IsEmpty()
     {
         return m_pendingSize == Zero;
     }
 
+    /**
+     * @brief      Determines if there is some pending item in the queue.
+     *
+     * @return     True if pending, False otherwise.
+     */
     bool IsPending()
     {
         return !IsEmpty();
     }
 
+    /**
+     * @brief      Reset the whole queue to initial state.
+     */
     void Clear()
     {
         m_container.clear();
@@ -231,7 +307,13 @@ template <typename T, std::size_t TCapacity> class Ring
 };
 
 /**
- * @brief      Iterator implementation for Ring as a bidirectionnal iterator.
+ * @brief      Iterator implementation for Ring as a bidirectionnal (mutable or constant)
+ *             iterator.
+ *
+ * @tparam     T           Type of items inside the container.
+ * @tparam     TCapacity   Size of the container.
+ * @tparam     TFlagConst  Version of the iterator to create : true for a constant, false
+ *                         for a mutable (default).
  */
 template <typename T, std::size_t TCapacity, bool TFlagConst = false> struct RingIterator
 {
