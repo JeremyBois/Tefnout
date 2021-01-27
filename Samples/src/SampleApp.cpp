@@ -37,12 +37,12 @@ Tefnout::Application* Tefnout::CreateApplication()
     }
     cout << endl;
 
-    // cout << "Loop over (const with iterator) from 0 to 4" << endl;
-    // for (auto it = buffer.cbegin(); it != buffer.cend(); it++)
-    // {
-    //     std::cout << *it << '\n';
-    // }
-    // cout << endl;
+    cout << "Loop over (const with iterator) from 0 to 4" << endl;
+    for (auto it = buffer.cbegin(); it != buffer.cend(); it++)
+    {
+        std::cout << *it << '\n';
+    }
+    cout << endl;
 
     // cout << "Loop in reverse order 4 to 0" << endl;
     // for (auto it = buffer.rbegin(); it != buffer.rend(); it++)

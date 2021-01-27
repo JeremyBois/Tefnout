@@ -5,6 +5,8 @@
 
 #include "Tefnout/Core/Logger.hpp"
 
+#include <type_traits>
+
 namespace Tefnout
 {
 namespace Buffer
@@ -19,28 +21,26 @@ enum class Response : uint32_t
 
 template <typename T, std::size_t TCapacity> class Ring
 {
+  private:
+    // Avoid implementing two iterator (const and non-const)
+    // https://stackoverflow.com/questions/2150192/how-to-avoid-code-duplication-implementing-const-and-non-const-iterators
+    template <bool TFlagConst> struct RingIterator;
+
   public:
     // Required alias for STL trait definition
     using size_type = std::size_t;
     using value_type = T;
     using reference = value_type &;
     using const_reference = const value_type &;
+    using iterator_category = std::random_access_iterator_tag;
 
-    typedef std::random_access_iterator_tag iterator_category;
-
-private:
     // Alias for all available iterators
-    template <typename TBufferPointerType> struct RingIterator;
+    using iterator = RingIterator<false>;
+    using const_iterator = RingIterator<true>;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    using iterator_type = RingIterator<Ring<T, TCapacity>>;
-    using const_iterator_type = RingIterator<const Ring<T, TCapacity>>;
-    using reverse_iterator_type = std::reverse_iterator<iterator_type>;
-    using const_reverse_iterator_type = std::reverse_iterator<const_iterator_type>;
-
-public:
-    // Using 1 for initial value of head removes the need to
-    // test at each insertion if buffer is empty
-    Ring() : m_head(0), m_tail(0), m_pendingSize(0)
+    Ring() : m_head(Zero), m_tail(Zero), m_pendingSize(Zero)
     {
     }
 
@@ -123,7 +123,7 @@ public:
 
     bool IsEmpty()
     {
-        return m_pendingSize == 0;
+        return m_pendingSize == Zero;
     }
 
     bool IsPending()
@@ -134,47 +134,47 @@ public:
     void Clear()
     {
         m_container.clear();
-        m_head = 0;
-        m_tail = 0;
-        m_pendingSize = 0;
+        m_head = Zero;
+        m_tail = Zero;
+        m_pendingSize = Zero;
     }
 
     // Be able to create iterator for our type
-    iterator_type begin()
+    iterator begin()
     {
-        return RingIterator(this, m_head, 0);
+        return iterator(this, m_head, Zero);
     }
-    iterator_type end()
+    iterator end()
     {
-        return RingIterator(this, m_head, m_pendingSize);
-    }
-
-    const_iterator_type cbegin() const
-    {
-        return RingIterator(this, m_head, 0);
-    }
-    const_iterator_type cend() const
-    {
-        return RingIterator(this, m_head, m_pendingSize);
+        return iterator(this, m_head, m_pendingSize);
     }
 
-    reverse_iterator_type rbegin()
+    const_iterator cbegin() const
     {
-        return RingIterator(this, m_tail, 0);
+        return const_iterator(this, m_head, Zero);
     }
-    reverse_iterator_type rend()
+    const_iterator cend() const
     {
-        return RingIterator(this, m_tail, m_pendingSize);
+        return const_iterator(this, m_head, m_pendingSize);
     }
 
-    const_reverse_iterator_type crbegin() const
-    {
-        return RingIterator(this, m_tail, 0);
-    }
-    const_reverse_iterator_type crend() const
-    {
-        return RingIterator(this, m_tail, m_pendingSize);
-    }
+    // reverse_iterator rbegin()
+    // {
+    //     return reverse_iterator(this, m_tail, Zero);
+    // }
+    // reverse_iterator rend()
+    // {
+    //     return reverse_iterator(this, m_tail, m_pendingSize);
+    // }
+
+    // const_reverse_iterator crbegin() const
+    // {
+    //     return RingIterator(this, m_tail, Zero);
+    // }
+    // const_reverse_iterator crend() const
+    // {
+    //     return RingIterator(this, m_tail, m_pendingSize);
+    // }
 
   private:
     // Thin wrapper around a raw array without overhead
@@ -182,6 +182,10 @@ public:
     size_type m_head;
     size_type m_tail;
     size_type m_pendingSize;
+
+    // Avoid casting from int to size_type each time
+    static const size_type One = size_type(1);
+    static const size_type Zero = size_type(0);
 
     reference operator[](size_type index)
     {
@@ -191,61 +195,69 @@ public:
 
     const_reference &operator[](size_type index) const
     {
-        const Ring<T, TCapacity>& itCons = *this;
         auto indexInBounds = index % TCapacity;
-        return const_cast<reference>(itCons[indexInBounds]);
-        // return const_cast<reference>(m_container[indexInBounds]);
+        return m_container[indexInBounds];
     }
 
     inline void UpdateHeadAndSize()
     {
-        m_head = (m_head + 1) % TCapacity;
+        m_head = (m_head + One) % TCapacity;
         --m_pendingSize;
     }
 
     inline void UpdateTailAndSize()
     {
-        m_tail = (m_tail + 1) % TCapacity;
+        m_tail = (m_tail + One) % TCapacity;
         ++m_pendingSize;
     }
 
     /**
      * @brief      Iterator implementation for Ring as a bidirectionnal iterator.
      */
-    template <typename TBufferPointerType = Ring<T, TCapacity>>
-    struct RingIterator
+    template <bool TFlagConst = false> struct RingIterator
     {
-        // STL friendly for optimization and algorithm selection using Traits
+      public:
+        // Iterator traits
+        // STL friendly for optimization and algorithm selection
         using iterator_category = std::bidirectional_iterator_tag;
         using difference_type = std::ptrdiff_t;
         using value_type = T;
-        using pointer = value_type *;
-        using reference = value_type &;
-        using const_reference = const value_type &;
-        using const_pointer = const value_type *;
 
-        RingIterator(TBufferPointerType *ptr, size_type head, size_type delta)
+        // Const or non-const based on boolean TFlagConst
+        // TFlagConst == true  --> const iterator
+        // TFlagConst == false --> iterator
+        using pointer = typename std::conditional_t<TFlagConst, value_type const *, value_type *>;
+        using reference = typename std::conditional_t<TFlagConst, value_type const &, value_type &>;
+
+        // Use flag to deduce correct type (const or non const buffer pointer version)
+        // Allow to remove explicit type in template argument
+        using buffer_pointer_type =
+            typename std::conditional_t<TFlagConst, const Ring<T, TCapacity> *,
+                                        Ring<T, TCapacity> *>;
+
+        RingIterator(buffer_pointer_type ptr, size_type head, size_type delta)
             : buffer_ptr(ptr), m_head(head), m_delta(delta)
         {
         }
 
+        // Allow conversion from non-const to const but not the other way
+        // preserving trivial construction
+        // More at https://quuxplusone.github.io/blog/2018/12/01/const-iterator-antipatterns/
+        template <bool WasConst, class = std::enable_if_t<TFlagConst || !WasConst>>
+        RingIterator(const RingIterator<WasConst> &rhs)
+            : buffer_ptr(rhs.buffer_ptr), m_head(m_head), m_delta(m_delta)
+        {
+        }
+
+        // @NOTE Const or non const based on template TFlagConst
         reference operator*()
         {
             // Item pointer
             return (*buffer_ptr)[m_head + m_delta];
         }
-        pointer operator->()
-        {
-            // Reference of item pointer
-            return &(operator*());
-        }
 
-        const_reference operator*() const
-        {
-            // Item pointer
-            return (*buffer_ptr)[m_head + m_delta];
-        }
-        const_pointer operator->() const
+        // @NOTE Const or non const based on template TFlagConst
+        pointer operator->()
         {
             // Reference of item pointer
             return &(operator*());
@@ -294,13 +306,13 @@ public:
 
         friend bool operator<(const RingIterator &a, const RingIterator &b)
         {
-                return (a.m_head + a.m_pendingSize < b.m_head + b.m_pendingSize);
+            return (a.m_head + a.m_pendingSize < b.m_head + b.m_pendingSize);
         }
         friend bool operator<=(const RingIterator &a, const RingIterator &b)
         {
-                return (a.m_head + a.m_pendingSize <= b.m_head + b.m_pendingSize);
+            return (a.m_head + a.m_pendingSize <= b.m_head + b.m_pendingSize);
         }
-        friend bool operator >(const RingIterator &a, const RingIterator &b)
+        friend bool operator>(const RingIterator &a, const RingIterator &b)
         {
             return !a->operator<=(b);
         }
@@ -310,11 +322,28 @@ public:
         }
 
       private:
-        TBufferPointerType *buffer_ptr;
+        buffer_pointer_type buffer_ptr;
         size_type m_head;
         size_type m_delta;
     };
 };
+
+// @TEST
+// Assert we CAN convert from const to const iterator
+static_assert(std::is_convertible_v<Ring<int, 5>::const_iterator, Ring<int, 5>::const_iterator>);
+// Assert we CAN convert from non-const to non-const iterator
+static_assert(std::is_convertible_v<Ring<int, 5>::iterator, Ring<int, 5>::iterator>);
+
+// Assert we CAN convert from non-const to const iterator
+static_assert(std::is_convertible_v<Ring<int, 5>::iterator, Ring<int, 5>::const_iterator>);
+// Assert we CANNOT convert from const to non-const iterator
+static_assert(not std::is_convertible_v<Ring<int, 5>::const_iterator, Ring<int, 5>::iterator>);
+
+// Both const and non-const construction are trivial
+static_assert(std::is_trivially_copy_constructible_v<Ring<int, 5>::const_iterator>);
+static_assert(std::is_trivially_copy_constructible_v<Ring<int, 5>::iterator>);
+// @TEST
+
 } // namespace Buffer
 } // namespace Tefnout
 // #include "Ring.hxx"
