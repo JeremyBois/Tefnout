@@ -62,7 +62,7 @@ template <typename T, std::size_t TCapacity> class Ring
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    Ring() : m_container({}), m_head(Zero), m_tail(Zero), m_pendingSize(Zero)
+    explicit Ring() : m_container({}), m_head(Zero), m_tail(Zero), m_pendingSize(Zero)
     {
     }
 
@@ -337,7 +337,7 @@ template <typename T, std::size_t TCapacity, bool TFlagConst = false> struct Rin
     using buffer_pointer_type =
         typename std::conditional_t<TFlagConst, const Ring<T, TCapacity> *, Ring<T, TCapacity> *>;
 
-    RingIterator(buffer_pointer_type ptr, size_type head, size_type delta)
+    explicit RingIterator(buffer_pointer_type ptr, size_type head, size_type delta)
         : buffer_ptr(ptr), m_head(head), m_delta(delta)
     {
     }
