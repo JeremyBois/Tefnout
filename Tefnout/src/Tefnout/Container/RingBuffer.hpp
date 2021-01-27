@@ -62,7 +62,7 @@ template <typename T, std::size_t TCapacity> class Ring
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    explicit Ring() : m_container({}), m_head(Zero), m_tail(Zero), m_pendingSize(Zero)
+    explicit Ring() : m_container({}), m_head(s_Zero), m_tail(s_Zero), m_pendingSize(s_Zero)
     {
     }
 
@@ -207,7 +207,7 @@ template <typename T, std::size_t TCapacity> class Ring
      */
     bool IsEmpty()
     {
-        return m_pendingSize == Zero;
+        return m_pendingSize == s_Zero;
     }
 
     /**
@@ -226,15 +226,15 @@ template <typename T, std::size_t TCapacity> class Ring
     void Clear()
     {
         m_container.clear();
-        m_head = Zero;
-        m_tail = Zero;
-        m_pendingSize = Zero;
+        m_head = s_Zero;
+        m_tail = s_Zero;
+        m_pendingSize = s_Zero;
     }
 
     // Be able to create iterator for our type
     iterator begin()
     {
-        return iterator(this, m_head, Zero);
+        return iterator(this, m_head, s_Zero);
     }
     iterator end()
     {
@@ -243,7 +243,7 @@ template <typename T, std::size_t TCapacity> class Ring
 
     const_iterator cbegin() const
     {
-        return const_iterator(this, m_head, Zero);
+        return const_iterator(this, m_head, s_Zero);
     }
     const_iterator cend() const
     {
@@ -252,7 +252,7 @@ template <typename T, std::size_t TCapacity> class Ring
 
     reverse_iterator rbegin()
     {
-        // return reverse_iterator(this, m_tail, Zero);
+        // return reverse_iterator(this, m_tail, s_Zero);
         return reverse_iterator(end());
     }
     reverse_iterator rend()
@@ -290,18 +290,18 @@ template <typename T, std::size_t TCapacity> class Ring
     size_type m_pendingSize;
 
     // Avoid casting from int to size_type each time
-    static const size_type One = size_type(1);
-    static const size_type Zero = size_type(0);
+    static const size_type s_One = size_type(1);
+    static const size_type s_Zero = size_type(0);
 
     inline void UpdateHeadAndSize()
     {
-        m_head = (m_head + One) % TCapacity;
+        m_head = (m_head + s_One) % TCapacity;
         --m_pendingSize;
     }
 
     inline void UpdateTailAndSize()
     {
-        m_tail = (m_tail + One) % TCapacity;
+        m_tail = (m_tail + s_One) % TCapacity;
         ++m_pendingSize;
     }
 };
