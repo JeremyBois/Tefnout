@@ -127,6 +127,11 @@ template <typename T, std::size_t TCapacity> class Ring
         return response;
     }
 
+    size_type Size()
+    {
+        return m_pendingSize;
+    }
+
     bool IsFull()
     {
         return m_pendingSize == TCapacity;
@@ -169,23 +174,25 @@ template <typename T, std::size_t TCapacity> class Ring
         return const_iterator(this, m_head, m_pendingSize);
     }
 
-    // reverse_iterator rbegin()
-    // {
-    //     return reverse_iterator(this, m_tail, Zero);
-    // }
-    // reverse_iterator rend()
-    // {
-    //     return reverse_iterator(this, m_tail, m_pendingSize);
-    // }
+    reverse_iterator rbegin()
+    {
+        // return reverse_iterator(this, m_tail, Zero);
+        return reverse_iterator(end());
+    }
+    reverse_iterator rend()
+    {
+        // return reverse_iterator(this, m_tail, m_pendingSize);
+        return reverse_iterator(begin());
+    }
 
-    // const_reverse_iterator crbegin() const
-    // {
-    //     return RingIterator(this, m_tail, Zero);
-    // }
-    // const_reverse_iterator crend() const
-    // {
-    //     return RingIterator(this, m_tail, m_pendingSize);
-    // }
+    const_reverse_iterator crbegin() const
+    {
+        return const_reverse_iterator(cend());
+    }
+    const_reverse_iterator crend() const
+    {
+        return const_reverse_iterator(cbegin());
+    }
 
     reference operator[](size_type index)
     {

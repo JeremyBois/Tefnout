@@ -25,8 +25,8 @@
 #include <vector>
 
 // Thanks !
-using std::cout;
-using std::endl;
+// using std::cout;
+// using std::endl;
 
 
 // Debug tools should not be updated too often
