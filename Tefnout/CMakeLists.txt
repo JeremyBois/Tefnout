@@ -174,7 +174,8 @@ else()
     # lots of warnings and all warnings as errors
     target_compile_options(${Tefnout_LIB_NAME}
         PUBLIC
-            -Wall -Wextra -pedantic
+            -Wall -Wextra -pedantic -Wwrite-strings
+            -Wno-parentheses -Warray-bounds -Weffc++ -Wstrict-aliasing
             -m64
             # -Werror
     )
