@@ -3,8 +3,14 @@
 #
 # Try to find GLM : OpenGL Mathematics.
 # This module defines
-# - GLM_INCLUDE_DIRS
-# - GLM_FOUND
+#
+#       GLM_INCLUDE_DIRS
+#       GLM_FOUND
+#
+# and the following target
+#
+#       glm::glm
+#
 #
 # The following variables can be set as arguments for the module to search in a specific
 # location first
@@ -21,26 +27,28 @@ include(FindPackageHandleStandardArgs)
 
 if (WIN32)
     # Find include files for Windows
-    find_path(
-        GLM_INCLUDE_DIR
-        NAMES glm/glm.hpp
+    find_path(GLM_INCLUDE_DIR
+        NAMES
+            glm/glm.hpp
+        HINTS
+            ${GLM_ROOT_DIR}
+            ${GLM_ROOT_DIR}/include
         PATHS
-        ${GLM_ROOT_DIR}
-        ${GLM_ROOT_DIR}/include
-        $ENV{PROGRAMFILES}/include
+            $ENV{PROGRAMFILES}/include
         DOC "The directory where glm/glm.hpp resides")
 else()
     # Find include files for UNIX
-    find_path(
-        GLM_INCLUDE_DIR
-        NAMES glm/glm.hpp
+    find_path(GLM_INCLUDE_DIR
+        NAMES
+            glm/glm.hpp
+        HINTS
+            ${GLM_ROOT_DIR}
+            ${GLM_ROOT_DIR}/include
         PATHS
-        ${GLM_ROOT_DIR}
-        ${GLM_ROOT_DIR}/include
-        /usr/include
-        /usr/local/include
-        /sw/include
-        /opt/local/include
+            /usr/include
+            /usr/local/include
+            /sw/include
+            /opt/local/include
         DOC "The directory where glm/glm.hpp resides")
 endif()
 
@@ -48,9 +56,16 @@ endif()
 find_package_handle_standard_args(GLM DEFAULT_MSG GLM_INCLUDE_DIR)
 
 # Define GLM_INCLUDE_DIRS
-if (GLM_FOUND)
+if (GLM_FOUND AND NOT TARGET glm::glm)
     set(GLM_INCLUDE_DIRS ${GLM_INCLUDE_DIR})
+
+    # Prepare target
+    add_library(glm::glm INTERFACE IMPORTED)
+
+    set_target_properties(glm::glm PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${GLM_INCLUDE_DIR}"
+    )
 endif()
 
 # Hide internal variables
-mark_as_advanced(GLM_INCLUDE_DIR)
+mark_as_advanced(GLM_INCLUDE_DIR GLM_FOUND)
