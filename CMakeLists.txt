@@ -61,13 +61,12 @@ add_executable(
 )
 
 # See https://cmake.org/pipermail/cmake/2016-May/063400.html
-if (Tefnout_BUILD_SHARED_LIBS)
+if (TEFNOUT_BUILD_SHARED_LIBS)
     # Shared lib need to know includes directories
     message(VERBOSE "Using shared library.")
     target_include_directories(tefnout-samples
         PRIVATE
             ${CMAKE_SOURCE_DIR}/Tefnout/src
-            ${GLM_INCLUDE_DIRS}
             ${CMAKE_SOURCE_DIR}/Samples/src
     )
 
@@ -97,7 +96,7 @@ set_target_properties(tefnout-samples
 # Using dynamic or static lib based on previous flag (see ${MY_LIB_NAME})
 target_link_libraries(tefnout-samples
     PRIVATE
-      tefnout
+      tefnout::tefnout
 )
 
 
