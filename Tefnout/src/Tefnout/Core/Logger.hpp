@@ -17,6 +17,9 @@
 
 #include "spdlog/logger.h"
 #include "spdlog/spdlog.h"
+// user defined types logging by implementing operator<<
+#include "spdlog/fmt/ostr.h" // must be included
+
 
 namespace Tefnout
 {
