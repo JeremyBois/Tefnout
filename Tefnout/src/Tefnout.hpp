@@ -7,6 +7,9 @@
 // Logging support
 #include "Tefnout/Core/Logger.hpp"
 
+// Window
+#include "Tefnout/Window/IWindow.hpp"
+
 // @TEMP
 #include "Tefnout/Container/RingBuffer.hpp"
 
