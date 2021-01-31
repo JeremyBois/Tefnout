@@ -48,7 +48,7 @@ constexpr int32_t toInt(const MouseCode mousecode)
  *
  * @return     Tefnout @ref MouseCode "MouseCode"
  */
-constexpr MouseCode fromGLFW(const int glfwMousecode)
+constexpr MouseCode MousecodeFromGLFW(const int glfwMousecode)
 {
     return static_cast<MouseCode>(glfwMousecode);
 }

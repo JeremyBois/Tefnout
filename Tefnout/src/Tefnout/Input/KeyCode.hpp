@@ -162,7 +162,7 @@ constexpr int32_t toInt(const KeyCode keycode)
  *
  * @return     Tefnout @ref KeyCode "KeyCode"
  */
-constexpr KeyCode fromGLFW(const int glfwKeycode)
+constexpr KeyCode KeycodeFromGLFW(const int glfwKeycode)
 {
     return static_cast<KeyCode>(glfwKeycode);
 }
