@@ -126,7 +126,7 @@ class IEvent
      *
      * @return     String representation of the event.
      */
-    virtual std::string ToString() const = 0;
+    virtual std::string ToString() const {return "IEvent";}
 };
 
 inline std::ostream &operator<<(std::ostream &os, const IEvent &event)
