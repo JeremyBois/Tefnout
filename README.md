@@ -3,11 +3,14 @@ A Game Engine project with a focus on learning more about architecture and advan
 
 Continuation of previous work at [SimpelGL](https://github.com/JeremyBois/SimpleGL) but architecture is rewritten from scratch.
 
+Currently only OpenGL is supported on both Windows and GNU/Linux.
 
 ## Getting started (Dev)
 ### Setup dependencies
   - `glm` - [Version 0.9.9.8](https://github.com/g-truc/glm/releases/tag/0.9.9.8)
   - `spdlog` - [Version v1.8.2](https://github.com/gabime/spdlog/releases/tag/v1.8.2)
+  - `OpenGL` - Core profil > 3.3
+  - `glfw3` - [Version 3.3.2](https://github.com/glfw/glfw/releases/tag/3.3.2)
 
 After getting the repository all sub-modules must be fetched then follow each specific dependency configuration below:
 ```bash
@@ -22,20 +25,68 @@ Nothing to do.
 #### Spdlog
 **LICENSE - MIT**
 
-In order to reduce compilation time, pre-compiled header for the `spdlog` dependency must be built first as below:
+In order to reduce compilation time, pre-compiled header for the `spdlog` dependency must be built first as below for both DEBUG and RELEASE targets. System library could also be used if already installed.
 ```bash
 # Move to spdlog sub-module
 cd Tefnout/vendors/spdlog/
 # Create the build directory
 mkdir build && cd build
-# Prepare library installation
-cmake .. -D CMAKE_BUILD_TYPE=Debug -D SPDLOG_BUILD_SHARED=OFF -D SPDLOG_FMT_EXTERNAL=ON -D SPDLOG_BUILD_EXAMPLE=OFF -D SPDLOG_BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=./install -D CMAKE_POSITION_INDEPENDENT_CODE=ON
-# Compile and install to build/install
-make install
+
+# Debug version
+cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Debug -D SPDLOG_BUILD_SHARED=OFF -D SPDLOG_FMT_EXTERNAL=ON -D SPDLOG_BUILD_EXAMPLE=OFF -D SPDLOG_BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=./install/Debug -D CMAKE_POSITION_INDEPENDENT_CODE=ON
+# Compile and install to build/install/Debug
+ninja install
+
+# Release version
+cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Release -D SPDLOG_BUILD_SHARED=OFF -D SPDLOG_FMT_EXTERNAL=ON -D SPDLOG_BUILD_EXAMPLE=OFF -D SPDLOG_BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=./install/Release -D CMAKE_POSITION_INDEPENDENT_CODE=ON
+# Compile and install to build/install/Release
+ninja install
 ```
 
+#### OPENGL
+As OpenGL is only a standard we still need to create the function pointers to each function at the driver level. As all card does not support the same ammount of features from the standard available functions are implemented by the manufactor. Of course retrieving them is [OS specific](https://www.khronos.org/opengl/wiki/Load_OpenGL_Functions) and its where **GLAD** shines.
+
+**GLAD** configuration used in this project is defined [here](http://glad.dav1d.de/#profile=core&specification=gl&api=gl%3D4.6&api=gles1%3Dnone&api=gles2%3Dnone&api=glsc2%3Dnone&language=c&loader=on) and as been generated using the following parameters
+  - Specification - OpenGL
+  - Language - C/C++
+  - gl API - 4.6
+  - Profile - Core
+  - Extensions - None
+
+This dependency is already inside the project, so you have nothing to do expect be sure that OpenGL is installed on your computer. The $4.6$ version is not strictly required and not forced by cmake script.
+```bash
+# Get current installed OpenGL core profil version on Linux
+glxinfo | grep "OpenGL core profile version"
+# On my computer --> OpenGL core profile version string: 4.6 (Core Profile) Mesa 20.3.3
+```
+
+If you have OpenGL you can now move on to [GLFW](#GLFW).
+
+
+#### GLFW
+To be able to build Tefnout without using pre-compiled library use the following `-D TEFNOUT_USE_PRECOMPILED_GLFW=OFF`. To use pre-compiled libraries continue reading.
+
+GLFW library could also be built first for both DEBUG and RELEASE targets using following commands. This step is optional but could improve compilation time.
+```bash
+# Move to spdlog sub-module
+cd Tefnout/vendors/glfw/
+# Create the build directory
+mkdir build && cd build
+
+# Debug version (Dynamic)
+cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Debug -D GLFW_BUILD_DOCS=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=./install/Debug
+# Compile and install to build/install/Debug
+ninja install
+
+# Release version (Dynamic)
+cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Release -D GLFW_BUILD_DOCS=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=./install/Release
+# Compile and install to build/install/Release
+ninja install
+```
+
+
 ### Build project
-First all dependencies must be fetched and correctly initialized as described in [Setup dependencies section](#setup-dependencies).
+First all dependencies must be fetched and correctly initialized as described in [Setup dependencies](#setup-dependencies) section.
 
 Then follow the instructions below to generate the build files for any build tool using Cmake.
 
@@ -51,6 +102,20 @@ cmake .. -G <build_tool>
 cmake .. -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json
 # On Linux using Make as build tool
 cmake .. -G "Unix Makefiles" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json
+```
+
+Cmake can also be used to build targets:
+```bash
+cd build
+
+# BUILD using 4 cores
+cmake --build . -j 4
+
+# CLEAN
+cmake --build . --target clean
+
+# REBUILD = CLEAN + BUILD
+cmake --build . -j 4 --clean-first
 ```
 
 
@@ -90,7 +155,15 @@ The server need a `compile_commands.json` file to provide IDE features.
     compdb -p . list > ../compile_commands.json
 ```
 
+To keep the project `compile_commands.json` synchronized with the one generated in the build folder one can use the following one liner:
+```bash
+cmake .. -G "Unix Makefiles" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json && cp ../compile_commands.json compile_commands.json
+```
+
+#### Side note
+`Ninja` appears to be more performant for incremental build than `make` where there is no difference in speed when compiling from scratch.
+
 ### Other
-`cmake` can build project configuration for every avaiblable tools. More information in the [Getting Started section](#getting-started).
+`cmake` can build project configuration for every avaiblable tools. More information in the [Getting Started](#getting-started-dev) section.
 
 
