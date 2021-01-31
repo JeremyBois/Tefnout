@@ -36,7 +36,8 @@ class KeyPressed : public IEvent
 
     std::string ToString() const override
     {
-        std::stringstream ss(m_prefixDebug);
+        std::stringstream ss;
+        ss << m_prefixDebug;
         ss << m_keycode;
         return ss.str();
     }
@@ -74,7 +75,8 @@ class KeyReleased : public IEvent
 
     std::string ToString() const override
     {
-        std::stringstream ss(m_prefixDebug);
+        std::stringstream ss;
+        ss << m_prefixDebug;
         ss << m_keycode;
         return ss.str();
     }
@@ -111,7 +113,8 @@ class KeyHeld : public IEvent
 
     std::string ToString() const override
     {
-        std::stringstream ss(m_prefixDebug);
+        std::stringstream ss;
+        ss << m_prefixDebug;
         ss << m_keycode;
         return ss.str();
     }

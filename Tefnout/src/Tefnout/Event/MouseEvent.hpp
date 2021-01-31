@@ -26,7 +26,8 @@ struct MouseOffset
 
     std::string ToString() const
     {
-        std::stringstream ss("MouseOffset(X=");
+        std::stringstream ss;
+        ss << "MouseOffset(X=";
         ss << X << ", Y=" << Y << ")";
         return ss.str();
     }
@@ -50,7 +51,8 @@ struct MousePosition
 
     std::string ToString() const
     {
-        std::stringstream ss("MousePosition(X=");
+        std::stringstream ss;
+        ss << "MousePosition(X=";
         ss << X << ", Y=" << Y << ")";
         return ss.str();
     }
@@ -87,7 +89,8 @@ class MouseButtonPressed : public IEvent
 
     std::string ToString() const override
     {
-        std::stringstream ss(m_prefixDebug);
+        std::stringstream ss;
+        ss << m_prefixDebug;
         ss << m_mousecode;
         return ss.str();
     }
@@ -124,7 +127,8 @@ class MouseButtonReleased : public IEvent
 
     std::string ToString() const override
     {
-        std::stringstream ss(m_prefixDebug);
+        std::stringstream ss;
+        ss << m_prefixDebug;
         ss << m_mousecode;
         return ss.str();
     }
@@ -162,7 +166,8 @@ class MouseScrolled : public IEvent
 
     std::string ToString() const override
     {
-        std::stringstream ss(m_prefixDebug);
+        std::stringstream ss;
+        ss << m_prefixDebug;
         ss << m_offset;
         return ss.str();
     }
@@ -200,7 +205,8 @@ class MouseMoved : public IEvent
 
     std::string ToString() const override
     {
-        std::stringstream ss(m_prefixDebug);
+        std::stringstream ss;
+        ss << m_prefixDebug;
         ss << m_position;
         return ss.str();
     }

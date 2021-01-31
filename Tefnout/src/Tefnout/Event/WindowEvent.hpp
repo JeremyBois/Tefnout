@@ -43,7 +43,8 @@ class WindowResized : public IEvent
 
     std::string ToString() const override
     {
-        std::stringstream ss{"WindowResize Event - "};
+        std::stringstream ss;
+        ss << "WindowResize Event - ";
         ss << m_width << ", " << m_height;
         return ss.str();
     }
