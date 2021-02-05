@@ -44,9 +44,14 @@ ninja install
 ```
 
 #### OPENGL
+**LICENSE - Apache Version 2.0**
+
 As OpenGL is only a standard we still need to create the function pointers to each function at the driver level. As all card does not support the same ammount of features from the standard available functions are implemented by the manufactor. Of course retrieving them is [OS specific](https://www.khronos.org/opengl/wiki/Load_OpenGL_Functions) and its where **GLAD** shines.
 
-**GLAD** configuration used in this project is defined [here](http://glad.dav1d.de/#profile=core&specification=gl&api=gl%3D4.6&api=gles1%3Dnone&api=gles2%3Dnone&api=glsc2%3Dnone&language=c&loader=on) and as been generated using the following parameters
+#### GLAD
+**LICENSE - WTFPL**
+
+configuration used in this project is defined [here](http://glad.dav1d.de/#profile=core&specification=gl&api=gl%3D4.6&api=gles1%3Dnone&api=gles2%3Dnone&api=glsc2%3Dnone&language=c&loader=on) and as been generated using the following parameters
   - Specification - OpenGL
   - Language - C/C++
   - gl API - 4.6
@@ -64,6 +69,8 @@ If you have OpenGL you can now move on to [GLFW](#GLFW).
 
 
 #### GLFW
+**LICENSE - zlib-libpng**
+
 To be able to build Tefnout without using pre-compiled library use the following `-D TEFNOUT_USE_PRECOMPILED_GLFW=OFF`. To use pre-compiled libraries continue reading.
 
 GLFW library could also be built first for both DEBUG and RELEASE targets using following commands. This step is optional but could improve compilation time.
