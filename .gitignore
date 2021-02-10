@@ -110,3 +110,8 @@ logs
 
 # Clangd
 compile_commands.json
+
+# Tools
+Tools/Purger
+Tools/*.hi
+Tools/*.o

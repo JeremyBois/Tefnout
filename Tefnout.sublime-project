@@ -12,6 +12,10 @@
 			"clangd":
 			{
 				"enabled": true
+			},
+			"haskell-language-server":
+			{
+				"enabled": true
 			}
 		},
 		"hide_default_completions": true
