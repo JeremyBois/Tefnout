@@ -1,9 +1,10 @@
 #include "WindowFactory.hpp"
 
-#ifdef __GNUC__
+#if defined _WIN32 || defined __GNUC__
 #include "Tefnout/Window/GLFWBackend.hpp"
 #else
-#include "Tefnout/Window/GLFWBackend.hpp"
+#include "Tefnout/Core/Logger.hpp"
+#include "Tefnout/Window/NullBackend.hpp"
 #endif
 
 namespace Tefnout
@@ -13,9 +14,11 @@ namespace Window
 
 std::unique_ptr<IWindow> Create(const GenericProperties &properties)
 {
-#ifdef __GNUC__
+#if defined _WIN32 || defined __GNUC__
     return std::make_unique<GLFWBackend>(properties);
 #else
+    TEFNOUT_ERROR("NullBackend service will be used. Rendering not supported on this platform.");
+    return std::make_unique<NullBackend>();
 #endif
 }
 } // namespace Window
