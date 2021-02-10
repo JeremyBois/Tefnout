@@ -3,14 +3,19 @@ A Game Engine project with a focus on learning more about architecture and advan
 
 Continuation of previous work at [SimpelGL](https://github.com/JeremyBois/SimpleGL) but architecture is rewritten from scratch.
 
-Currently only OpenGL is supported on both Windows and GNU/Linux.
+Currently only OpenGL is supported on both Windows and GNU/Linux but Vulkan is planned.
 
 ## Getting started (Dev)
 ### Setup dependencies
+Engine:
   - `glm` - [Version 0.9.9.8](https://github.com/g-truc/glm/releases/tag/0.9.9.8)
   - `spdlog` - [Version v1.8.2](https://github.com/gabime/spdlog/releases/tag/v1.8.2)
   - `OpenGL` - Core profil > 3.3
   - `glfw3` - [Version 3.3.2](https://github.com/glfw/glfw/releases/tag/3.3.2)
+
+Tests only:
+  - `Catch2` - [Version v2.14.3](https://github.com/catchorg/Catch2/releases/tag/v2.13.4)
+
 
 After getting the repository all sub-modules must be fetched then follow each specific dependency configuration below:
 ```bash
@@ -18,12 +23,12 @@ git submodule update --init --recursive
 ```
 
 #### glm
-**LICENSE - MIT**
+**LICENSE - [MIT](https://github.com/g-truc/glm/blob/master/copying.txt)**
 
 Nothing to do.
 
 #### Spdlog
-**LICENSE - MIT**
+**LICENSE - [MIT](https://github.com/gabime/spdlog/blob/v1.x/LICENSE)**
 
 In order to reduce compilation time, pre-compiled header for the `spdlog` dependency must be built first as below for both DEBUG and RELEASE targets. System library could also be used if already installed.
 ```bash
@@ -44,12 +49,12 @@ ninja install
 ```
 
 #### OPENGL
-**LICENSE - Apache Version 2.0**
+**LICENSE - [Apache Version 2.0](https://github.com/KhronosGroup/OpenGL-Registry/issues/376#)**
 
 As OpenGL is only a standard we still need to create the function pointers to each function at the driver level. As all card does not support the same ammount of features from the standard available functions are implemented by the manufactor. Of course retrieving them is [OS specific](https://www.khronos.org/opengl/wiki/Load_OpenGL_Functions) and its where **GLAD** shines.
 
 #### GLAD
-**LICENSE - WTFPL**
+**LICENSE - [MIT](https://github.com/Dav1dde/glad/blob/master/LICENSE)**
 
 configuration used in this project is defined [here](http://glad.dav1d.de/#profile=core&specification=gl&api=gl%3D4.6&api=gles1%3Dnone&api=gles2%3Dnone&api=glsc2%3Dnone&language=c&loader=on) and as been generated using the following parameters
   - Specification - OpenGL
@@ -68,8 +73,8 @@ glxinfo | grep "OpenGL core profile version"
 If you have OpenGL you can now move on to [GLFW](#GLFW).
 
 
-#### GLFW
-**LICENSE - zlib-libpng**
+#### GLFW3
+**LICENSE - [zlib](https://github.com/glfw/glfw/blob/master/LICENSE.md)**
 
 To be able to build Tefnout without using pre-compiled library use the following `-D TEFNOUT_USE_PRECOMPILED_GLFW=OFF`. To use pre-compiled libraries continue reading.
 
@@ -77,6 +82,7 @@ GLFW library could also be built first for both DEBUG and RELEASE targets using 
 ```bash
 # Move to spdlog sub-module
 cd Tefnout/vendors/glfw/
+
 # Create the build directory
 mkdir build && cd build
 
@@ -91,6 +97,11 @@ cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Release -D GLFW_BUILD_DOCS=OFF -D GLFW_B
 ninja install
 ```
 
+#### Catch2
+**LICENSE - [Boost Software License 1.0](https://github.com/catchorg/Catch2/blob/devel/LICENSE.txt)**
+
+Nothing to do.
+
 
 ### Build project
 First all dependencies must be fetched and correctly initialized as described in [Setup dependencies](#setup-dependencies) section.
@@ -100,16 +111,15 @@ Then follow the instructions below to generate the build files for any build too
 ```bash
 # 1) Be sure dependencies are correctly setup
 
-# 2) Create a build folder
-mkdir build && cd build
-
-# 3) Build project configuration for your editor of choice
-cmake .. -G <build_tool>
-# On Linux using Ninja as build tool
-cmake .. -G "Ninja" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json
-# On Linux using Make as build tool
-cmake .. -G "Unix Makefiles" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json
+# 2) Build project configuration for your editor of choice
+cmake -G <build_tool> -B "./build" -S "."
+# make
+cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
+# Create ninja
+cmake -G "Ninja" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
 ```
+
+In order to also build tests add the `-D TEFNOUT_BUILD_TESTING=ON` to the command above or update the Cmake cache in the build directory (`CmakeCache.txt`).
 
 Cmake can also be used to build targets:
 ```bash
@@ -130,7 +140,7 @@ cmake --build . -j 4 --clean-first
 ### Code structure
   - Header and source files should be in the same folder
   - Folder are split based on themes / purposes
-  - Avoid `#pragma once` (not supported on every compilers)
+  - Avoid `#pragma once` (not supported on every compilers) and does not allow headers aggregation
   - `explicit` constructor by default
   - Naming convention
     - only upper case for macro
@@ -144,40 +154,27 @@ cmake --build . -j 4 --clean-first
 
 ### Sublime-text / Vscode
 I use the `clangd LSP server` for code completion and other features.
-The server need a `compile_commands.json` file to provide IDE features.
+The language server need a `compile_commands.json` file to provide IDE features.
 
-`cmake` can built this file for us with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`. Header information also added using `compdb` as described below:
+The following step are needed in order to make IDE features works nicely
+  - Use Cmake to generate the needed `compile_commands.json`
+  - Add header information using [compdb](https://github.com/Sarcasm/compdb)
+  - Keep build and project `compile_commands.json` in sync
+
+The one liner below group all steps in a single command and **must be run from the project root directory**:
+  1. Create build directory is needed
+  2. Use local `CmakeLists.txt` as configuration for Cmake
+  3. Generate makefiles for all targets
+  4. Generate the compilation database
+  5. Update database with header information
+  6. Copy database to project folder to keep both in sync
+
 ```bash
-    # When INSIDE the build directory
-    cd build/
+# WITHOUT tests
+cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p ./build list > compile_commands.json && cp compile_commands.json ./build/compile_commands.json
 
-    # Cmake template
-    cmake .. -G <build_generator> -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
-    # Cmake with Ninja
-    cmake .. -G "Ninja" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
-    # Cmake with Make
-    cmake .. -G "Unix Makefiles" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
-    # Add header information to compile commands (in build folder) for better completion
-    compdb -p . list > ../compile_commands.json
-
-    # Ween OUTSIDE the build directory
-    # Cmake template
-    cmake -G <build_generator> -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON build
-    # Cmake with Ninja
-    cmake -G "Ninja" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON build
-    # Cmake with Make
-    cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON build
-    # Add header information to compile commands (in project folder) for better completion
-    compdb -p ./build list > compile_commands.json
-```
-
-To keep the project `compile_commands.json` synchronized with the one generated in the build folder one can use the following one liner:
-```bash
-# Inside the build directory
-cmake .. -G "Unix Makefiles" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json && cp ../compile_commands.json compile_commands.json
-
-# Inside the root directory (build folder automatically created)
-cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p ./build list > compile_commands.json && cp compile_commands.json build/compile_commands.json
+# WITH tests
+cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON -D TEFNOUT_BUILD_TESTING=ON && compdb -p ./build list > compile_commands.json && cp compile_commands.json ./build/compile_commands.json
 ```
 
 #### Side note
