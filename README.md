@@ -106,9 +106,9 @@ mkdir build && cd build
 # 3) Build project configuration for your editor of choice
 cmake .. -G <build_tool>
 # On Linux using Ninja as build tool
-cmake .. -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json
+cmake .. -G "Ninja" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json
 # On Linux using Make as build tool
-cmake .. -G "Unix Makefiles" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json
+cmake .. -G "Unix Makefiles" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json
 ```
 
 Cmake can also be used to build targets:
@@ -148,23 +148,36 @@ The server need a `compile_commands.json` file to provide IDE features.
 
 `cmake` can built this file for us with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`. Header information also added using `compdb` as described below:
 ```bash
-    # Go into the build directory (create it if needed)
+    # When INSIDE the build directory
     cd build/
 
     # Cmake template
-    cmake .. -G <build_generator> -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    cmake .. -G <build_generator> -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
     # Cmake with Ninja
-    cmake .. -G "Ninja" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    cmake .. -G "Ninja" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
     # Cmake with Make
-    cmake .. -G "Unix Makefiles" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-
-    # Add header information to compile commands for better completion
+    cmake .. -G "Unix Makefiles" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
+    # Add header information to compile commands (in build folder) for better completion
     compdb -p . list > ../compile_commands.json
+
+    # Ween OUTSIDE the build directory
+    # Cmake template
+    cmake -G <build_generator> -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON build
+    # Cmake with Ninja
+    cmake -G "Ninja" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON build
+    # Cmake with Make
+    cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON build
+    # Add header information to compile commands (in project folder) for better completion
+    compdb -p ./build list > compile_commands.json
 ```
 
 To keep the project `compile_commands.json` synchronized with the one generated in the build folder one can use the following one liner:
 ```bash
-cmake .. -G "Unix Makefiles" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json && cp ../compile_commands.json compile_commands.json
+# Inside the build directory
+cmake .. -G "Unix Makefiles" -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p . list > ../compile_commands.json && cp ../compile_commands.json compile_commands.json
+
+# Inside the root directory (build folder automatically created)
+cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON && compdb -p ./build list > compile_commands.json && cp compile_commands.json build/compile_commands.json
 ```
 
 #### Side note
