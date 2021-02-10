@@ -24,7 +24,8 @@ enum class Response : uint32_t
 {
     Unknown = 0,
     Ok = 1,
-    Overflow = 2
+    Overflow = 2,
+    Abort = 3
 };
 
 template <typename T, std::size_t TCapacity, bool TFlagConst> struct RingIterator;
@@ -62,7 +63,7 @@ template <typename T, std::size_t TCapacity> class Ring
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    explicit Ring() : m_container({}), m_head(s_Zero), m_tail(s_Zero), m_pendingSize(s_Zero)
+    explicit Ring() : m_container({}), m_head(s_One), m_tail(s_Zero), m_pendingSize(s_Zero)
     {
     }
 
@@ -132,15 +133,16 @@ template <typename T, std::size_t TCapacity> class Ring
 
         if (!IsFull())
         {
-            m_container[m_tail] = item;
             UpdateTailAndSize();
             response = Response::Ok;
+            m_container[m_tail] = item;
+            // TEFNOUT_DEBUG("tail={1} head={2} (pending = {0})", m_pendingSize, m_tail, m_head);
         }
         else
         {
             // Do nothing
-            TEFNOUT_ERROR("Overflow of Ring occurs (TCapacity = {0})", TCapacity);
-            response = Response::Overflow;
+            TEFNOUT_ERROR("Nothing pushed to avoid an overflow (TCapacity = {0})", TCapacity);
+            response = Response::Abort;
         }
 
         return response;
@@ -157,7 +159,6 @@ template <typename T, std::size_t TCapacity> class Ring
      */
     Response Push(T item)
     {
-        m_container[m_tail] = item;
         auto response = Response::Unknown;
 
         if (!IsFull())
@@ -175,7 +176,8 @@ template <typename T, std::size_t TCapacity> class Ring
             response = Response::Overflow;
         }
 
-        TEFNOUT_DEBUG("tail={1} head={2} (pending = {0})", m_pendingSize, m_tail, m_head);
+        m_container[m_tail] = item;
+        // TEFNOUT_DEBUG("tail={1} head={2} (pending = {0})", m_pendingSize, m_tail, m_head);
 
         return response;
     }
@@ -226,7 +228,7 @@ template <typename T, std::size_t TCapacity> class Ring
     void Clear()
     {
         m_container.clear();
-        m_head = s_Zero;
+        m_head = s_One;
         m_tail = s_Zero;
         m_pendingSize = s_Zero;
     }
@@ -252,12 +254,10 @@ template <typename T, std::size_t TCapacity> class Ring
 
     reverse_iterator rbegin()
     {
-        // return reverse_iterator(this, m_tail, s_Zero);
         return reverse_iterator(end());
     }
     reverse_iterator rend()
     {
-        // return reverse_iterator(this, m_tail, m_pendingSize);
         return reverse_iterator(begin());
     }
 
