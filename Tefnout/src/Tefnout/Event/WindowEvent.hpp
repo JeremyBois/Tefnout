@@ -18,7 +18,7 @@ class WindowResized : public IEvent
 {
   public:
     explicit WindowResized(uint32_t width, uint32_t height)
-        : m_info(Information(Category::Window, Kind::WindowClosed, "WindowResized")),
+        : m_info(Information(Category::Window, Kind::WindowResized, "WindowResized")),
           m_width(width), m_height(height)
     {
     }
