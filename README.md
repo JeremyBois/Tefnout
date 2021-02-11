@@ -1,9 +1,21 @@
 # Tefnout Engine
 A Game Engine project with a focus on learning more about architecture and advanced concept of C++ like implementing STL compliant classes (see `Tefnout::Buffer::Ring` as an example).
 
-Continuation of previous work at [SimpelGL](https://github.com/JeremyBois/SimpleGL) but architecture is rewritten from scratch.
+Continuation of previous work at [SimpelGL](https://github.com/JeremyBois/SimpleGL) but the architecture is rewritten from scratch.
 
 Currently only OpenGL is supported on both Windows and GNU/Linux but Vulkan is planned.
+
+**What I am currently working on:**
+  - OpenGL 2D rendering pipeline (VertexArray, FrameBuffer, Renderer, Texture, Shader)
+  - Abstract 2D renderer (because I want OpenGL and Vulkan support)
+  - GUI with [ImGui](https://github.com/ocornut/imgui)
+  - ECS based on [Sparse set](https://www.geeksforgeeks.org/sparse-set/)
+
+**What is planned:**
+  - Vulkan support
+  - Continuous integration testing with Circle CI
+
+
 
 ## Getting started (Dev)
 ### Setup dependencies
@@ -17,7 +29,7 @@ Tests only:
   - `Catch2` - [Version v2.14.3](https://github.com/catchorg/Catch2/releases/tag/v2.13.4)
 
 
-After getting the repository all sub-modules must be fetched then follow each specific dependency configuration below:
+After getting the repository all sub-modules must be fetched. Then you can follow each specific dependency configuration as described below:
 ```bash
 git submodule update --init --recursive
 ```
@@ -51,7 +63,7 @@ ninja install
 #### OPENGL
 **LICENSE - [Apache Version 2.0](https://github.com/KhronosGroup/OpenGL-Registry/issues/376#)**
 
-As OpenGL is only a standard we still need to create the function pointers to each function at the driver level. As all card does not support the same ammount of features from the standard available functions are implemented by the manufactor. Of course retrieving them is [OS specific](https://www.khronos.org/opengl/wiki/Load_OpenGL_Functions) and its where **GLAD** shines.
+As OpenGL is only a standard we still need to create the function pointers to each function at the driver level. However All cards do not support the same ammount of features from the standard. Then available functions must be implemented by the manufactor. Of course retrieving them is [OS specific](https://www.khronos.org/opengl/wiki/Load_OpenGL_Functions) and its where **GLAD** shines.
 
 #### GLAD
 **LICENSE - [MIT](https://github.com/Dav1dde/glad/blob/master/LICENSE)**
@@ -161,7 +173,7 @@ The following step are needed in order to make IDE features works nicely
   - Add header information using [compdb](https://github.com/Sarcasm/compdb)
   - Keep build and project `compile_commands.json` in sync
 
-The one liner below group all steps in a single command and **must be run from the project root directory**:
+The one liner below performs all steps in a single command and **must be run from the project root directory**:
   1. Create build directory is needed
   2. Use local `CmakeLists.txt` as configuration for Cmake
   3. Generate makefiles for all targets
