@@ -15,7 +15,7 @@ namespace Event
 /**
  * @brief      Container for mouse offset.
  */
-struct MouseOffset
+struct TEFNOUT_API MouseOffset
 {
   public:
     explicit MouseOffset(double xOffset, double yOffset) : X(xOffset), Y(yOffset)
@@ -41,7 +41,7 @@ inline std::ostream &operator<<(std::ostream &os, const MouseOffset &offset)
 /**
  * @brief      Container for mouse position.
  */
-struct MousePosition
+struct TEFNOUT_API MousePosition
 {
     explicit MousePosition(double xPosition, double yPosition) : X(xPosition), Y(yPosition)
     {
@@ -63,7 +63,7 @@ inline std::ostream &operator<<(std::ostream &os, const MousePosition &position)
     return os << position.ToString();
 }
 
-class MouseButtonPressed : public IEvent
+class TEFNOUT_API MouseButtonPressed : public IEvent
 {
   public:
     explicit MouseButtonPressed(Input::MouseCode mousecode)
@@ -101,7 +101,7 @@ class MouseButtonPressed : public IEvent
 
     static constexpr auto m_prefixDebug = "MouseButtonPressed Event - ";
 };
-class MouseButtonReleased : public IEvent
+class TEFNOUT_API MouseButtonReleased : public IEvent
 {
   public:
     explicit MouseButtonReleased(Input::MouseCode mousecode)
@@ -140,7 +140,7 @@ class MouseButtonReleased : public IEvent
     static constexpr auto m_prefixDebug = "MouseButtonReleased Event - ";
 };
 
-class MouseScrolled : public IEvent
+class TEFNOUT_API MouseScrolled : public IEvent
 {
   public:
     explicit MouseScrolled(MouseOffset offset)
@@ -179,7 +179,7 @@ class MouseScrolled : public IEvent
     static constexpr auto m_prefixDebug = "MouseScrolled Event - ";
 };
 
-class MouseMoved : public IEvent
+class TEFNOUT_API MouseMoved : public IEvent
 {
   public:
     explicit MouseMoved(MousePosition position)

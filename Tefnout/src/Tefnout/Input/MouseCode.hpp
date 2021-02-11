@@ -12,7 +12,7 @@ namespace Input
  * @brief      Mouse code as describe in GLFW
  * Mirror https://github.com/glfw/glfw/blob/master/include/GLFW/glfw3.h
  */
-enum class MouseCode : uint32_t
+enum class TEFNOUT_API MouseCode : uint32_t
 {
     Button_1 = 0,
     Button_2 = 1,
@@ -36,7 +36,7 @@ enum class MouseCode : uint32_t
  *
  * @return     Integer representation of the @
  */
-constexpr int32_t toInt(const MouseCode mousecode)
+TEFNOUT_API constexpr int32_t toInt(const MouseCode mousecode)
 {
     return static_cast<int32_t>(mousecode);
 }
@@ -48,7 +48,7 @@ constexpr int32_t toInt(const MouseCode mousecode)
  *
  * @return     Tefnout @ref MouseCode "MouseCode"
  */
-constexpr MouseCode MousecodeFromGLFW(const int glfwMousecode)
+TEFNOUT_API constexpr MouseCode MousecodeFromGLFW(const int glfwMousecode)
 {
     return static_cast<MouseCode>(glfwMousecode);
 }

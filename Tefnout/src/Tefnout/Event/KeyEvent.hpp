@@ -11,7 +11,7 @@ namespace Tefnout
 {
 namespace Event
 {
-class KeyPressed : public IEvent
+class TEFNOUT_API KeyPressed : public IEvent
 {
   public:
     explicit KeyPressed(Input::KeyCode keycode)
@@ -49,7 +49,7 @@ class KeyPressed : public IEvent
     static constexpr auto m_prefixDebug = "KeyPressed Event - ";
 };
 
-class KeyReleased : public IEvent
+class TEFNOUT_API KeyReleased : public IEvent
 {
   public:
     explicit KeyReleased(Input::KeyCode keycode)
@@ -88,7 +88,7 @@ class KeyReleased : public IEvent
     static constexpr auto m_prefixDebug = "KeyReleased Event - ";
 };
 
-class KeyHeld : public IEvent
+class TEFNOUT_API KeyHeld : public IEvent
 {
   public:
     explicit KeyHeld(Input::KeyCode keycode)

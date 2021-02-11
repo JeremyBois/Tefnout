@@ -49,7 +49,7 @@ void Application::OnWindowEvent(Event::IEvent &event)
     switch (eventInformation.Type)
     {
     case Event::Kind::WindowClosed: {
-        m_running = false;
+        Close();
         break;
     }
     default:

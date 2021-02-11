@@ -20,7 +20,7 @@ namespace Buffer
 //      - https://stackoverflow.com/questions/3899223/what-is-a-non-trivial-constructor-in-c
 // @REFERENCE
 
-enum class Response : uint32_t
+enum class TEFNOUT_API Response : uint32_t
 {
     Unknown = 0,
     Ok = 1,
@@ -28,7 +28,7 @@ enum class Response : uint32_t
     Abort = 3
 };
 
-template <typename T, std::size_t TCapacity, bool TFlagConst> struct RingIterator;
+template <typename T, std::size_t TCapacity, bool TFlagConst> struct TEFNOUT_API RingIterator;
 
 /**
  * @brief      A fixed size container keeping avantages of an array but also allowing to
@@ -48,7 +48,7 @@ template <typename T, std::size_t TCapacity, bool TFlagConst> struct RingIterato
  * @tparam     T          Type of stored elements
  * @tparam     TCapacity  Maximal container capacity
  */
-template <typename T, std::size_t TCapacity> class Ring
+template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
 {
   public:
     // Required alias for STL trait definition
@@ -315,7 +315,7 @@ template <typename T, std::size_t TCapacity> class Ring
  * @tparam     TFlagConst  Version of the iterator to create : true for a constant, false
  *                         for a mutable (default).
  */
-template <typename T, std::size_t TCapacity, bool TFlagConst = false> struct RingIterator
+template <typename T, std::size_t TCapacity, bool TFlagConst = false> struct TEFNOUT_API RingIterator
 {
   public:
     // Iterator traits

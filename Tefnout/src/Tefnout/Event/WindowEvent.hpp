@@ -14,7 +14,7 @@ namespace Event
 /**
  * @brief      Event raised when a window is resized.
  */
-class WindowResized : public IEvent
+class TEFNOUT_API WindowResized : public IEvent
 {
   public:
     explicit WindowResized(uint32_t width, uint32_t height)
@@ -58,7 +58,7 @@ class WindowResized : public IEvent
 /**
  * @brief      Event raised when a window is closed.
  */
-class WindowClosed : public IEvent
+class TEFNOUT_LOCAL WindowClosed : public IEvent
 {
   public:
     explicit WindowClosed()

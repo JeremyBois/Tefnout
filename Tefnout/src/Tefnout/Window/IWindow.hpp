@@ -12,7 +12,7 @@ namespace Tefnout
 {
 namespace Window
 {
-struct GenericProperties
+struct TEFNOUT_LOCAL GenericProperties
 {
     std::string Title;
     uint32_t Width;
@@ -24,7 +24,7 @@ struct GenericProperties
     {
     }
 };
-class TEFNOUT_API IWindow
+class TEFNOUT_LOCAL IWindow
 {
   public:
     virtual ~IWindow() = default;

@@ -10,7 +10,7 @@ namespace Tefnout
 namespace Event
 {
 
-enum class State : int32_t
+enum class TEFNOUT_LOCAL State : int32_t
 {
     Pending = 0,
     Handled = 1
@@ -19,7 +19,7 @@ enum class State : int32_t
 /**
  * @brief   Category/Categories that can be assign to an event. Can be combined in a set.
  */
-enum class Category : int32_t
+enum class TEFNOUT_API Category : int32_t
 {
     Unknown = 0,
     Window = 1 << 0, // binary 0001
@@ -60,7 +60,7 @@ constexpr Category operator&(const Category selfValue, const Category inValue)
 /**
  * @brief      Type of event that can be sent to the event system.
  */
-enum class Kind : int32_t
+enum class TEFNOUT_API Kind : int32_t
 {
     Unknown = 0,
     // Window
@@ -83,7 +83,7 @@ enum class Kind : int32_t
 /**
  * @brief      Minimal information describing an event.
  */
-struct Information
+struct TEFNOUT_API Information
 {
   public:
     explicit Information(Category categories, Kind type, std::string name)
@@ -105,7 +105,7 @@ struct Information
 /**
  * @brief      Interface that should be implemented by each event.
  */
-class IEvent
+class TEFNOUT_API IEvent
 {
   public:
     virtual ~IEvent() = default;

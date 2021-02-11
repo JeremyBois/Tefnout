@@ -12,7 +12,7 @@ namespace Tefnout
 
 // Mirror https://github.com/glfw/glfw/blob/master/include/GLFW/glfw3.h
 // Use letters for numbers
-enum class KeyCode : int32_t
+enum class TEFNOUT_API KeyCode : int32_t
 {
     // Needed ?
     Unknown = -1,
@@ -150,7 +150,7 @@ enum class KeyCode : int32_t
  *
  * @return     Integer representation of the @
  */
-constexpr int32_t toInt(const KeyCode keycode)
+TEFNOUT_API constexpr int32_t toInt(const KeyCode keycode)
 {
     return static_cast<int32_t>(keycode);
 }
@@ -162,7 +162,7 @@ constexpr int32_t toInt(const KeyCode keycode)
  *
  * @return     Tefnout @ref KeyCode "KeyCode"
  */
-constexpr KeyCode KeycodeFromGLFW(const int glfwKeycode)
+TEFNOUT_API constexpr KeyCode KeycodeFromGLFW(const int glfwKeycode)
 {
     return static_cast<KeyCode>(glfwKeycode);
 }
