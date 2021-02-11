@@ -191,8 +191,8 @@ add_library(${TEFNOUT_LIB_NAME} ${LIB_TYPE} ${TEFNOUT_SOURCES})
 if (TEFNOUT_BUILD_SHARED_LIBS)
     # Shared library
     target_include_directories(${TEFNOUT_LIB_NAME}
-        PRIVATE BEFORE
-            ${PROJECT_SOURCE_DIR}/src
+        PRIVATE
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
     )
     # Set pre processor command for Shared lib export
     target_compile_definitions(${TEFNOUT_LIB_NAME}
@@ -203,8 +203,8 @@ if (TEFNOUT_BUILD_SHARED_LIBS)
 else()
     # Static library
     target_include_directories(${TEFNOUT_LIB_NAME}
-        PUBLIC BEFORE
-            ${PROJECT_SOURCE_DIR}/src
+        PUBLIC
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
     )
 endif()
 
