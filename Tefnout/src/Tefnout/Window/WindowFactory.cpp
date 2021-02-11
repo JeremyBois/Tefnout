@@ -1,7 +1,7 @@
 #include "WindowFactory.hpp"
 
 #if defined _WIN32 || defined __GNUC__
-#include "Tefnout/Window/GLFWBackend.hpp"
+#include "Tefnout/Window/GLFW/GLFWBackend.hpp"
 #else
 #include "Tefnout/Core/Logger.hpp"
 #include "Tefnout/Window/NullBackend.hpp"

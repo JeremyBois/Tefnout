@@ -1,7 +1,7 @@
 #include "GraphicFactory.hpp"
 
 #if defined _WIN32 || defined __GNUC__
-#include "Tefnout/Rendering/OpenGlContext.hpp"
+#include "Tefnout/Rendering/OpenGL/OpenGlContext.hpp"
 #else
 #include "Tefnout/Core/Logger.hpp"
 #endif

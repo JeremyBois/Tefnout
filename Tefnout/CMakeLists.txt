@@ -181,7 +181,9 @@ file(
     src/*
     src/Tefnout/Core/*
     src/Tefnout/Window/*
+    src/Tefnout/Window/GLFW/*
     src/Tefnout/Rendering/*
+    src/Tefnout/Rendering/OpenGL/*
 )
 add_library(${TEFNOUT_LIB_NAME} ${LIB_TYPE} ${TEFNOUT_SOURCES})
 
