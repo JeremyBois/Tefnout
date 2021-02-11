@@ -42,7 +42,7 @@ void Application::Close()
 
 void Application::OnWindowEvent(Event::IEvent &event)
 {
-    TEFNOUT_DEBUG("Get {0}", event);
+    TEFNOUT_TRACE("Get {0}", event);
 
     Event::Information eventInformation = event.GetInformation();
 

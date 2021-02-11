@@ -1,11 +1,15 @@
 #include "GLFWBackend.hpp"
 
 #include "Tefnout/Core/Logger.hpp"
+
 #include "Tefnout/Event/KeyEvent.hpp"
 #include "Tefnout/Event/MouseEvent.hpp"
 #include "Tefnout/Event/WindowEvent.hpp"
+
 #include "Tefnout/Input/KeyCode.hpp"
 #include "Tefnout/Input/MouseCode.hpp"
+
+#include "Tefnout/Rendering/GraphicFactory.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
 // https://www.glfw.org/docs/latest/quick_guide.html#quick_include
@@ -22,7 +26,7 @@ namespace Window
 uint8_t GLFWBackend::s_instanceCount = 0;
 
 GLFWBackend::GLFWBackend(const GenericProperties &properties)
-    : m_pGlfwWindow(nullptr), m_information(Description{}), m_version(Version{})
+    : m_pGlfwWindow(nullptr), m_information(Description{}), m_openGlHints(OpenGlHints{})
 {
     Init(properties);
 }
@@ -44,16 +48,13 @@ void *GLFWBackend::GetImplementation() const
 
 void GLFWBackend::OnRender()
 {
-    glClearColor(0.149f, 0.545f, 0.823f, 1.0f);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Swap buffer
-    glfwSwapBuffers(m_pGlfwWindow);
+    m_pContext->OnRender();
 }
 
 void GLFWBackend::OnUpdate()
 {
+    m_pContext->OnUpdate();
+
     // Event pool (keyboard, mouse, ...)
     glfwPollEvents();
 }
@@ -76,10 +77,11 @@ void GLFWBackend::Init(const GenericProperties &properties)
             TEFNOUT_CRITICAL("Cannot initialize GLFW. Required");
         }
 
-        // Specify we use OpenGL 3.3 core version
+        // @TODO Should be done only for OpenGL
+        // Specify we use OpenGL 4.6 core version
         // http://www.glfw.org/docs/latest/window.html#window_hints
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, m_version.Major);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, m_version.Minor);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, m_openGlHints.Major);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, m_openGlHints.Minor);
     }
 
     // Create the new window
@@ -92,29 +94,16 @@ void GLFWBackend::Init(const GenericProperties &properties)
         return;
     }
 
-    // Setup all callbacks
-    SetupCallbacks();
+    glfwSetInputMode(m_pGlfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // Make our window data available in callbacks
     glfwSetWindowUserPointer(m_pGlfwWindow, &m_information);
 
-    glfwSetInputMode(m_pGlfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    m_pContext = Tefnout::Rendering::Create(m_pGlfwWindow);
+    m_pContext->Init(properties);
 
-    // @TODO
-    // Move this to a specific OPENGL context initializer
-    glfwMakeContextCurrent(m_pGlfwWindow);
-
-    // GLAD: Load all OpenGL function pointers
-    // We pass GLAD the function to load the adress of the OpenGL function pointers which is
-    // OS-specific glfwGetProcAddress find the correct one based on the OS
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        TEFNOUT_CRITICAL("Failed to initialize GLAD. Required for OpenGL context");
-        return;
-    }
-    // glfwSwapInterval(1); // Vsync
-    // glViewport(0, 0, properties.Width, properties.Height);
-    // @TODO
+    // Setup all callbacks
+    SetupCallbacks();
 }
 
 void GLFWBackend::SetupCallbacks()

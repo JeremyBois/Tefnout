@@ -3,7 +3,9 @@
 
 #include "TefnoutPCH.hpp"
 
+#include "Tefnout/Rendering/IGraphicContext.hpp"
 #include "Tefnout/Window/IWindow.hpp"
+#include <memory>
 
 // Avoid public include of "GLFW/glfw3.h"
 struct GLFWwindow;
@@ -41,7 +43,7 @@ class TEFNOUT_LOCAL GLFWBackend : public IWindow
      * @brief      Minimal description of Window data that can be accessed in GLFW
      *             callback using UserPointer. Avoid exposing the whole class in callbacks.
      */
-    struct Description
+    struct TEFNOUT_LOCAL Description
     {
         std::string Title;
         uint32_t Width;
@@ -51,10 +53,17 @@ class TEFNOUT_LOCAL GLFWBackend : public IWindow
         std::function<void(Event::IEvent &)> Callback;
     };
 
-    struct Version
+    /**
+     * @brief      OpenGL minimal version required for the window creation. Creation of
+     *             window will failed is OpenGL context version is lower than the hint
+     *             provided.
+     * @note       This is not a hard constraint OpenGL features only available for more
+     *             recent version will still works.
+     */
+    struct TEFNOUT_LOCAL OpenGlHints
     {
         int const Major = 3;
-        int const Minor = 3;
+        int const Minor = 0;
     };
 
     void Init(const GenericProperties &properties);
@@ -63,7 +72,9 @@ class TEFNOUT_LOCAL GLFWBackend : public IWindow
 
     GLFWwindow *m_pGlfwWindow;
     Description m_information;
-    Version m_version;
+    OpenGlHints m_openGlHints;
+    // Rendering
+    std::unique_ptr<Rendering::IGraphicContext> m_pContext;
 
     static uint8_t s_instanceCount;
 };
