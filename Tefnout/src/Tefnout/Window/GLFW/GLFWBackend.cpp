@@ -26,7 +26,8 @@ namespace Window
 uint8_t GLFWBackend::s_instanceCount = 0;
 
 GLFWBackend::GLFWBackend(const GenericProperties &properties)
-    : m_pGlfwWindow(nullptr), m_information(Description{}), m_openGlHints(OpenGlHints{})
+    : m_pGlfwWindow(nullptr), m_information(Description{}), m_openGlHints(OpenGlHints{}),
+      m_pContext(nullptr)
 {
     Init(properties);
 }

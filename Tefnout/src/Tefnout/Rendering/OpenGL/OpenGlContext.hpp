@@ -18,6 +18,13 @@ class TEFNOUT_LOCAL OpenGlContext : public IGraphicContext
     OpenGlContext(GLFWwindow* pWindow);
     virtual ~OpenGlContext();
 
+    // Disable copy
+    OpenGlContext &operator=(OpenGlContext other) = delete;
+    OpenGlContext(const OpenGlContext &other) = delete;
+    // Disable move
+    OpenGlContext &operator=(OpenGlContext &&other) = delete;
+    OpenGlContext(OpenGlContext &&other) = delete;
+
     // IGraphicContex interface
     virtual void Init(Window::GenericProperties window_properties) override;
     virtual void Clear() override;
