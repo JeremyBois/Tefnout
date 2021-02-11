@@ -147,6 +147,14 @@ cmake --build . --target clean
 cmake --build . -j 4 --clean-first
 ```
 
+A lot of warnings are enable by default to keep a healthy codebase but sometimes a static analyser can provide additional information.
+[clang has a static analyser](https://clang-analyzer.llvm.org/scan-build.html) that can be used to generate a report:
+```bash
+# Scan the whole project and generate a HTML report if bugs are found
+# --clean-first is used to make sure the target is built from scratch
+scan-build --view --show-description -v --force-analyze-debug-code cmake --build build --clean-first
+```
+
 
 ## General information
 ### Code structure
