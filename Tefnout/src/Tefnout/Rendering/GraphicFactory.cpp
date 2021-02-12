@@ -2,8 +2,6 @@
 
 #if defined _WIN32 || defined __GNUC__
 #include "Tefnout/Rendering/OpenGL/OpenGlContext.hpp"
-#else
-#include "Tefnout/Core/Logger.hpp"
 #endif
 
 #include <GLFW/glfw3.h>

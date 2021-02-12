@@ -24,7 +24,7 @@ struct TEFNOUT_LOCAL GenericProperties
     {
     }
 };
-class TEFNOUT_LOCAL IWindow
+class TEFNOUT_API IWindow
 {
   public:
     virtual ~IWindow() = default;

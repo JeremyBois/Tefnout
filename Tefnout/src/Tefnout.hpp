@@ -8,10 +8,14 @@
 #include "Tefnout/Core/Logger.hpp"
 
 // Window
-// #include "Tefnout/Window/IWindow.hpp"
+#include "Tefnout/Window/IWindow.hpp"
 
 // Rendering
-// #include "Tefnout/Rendering/IGraphicContext.hpp"
+#include "Tefnout/Rendering/IGraphicContext.hpp"
+#include "Tefnout/Rendering/IShader.hpp"
+
+// IO
+#include "Tefnout/Utility/StreamIO.hpp"
 
 // @TEMP
 #include "Tefnout/Container/RingBuffer.hpp"
