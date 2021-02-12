@@ -17,17 +17,13 @@
 #include <stdint.h>
 #include <iostream>
 #include <string>
+#include <string_view>
 
 #include <memory>
 #include <functional>
 
 #include <map>
 #include <vector>
-
-// Thanks !
-// using std::cout;
-// using std::endl;
-
 
 // Debug tools should not be updated too often
 #include "Tefnout/Core/Logger.hpp"

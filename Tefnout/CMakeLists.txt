@@ -179,6 +179,7 @@ file(
     GLOB
     TEFNOUT_SOURCES
     src/*
+    src/Tefnout/Utility/*
     src/Tefnout/Core/*
     src/Tefnout/Window/*
     src/Tefnout/Window/GLFW/*
