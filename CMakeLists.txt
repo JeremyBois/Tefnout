@@ -126,6 +126,7 @@ else()
     message(VERBOSE "Using static library.")
     target_include_directories(tefnout-samples
         PRIVATE
+            ${CMAKE_SOURCE_DIR}/Tefnout/src
             ${CMAKE_SOURCE_DIR}/Samples/src
     )
 endif()
