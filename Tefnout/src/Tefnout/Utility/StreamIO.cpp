@@ -2,20 +2,20 @@
 #include "Tefnout/Core/Logger.hpp"
 
 #include <fstream>
+#include <optional>
 #include <sstream>
 
 namespace Tefnout
 {
 namespace Utility
 {
-std::string StreamIO::ReadFile(const std::string &filePath)
+std::optional<std::string> StreamIO::ReadFile(const std::string &filePath)
 {
-    // std::string content;
     std::ifstream readStream(filePath, std::ios::in);
     if (!readStream.is_open())
     {
         TEFNOUT_ERROR("Could not read file <{0}> (Does not exist)", filePath);
-        return "";
+        return std::nullopt;
     }
     else
     {

@@ -2,8 +2,8 @@
 
 #include "Tefnout/Utility/StreamIO.hpp"
 
-#include <glm/gtc/type_ptr.hpp> // needed for glm::value_ptr
 #include "glad/glad.h"
+#include <glm/gtc/type_ptr.hpp> // needed for glm::value_ptr
 
 namespace Tefnout
 {
@@ -36,28 +36,39 @@ void OpenGlShader::UnBind() const
 // IO
 void OpenGlShader::Create(const std::string vertexPath, const std::string fragPath)
 {
+
+    auto vertexCompilationResult = CompilationResult::Error;
+    auto fragmentCompilationResult = CompilationResult::Error;
+
     // Load an compile vertex shader
     uint32_t vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    std::string vertexShaderString = Utility::StreamIO::ReadFile(vertexPath);
-    const char *vertexShaderSource = vertexShaderString.c_str();
-    // Assume null terminated string
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
-    auto fragmentResult = CheckCompilation(vertexShader, ShaderType::Fragment);
+    auto vertexShaderString = Utility::StreamIO::ReadFile(vertexPath);
+    if (vertexShaderString.has_value())
+    {
+        const char *vertexShaderSource = vertexShaderString.value().c_str();
+        // Assume null terminated string by using nullptr as last argument
+        glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+        glCompileShader(vertexShader);
+        vertexCompilationResult = CheckCompilation(vertexShader, ShaderType::Fragment);
+    }
 
     // Load an compile fragment shader
     uint32_t fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    std::string fragShaderString = Utility::StreamIO::ReadFile(fragPath);
-    const char *fragShaderSource = fragShaderString.c_str();
-    // Assume null terminated string
-    glShaderSource(fragmentShader, 1, &fragShaderSource, nullptr);
-    glCompileShader(fragmentShader);
-    auto vertexResult = CheckCompilation(vertexShader, ShaderType::Vertex);
+    auto fragShaderString = Utility::StreamIO::ReadFile(fragPath);
+    if (fragShaderString.has_value())
+    {
+        const char *fragShaderSource = fragShaderString.value().c_str();
+        // Assume null terminated string by using nullptr as last argument
+        glShaderSource(fragmentShader, 1, &fragShaderSource, nullptr);
+        glCompileShader(fragmentShader);
+        fragmentCompilationResult = CheckCompilation(vertexShader, ShaderType::Vertex);
+    }
 
     // Create the program
-    if (fragmentResult == CompilationResult::Error || vertexResult == CompilationResult::Error)
+    if (fragmentCompilationResult == CompilationResult::Error ||
+        vertexCompilationResult == CompilationResult::Error)
     {
         // Create a shader program that link vertex and fragment together
         m_programId = glCreateProgram();

@@ -32,7 +32,7 @@ Tefnout::Application* Tefnout::CreateApplication()
         using namespace Utility;
 
         auto content = StreamIO::ReadFile("");
-        std::cout << content << std::endl;
+        std::cout << content.value_or("Not able to read the file") << std::endl;
     }
 
 

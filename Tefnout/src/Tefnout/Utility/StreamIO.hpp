@@ -2,6 +2,7 @@
 #define __STREAMIO__HPP
 
 #include "TefnoutPCH.hpp"
+#include <optional>
 
 namespace Tefnout
 {
@@ -19,7 +20,7 @@ class TEFNOUT_API StreamIO
     StreamIO(StreamIO const &) = delete;
     void operator=(StreamIO const &) = delete;
 
-    static std::string ReadFile(const std::string &filePath);
+    static std::optional<std::string> ReadFile(const std::string &filePath);
 };
 } // namespace Utility
 } // namespace Tefnout
