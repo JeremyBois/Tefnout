@@ -24,6 +24,7 @@ Engine:
   - `spdlog` - [Version v1.8.2](https://github.com/gabime/spdlog/releases/tag/v1.8.2)
   - `OpenGL` - Core profil > 3.3
   - `glfw3` - [Version 3.3.2](https://github.com/glfw/glfw/releases/tag/3.3.2)
+  - `stb_image` [Version v2.26](https://github.com/nothings/stb/blob/master/stb_image.h)
 
 Tests only:
   - `Catch2` - [Version v2.14.3](https://github.com/catchorg/Catch2/releases/tag/v2.13.4)
@@ -108,6 +109,12 @@ cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Release -D GLFW_BUILD_DOCS=OFF -D GLFW_B
 # Compile and install to build/install/Release
 ninja install
 ```
+
+#### Stb_image
+**LICENSE - [MIT or Public Domain](https://github.com/nothings/stb/blob/master/LICENSE)**
+
+Nothing to do.
+
 
 #### Catch2
 **LICENSE - [Boost Software License 1.0](https://github.com/catchorg/Catch2/blob/devel/LICENSE.txt)**
