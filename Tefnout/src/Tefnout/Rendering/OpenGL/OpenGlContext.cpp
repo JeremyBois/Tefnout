@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+#include <sstream>
+
 namespace Tefnout
 {
 namespace Rendering
@@ -38,6 +40,20 @@ void OpenGlContext::Init(Window::GenericProperties window_properties)
         TEFNOUT_CRITICAL("Failed to initialize GLAD. Required for OpenGL context");
         return;
     }
+
+    // Get basic information about used OpenGL
+    TEFNOUT_INFO("OpenGL information: \n\t Vendor - {0}\n\t Renderer - {1}\n\t Version {2}\n\t "
+                 "Shading Language {3}",
+                 glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION),
+                 glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+    std::stringstream ss;
+    ss << glGetStringi(GL_EXTENSIONS, 0);
+    for (int i = 1; i < GL_NUM_EXTENSIONS; ++i)
+    {
+        ss << " - " << glGetStringi(GL_EXTENSIONS, i);
+    }
+    TEFNOUT_TRACE("OpenGL extensions:\n\t {0}", ss.str());
 
     // Vsync enable
     glfwSwapInterval(1);
