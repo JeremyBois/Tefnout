@@ -60,6 +60,24 @@ OPTION (TEFNOUT_USE_PRECOMPILED_GLFW "Use pre-compiled libraries for GLFW" ON)
 
 
 # ------------------------------------------------------------------------------
+# Find - STB_IMAGE
+# ------------------------------------------------------------------------------
+# Header only
+set(TEFNOUT_STB_IMAGE_ROOT_DIR ${PROJECT_SOURCE_DIR}/vendors/stb_image
+    CACHE STRING "Path used to search first for STB_IMAGE header files." FORCE)
+set(STB_IMAGE_ROOT_DIR ${TEFNOUT_STB_IMAGE_ROOT_DIR})
+find_package(STB_IMAGE REQUIRED)
+
+if(NOT STB_IMAGE_FOUND)
+    message(FATAL_ERROR "STB_IMAGE library not found - Required for image loading")
+else()
+    message(STATUS "Found STB_IMAGE")
+    message(STATUS "      headers: ${STB_IMAGE_INCLUDE_DIRS}")
+endif()
+
+
+
+# ------------------------------------------------------------------------------
 # Find - GLM
 # ------------------------------------------------------------------------------
 # Header only
@@ -125,12 +143,6 @@ else()
         PUBLIC
             ${GLAD_INCLUDE_DIRS}
     )
-
-    # Needed if using static build (-fPIC also needed)
-    # target_link_libraries(glad
-    #     PUBLIC
-    #         ${OPENGL_LIBRARIES}
-    # )
 endif()
 
 
@@ -216,6 +228,7 @@ target_link_libraries(${TEFNOUT_LIB_NAME}
         spdlog::spdlog
         glm::glm
         glad
+        stb_image
     PRIVATE
         glfw
 )
