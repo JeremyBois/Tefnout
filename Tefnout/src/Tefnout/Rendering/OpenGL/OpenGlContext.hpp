@@ -2,10 +2,13 @@
 #define __OPENGLCONTEXT__HPP
 
 #include "Tefnout/Rendering/IGraphicContext.hpp"
+#include "Tefnout/Rendering/IIndexBuffer.hpp"
+#include "Tefnout/Rendering/IVertexBuffer.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
 // @TEMP
 #include "Tefnout/Rendering/IShader.hpp"
+#include <memory>
 //
 
 
@@ -39,9 +42,9 @@ private:
 
      // @TEMP
     uint32_t m_vertexArray;
-    uint32_t m_vertexBuffer;
-    uint32_t m_indexBuffer;
-    std::unique_ptr<Rendering::IShader> m_pShader;
+    std::shared_ptr<Rendering::IVertexBuffer> m_vertexBuffer;
+    std::shared_ptr<Rendering::IIndexBuffer> m_indexBuffer;
+    std::shared_ptr<Rendering::IShader> m_pShader;
     //
 
     void SetupCallbacks();
