@@ -6,6 +6,11 @@
 #include "Tefnout/Rendering/IGraphicContext.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
+// @TEMP
+#include "Tefnout/Rendering/IShader.hpp"
+//
+
+
 struct GLFWwindow;
 
 namespace Tefnout
@@ -33,6 +38,13 @@ class TEFNOUT_LOCAL OpenGlContext : public IGraphicContext
 
 private:
     GLFWwindow *m_pGlfwWindow;
+
+     // @TEMP
+    uint32_t m_vertexArray;
+    uint32_t m_vertexBuffer;
+    uint32_t m_indexBuffer;
+    std::unique_ptr<Rendering::IShader> m_pShader;
+    //
 
     void SetupCallbacks();
 };

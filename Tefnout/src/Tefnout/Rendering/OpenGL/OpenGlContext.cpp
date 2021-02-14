@@ -8,6 +8,11 @@
 
 #include <sstream>
 
+// @TEMP
+#include "Tefnout/Rendering/OpenGL/OpenGlShader.hpp"
+#include "glm/glm.hpp"
+//
+
 namespace Tefnout
 {
 namespace Rendering
@@ -76,6 +81,29 @@ void OpenGlContext::Init(Window::GenericProperties window_properties)
     glDepthFunc(GL_LESS);
 
     SetupCallbacks();
+
+    // @TEMP
+    // Difference between glCreateVertexArrays and glGenVertexArrays ??
+    glCreateVertexArrays(1, &m_vertexArray);
+    glBindVertexArray(m_vertexArray);
+
+    // Vertices data
+    glCreateBuffers(1, &m_vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+    glm::vec3 tempPos[] = {{0.0f, 0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}};
+    glBufferData(GL_ARRAY_BUFFER, sizeof(tempPos), tempPos, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *)0);
+
+    // Index data
+    glCreateBuffers(1, &m_indexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+    uint32_t indexes[3] = {0, 1, 2};
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW);
+
+    m_pShader = std::make_unique<OpenGlShader>("Basic", "Assets/Shaders/Basic.vert",
+                                               "Assets/Shaders/Basic.frag");
+    //
 }
 
 void OpenGlContext::SetupCallbacks()
@@ -99,9 +127,13 @@ void OpenGlContext::OnUpdate()
 
 void OpenGlContext::OnRender()
 {
+    // @TEMP
     glClearColor(0.149f, 0.545f, 0.823f, 1.0f);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glBindVertexArray(m_vertexArray);
+    m_pShader->Bind();
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
     // Swap buffer
     glfwSwapBuffers(m_pGlfwWindow);
