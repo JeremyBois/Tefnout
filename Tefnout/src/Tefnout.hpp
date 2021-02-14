@@ -12,8 +12,7 @@
 
 // Rendering
 #include "Tefnout/Rendering/IGraphicContext.hpp"
-#include "Tefnout/Rendering/IShader.hpp"
-#include "Tefnout/Rendering/ITexture.hpp"
+#include "Tefnout/Rendering/RenderingFactory.hpp"
 
 // IO
 #include "Tefnout/Utility/StreamIO.hpp"

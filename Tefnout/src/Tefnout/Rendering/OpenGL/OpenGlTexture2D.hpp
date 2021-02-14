@@ -2,7 +2,6 @@
 #define __OPENGLTEXTURE2D__HPP
 
 #include "Tefnout/Rendering/ITexture.hpp"
-#include "Tefnout/Rendering/TextureFactory.hpp"
 
 
 namespace Tefnout
@@ -18,7 +17,7 @@ class OpenGlTexture2D : public ITexture2D
     OpenGlTexture2D(const std::string& texturePath, TextureOptions information);
     virtual ~OpenGlTexture2D();
 
-    // ITexture interface
+    // ITexture2D interface
     void Bind(uint32_t unit = 0) const override;
 
     inline uint32_t GetID() const override
