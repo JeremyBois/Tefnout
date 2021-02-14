@@ -1,4 +1,5 @@
 #include "Logger.hpp"
+#include <spdlog/common.h>
 
 // This ignores all warnings raised inside External headers (for both clang and GCC)
 // https://nelkinda.com/blog/suppress-warnings-in-gcc-and-clang/#d11e364
@@ -24,22 +25,24 @@ namespace Tefnout
         // Format as below with color based on level
         // [19:03:44] [TEFNOUT] [-D-] [Logger.cpp:57] OulalaOulala
         sinks[0]->set_pattern("%^[%H:%M:%S] [%n] [%L] [%s:%#] %v %$");
+        sinks[0]->set_level(spdlog::level::trace);  // Console specific
 
         // Add a thread safe (_mt) file sink (false means keeping previous logs)
         // Log in file starting from trace level
         // Default format for file logging
         sinks.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/Tefnout.log", false));
+        sinks[1]->set_level(spdlog::level::trace);  // File specific
 
         // Setup Engine logger manually as a combination of console and file
         s_EngineLogger = std::make_shared<spdlog::logger>("TEFNOUT", std::begin(sinks), std::end(sinks));
         spdlog::register_logger(s_EngineLogger); // Register for global access
-        s_EngineLogger->set_level(spdlog::level::trace);
+        s_EngineLogger->set_level(spdlog::level::trace);  // Minimal level needed to log
         s_EngineLogger->flush_on(spdlog::level::trace); // Update log file at each trace
 
         // Setup User logger manually as a combination of console and file
         s_UserLogger = std::make_shared<spdlog::logger>("USER", std::begin(sinks), std::end(sinks));
         spdlog::register_logger(s_UserLogger); // Register for global access
-        s_UserLogger->set_level(spdlog::level::trace);
+        s_UserLogger->set_level(spdlog::level::trace);  // Minimal level needed to log
         s_UserLogger->flush_on(spdlog::level::trace); // Update log file at each trace
 
         // How to use
