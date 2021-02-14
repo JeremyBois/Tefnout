@@ -1,9 +1,7 @@
 #ifndef __RINGBUFFER__HPP
 #define __RINGBUFFER__HPP
 
-#include "TefnoutPCH.hpp" // Fetch <iterator> and <array>
-
-#include "Tefnout/Core/Logger.hpp"
+#include "Tefnout/Core/CorePCH.hpp"
 
 #include <type_traits>
 
@@ -14,7 +12,7 @@ namespace Buffer
 
 // @REFERENCE
 //      - https://gameprogrammingpatterns.com/event-queue.html#a-ring-buffer
-//      -
+//
 //      https://stackoverflow.com/questions/2150192/how-to-avoid-code-duplication-implementing-const-and-non-const-iterators
 //      - https://quuxplusone.github.io/blog/2018/12/01/const-iterator-antipatterns/
 //      - https://stackoverflow.com/questions/3899223/what-is-a-non-trivial-constructor-in-c

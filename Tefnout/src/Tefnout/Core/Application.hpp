@@ -5,6 +5,8 @@
 #include "Tefnout/Event/Event.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
+#include <memory>
+
 namespace Tefnout
 {
 /**

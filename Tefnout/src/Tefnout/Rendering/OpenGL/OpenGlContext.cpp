@@ -1,5 +1,4 @@
 #include "OpenGlContext.hpp"
-#include "Tefnout/Core/Logger.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
 #define GLFW_INCLUDE_NONE

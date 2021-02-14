@@ -1,8 +1,7 @@
 #ifndef __EVENT__HPP
 #define __EVENT__HPP
 
-#include "TefnoutPCH.hpp"
-
+#include "Tefnout/Core/CorePCH.hpp"
 #include <iostream>
 
 namespace Tefnout
@@ -126,7 +125,10 @@ class TEFNOUT_API IEvent
      *
      * @return     String representation of the event.
      */
-    virtual std::string ToString() const {return "IEvent";}
+    virtual std::string ToString() const
+    {
+        return "IEvent";
+    }
 };
 
 inline std::ostream &operator<<(std::ostream &os, const IEvent &event)

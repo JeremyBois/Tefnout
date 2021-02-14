@@ -13,19 +13,19 @@
 #include "Tefnout/Core/Platform.hpp"
 // @WARNINGS
 
+// Debug tools should not be updated too often
+#include "Tefnout/Core/Logger.hpp"
+
 // STL
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
 #include <string_view>
 
-#include <memory>
 #include <functional>
+#include <memory>
 
 #include <map>
 #include <vector>
-
-// Debug tools should not be updated too often
-#include "Tefnout/Core/Logger.hpp"
 
 #endif

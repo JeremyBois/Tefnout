@@ -1,6 +1,5 @@
 #include "Application.hpp"
 
-#include "Tefnout/Core/Logger.hpp"
 #include "Tefnout/Event/Event.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 #include "Tefnout/Window/WindowFactory.hpp"

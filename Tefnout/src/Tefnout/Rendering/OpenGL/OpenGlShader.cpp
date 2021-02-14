@@ -1,6 +1,5 @@
 #include "OpenGlShader.hpp"
 
-#include "Tefnout/Core/Logger.hpp"
 #include "Tefnout/Utility/StreamIO.hpp"
 
 #include "glad/glad.h"

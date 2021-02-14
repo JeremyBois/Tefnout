@@ -1,14 +1,14 @@
 #ifndef __KEYCODE__HPP
 #define __KEYCODE__HPP
 
-#include "TefnoutPCH.hpp"
-
+#include "Tefnout/Core/CorePCH.hpp"
+#include <stdint.h>
 #include <string>
 
 namespace Tefnout
 {
-    namespace Input {
-
+namespace Input
+{
 
 // Mirror https://github.com/glfw/glfw/blob/master/include/GLFW/glfw3.h
 // Use letters for numbers
@@ -179,12 +179,11 @@ inline std::string toString(KeyCode keycode)
     return std::to_string(toInt(keycode));
 }
 
-
 inline std::ostream &operator<<(std::ostream &os, const KeyCode &keycode)
 {
     return os << toInt(keycode);
 }
 
+} // namespace Input
 } // namespace Tefnout
-}
 #endif

@@ -1,8 +1,6 @@
 #include "StreamIO.hpp"
-#include "Tefnout/Core/Logger.hpp"
 
 #include <fstream>
-#include <optional>
 #include <sstream>
 #include <string>
 

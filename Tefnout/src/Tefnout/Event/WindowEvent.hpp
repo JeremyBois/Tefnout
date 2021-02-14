@@ -2,7 +2,6 @@
 #define __WINDOWEVENT__HPP
 
 #include "Event.hpp"
-
 #include <sstream>
 
 namespace Tefnout

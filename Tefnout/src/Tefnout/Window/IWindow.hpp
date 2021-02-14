@@ -1,11 +1,9 @@
 #ifndef __IWINDOW__HPP
 #define __IWINDOW__HPP
 
-#include "Tefnout/Core/Platform.hpp"
-#include "TefnoutPCH.hpp"
-
-
+#include "Tefnout/Core/CorePCH.hpp"
 #include "Tefnout/Event/Event.hpp"
+#include <functional>
 
 
 namespace Tefnout

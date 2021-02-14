@@ -308,4 +308,5 @@ endif()
 target_precompile_headers(${TEFNOUT_LIB_NAME}
     PRIVATE
         ${PROJECT_SOURCE_DIR}/src/TefnoutPCH.hpp
+        ${PROJECT_SOURCE_DIR}/src/Tefnout/Core/CorePCH.hpp
 )

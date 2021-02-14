@@ -1,9 +1,7 @@
 #include "OpenGlTexture2D.hpp"
 
-#include "Tefnout/Core/Logger.hpp"
 #include "glad/glad.h"
 #include "stb_image/stb_image.h"
-#include <bits/stdint-uintn.h>
 
 namespace Tefnout
 {

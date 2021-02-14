@@ -1,9 +1,7 @@
 #ifndef __ITEXTURE__HPP
 #define __ITEXTURE__HPP
 
-#include "Tefnout/Core/Platform.hpp"
-#include "TefnoutPCH.hpp"
-#include <bits/stdint-uintn.h>
+#include "Tefnout/Core/CorePCH.hpp"
 
 namespace Tefnout
 {

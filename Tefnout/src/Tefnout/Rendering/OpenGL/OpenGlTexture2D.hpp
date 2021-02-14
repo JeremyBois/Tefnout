@@ -1,8 +1,6 @@
 #ifndef __OPENGLTEXTURE2D__HPP
 #define __OPENGLTEXTURE2D__HPP
 
-#include "TefnoutPCH.hpp"
-
 #include "Tefnout/Rendering/ITexture.hpp"
 #include "Tefnout/Rendering/TextureFactory.hpp"
 

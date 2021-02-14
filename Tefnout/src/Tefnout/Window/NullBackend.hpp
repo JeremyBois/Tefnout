@@ -1,8 +1,6 @@
 #ifndef __NULLBACKEND__HPP
 #define __NULLBACKEND__HPP
 
-#include "TefnoutPCH.hpp"
-
 #include "IWindow.hpp"
 
 namespace Tefnout

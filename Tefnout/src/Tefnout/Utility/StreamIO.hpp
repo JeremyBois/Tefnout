@@ -1,7 +1,7 @@
 #ifndef __STREAMIO__HPP
 #define __STREAMIO__HPP
 
-#include "TefnoutPCH.hpp"
+#include "Tefnout/Core/CorePCH.hpp"
 #include <optional>
 
 namespace Tefnout

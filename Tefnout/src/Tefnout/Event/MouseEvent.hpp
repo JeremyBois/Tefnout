@@ -3,8 +3,6 @@
 
 #include "Event.hpp"
 #include "Tefnout/Input/MouseCode.hpp"
-#include "TefnoutPCH.hpp"
-
 #include <sstream>
 
 namespace Tefnout

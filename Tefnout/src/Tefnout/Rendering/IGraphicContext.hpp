@@ -1,9 +1,7 @@
 #ifndef __IGRAPHICCONTEXT__HPP
 #define __IGRAPHICCONTEXT__HPP
 
-#include "Tefnout/Core/Platform.hpp"
-#include "TefnoutPCH.hpp"
-
+#include "Tefnout/Core/CorePCH.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
 

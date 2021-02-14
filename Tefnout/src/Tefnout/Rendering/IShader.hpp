@@ -1,10 +1,9 @@
 #ifndef __ISHADER__HPP
 #define __ISHADER__HPP
 
-#include "TefnoutPCH.hpp"
-
+#include "Tefnout/Core/CorePCH.hpp"
 #include "glm/glm.hpp"
-
+#include <string>
 
 namespace Tefnout
 {
@@ -28,7 +27,6 @@ class TEFNOUT_API IShader
 
     // IO
     virtual void Create(const std::string vertexPath, const std::string fragPath) = 0;
-
 
     // Uniform functions
     virtual void SetBool(const std::string_view name, bool value) const = 0;

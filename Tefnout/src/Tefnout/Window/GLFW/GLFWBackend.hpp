@@ -1,11 +1,9 @@
 #ifndef __GLFWBACKEND__HPP
 #define __GLFWBACKEND__HPP
 
-#include "TefnoutPCH.hpp"
-
+#include "Tefnout/Core/CorePCH.hpp"
 #include "Tefnout/Rendering/IGraphicContext.hpp"
 #include "Tefnout/Window/IWindow.hpp"
-#include <memory>
 
 // Avoid public include of "GLFW/glfw3.h"
 struct GLFWwindow;

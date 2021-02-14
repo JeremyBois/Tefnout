@@ -1,8 +1,6 @@
 #ifndef __OPENGLCONTEXT__HPP
 #define __OPENGLCONTEXT__HPP
 
-#include "TefnoutPCH.hpp"
-
 #include "Tefnout/Rendering/IGraphicContext.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
