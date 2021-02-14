@@ -1,4 +1,5 @@
 #include "Application.hpp"
+
 #include "Tefnout/Core/Logger.hpp"
 #include "Tefnout/Event/Event.hpp"
 #include "Tefnout/Window/IWindow.hpp"
@@ -16,11 +17,7 @@ Application::Application()
 
     using namespace std::placeholders;
     m_pWindow->SetEventCallback(std::bind(&Application::OnWindowEvent, this, _1));
-
-    if (m_pWindow)
-    {
-        m_running = true;
-    }
+    m_running = m_pWindow != nullptr ? true : false;
 }
 Application::~Application()
 {
