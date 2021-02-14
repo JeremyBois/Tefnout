@@ -1,5 +1,6 @@
 #include "OpenGlShader.hpp"
 
+#include "Tefnout/Core/Logger.hpp"
 #include "Tefnout/Utility/StreamIO.hpp"
 
 #include "glad/glad.h"
@@ -10,11 +11,25 @@ namespace Tefnout
 namespace Rendering
 {
 
-OpenGlShader::OpenGlShader(const std::string name, const std::string vertexSrc,
-                           const std::string fragmentSrc)
+OpenGlShader::OpenGlShader(const std::string name, const std::string vertexShaderPath,
+                           const std::string fragmentShaderPath)
     : m_programId(0), m_name(name)
 {
-    Create(vertexSrc, fragmentSrc);
+    auto vertexExt = Utility::StreamIO::GetExtensionFrom(vertexShaderPath);
+    if (!vertexExt.has_value() || vertexExt.value() != "vert")
+    {
+        TEFNOUT_WARN("Vertex shader (<{0}>) does not have the <.vert> extension, continue anyway.",
+                     vertexShaderPath);
+    }
+
+    auto fragExt = Utility::StreamIO::GetExtensionFrom(fragmentShaderPath);
+    if (!fragExt.has_value() || fragExt.value() != "frag")
+    {
+        TEFNOUT_WARN("Fragment shader (<{0}>) does not have <.frag> extension, continue anyway.",
+                     fragmentShaderPath);
+    }
+
+    Create(vertexShaderPath, fragmentShaderPath);
 }
 
 OpenGlShader::~OpenGlShader()
@@ -34,51 +49,63 @@ void OpenGlShader::UnBind() const
 }
 
 // IO
-void OpenGlShader::Create(const std::string vertexPath, const std::string fragPath)
+void OpenGlShader::Create(const std::string vertexShaderPath, const std::string fragmentShaderPath)
 {
-
-    auto vertexCompilationResult = CompilationResult::Error;
-    auto fragmentCompilationResult = CompilationResult::Error;
+    auto vertexCompilationResult = ShaderCheckResult::Ok;
+    auto fragmentCompilationResult = ShaderCheckResult::Ok;
 
     // Load an compile vertex shader
     uint32_t vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    auto vertexShaderString = Utility::StreamIO::ReadFile(vertexPath);
+    auto vertexShaderString = Utility::StreamIO::ReadFile(vertexShaderPath);
+
     if (vertexShaderString.has_value())
     {
         const char *vertexShaderSource = vertexShaderString.value().c_str();
         // Assume null terminated string by using nullptr as last argument
         glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
         glCompileShader(vertexShader);
-        vertexCompilationResult = CheckCompilation(vertexShader, ShaderType::Fragment);
+        vertexCompilationResult = Check(vertexShader, ShaderType::Fragment);
     }
 
     // Load an compile fragment shader
     uint32_t fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    auto fragShaderString = Utility::StreamIO::ReadFile(fragPath);
-    if (fragShaderString.has_value())
+    auto fragmentShaderString = Utility::StreamIO::ReadFile(fragmentShaderPath);
+    if (fragmentShaderString.has_value())
     {
-        const char *fragShaderSource = fragShaderString.value().c_str();
+        const char *fragShaderSource = fragmentShaderString.value().c_str();
         // Assume null terminated string by using nullptr as last argument
         glShaderSource(fragmentShader, 1, &fragShaderSource, nullptr);
         glCompileShader(fragmentShader);
-        fragmentCompilationResult = CheckCompilation(vertexShader, ShaderType::Vertex);
+        fragmentCompilationResult = Check(fragmentShader, ShaderType::Vertex);
     }
 
     // Create the program
-    if (fragmentCompilationResult == CompilationResult::Error ||
-        vertexCompilationResult == CompilationResult::Error)
+    if (fragmentCompilationResult == ShaderCheckResult::Ok &&
+        vertexCompilationResult == ShaderCheckResult::Ok)
     {
         // Create a shader program that link vertex and fragment together
         m_programId = glCreateProgram();
         glAttachShader(m_programId, vertexShader);
         glAttachShader(m_programId, fragmentShader);
         glLinkProgram(m_programId);
-        if (CheckCompilation(vertexShader, ShaderType::Program) == CompilationResult::Error)
+        if (Check(m_programId, ShaderType::Program) != ShaderCheckResult::Ok)
         {
             glDeleteProgram(m_programId);
+            m_programId = 0;
         }
+        else
+        {
+            TEFNOUT_DEBUG("Shader program <{0}> correctly created using <vertex shader - {1}> and "
+                          "<fragment shader - {2}>.",
+                          m_name, vertexShaderPath, fragmentShaderPath);
+        }
+    }
+    else
+    {
+        TEFNOUT_WARN("Cannot create Shader program due to compilation error of Vertex and/or "
+                     "Fragment parts.");
     }
 
     // Clean up, keeping only the program
@@ -143,35 +170,39 @@ void OpenGlShader::SetMat4(std::string_view name, const glm::mat4 &mat) const
                        glm::value_ptr(mat));
 }
 
-OpenGlShader::CompilationResult OpenGlShader::CheckCompilation(uint32_t shaderId,
+OpenGlShader::ShaderCheckResult OpenGlShader::Check(uint32_t shaderId,
                                                                ShaderType shaderType)
 {
-    CompilationResult result(CompilationResult::Ok);
+    ShaderCheckResult result(ShaderCheckResult::Ok);
 
     const uint32_t infoSizeMax = 1024;
     GLint success;
     GLchar infoLog[infoSizeMax];
 
-    if (shaderType != ShaderType::Program)
+    if (shaderType == ShaderType::Fragment || shaderType == ShaderType::Vertex)
     {
         glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
         if (!success)
         {
-            result = CompilationResult::Error;
+            result = ShaderCheckResult::CompilationError;
             glGetShaderInfoLog(shaderId, infoSizeMax, nullptr, infoLog);
             TEFNOUT_ERROR("Shader compilation error (type {0}) - {1}", ToString(shaderType),
                           infoLog);
         }
     }
-    else
+    else if (shaderType == ShaderType::Program)
     {
         glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
         if (!success)
         {
-            result = CompilationResult::Error;
+            result = ShaderCheckResult::LinkError;
             glGetProgramInfoLog(shaderId, infoSizeMax, nullptr, infoLog);
             TEFNOUT_ERROR("Shader linking error (type {0}) - {1}", ToString(shaderType), infoLog);
         }
+    }
+    else
+    {
+        TEFNOUT_ERROR("Unknown shader type ({0}), cannot check it.", shaderType);
     }
     return result;
 }

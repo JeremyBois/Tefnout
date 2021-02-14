@@ -16,8 +16,8 @@ namespace Rendering
 class TEFNOUT_API OpenGlShader : public IShader
 {
   public:
-    OpenGlShader(const std::string name, const std::string vertexSrc,
-                 const std::string fragmentSrc);
+    OpenGlShader(const std::string name, const std::string vertexShaderPath,
+                 const std::string fragmentShaderPath);
     virtual ~OpenGlShader();
 
     // General
@@ -29,7 +29,7 @@ class TEFNOUT_API OpenGlShader : public IShader
     }
 
     // IO
-    void Create(const std::string vertexPath, const std::string fragPath) override;
+    void Create(const std::string vertexShaderPath, const std::string fragmentShaderPath) override;
 
     // Uniform functions
     void SetBool(std::string_view name, bool value) const override;
@@ -63,10 +63,11 @@ class TEFNOUT_API OpenGlShader : public IShader
      * @brief      Enum helper used to store shader compilation result.
      * @note       Avoid boolean blindness.
      */
-    enum class CompilationResult : int8_t
+    enum class ShaderCheckResult : int8_t
     {
         Ok = 0,
-        Error,
+        CompilationError,
+        LinkError,
     };
 
     inline const std::string ToString(ShaderType kind) const
@@ -89,7 +90,7 @@ class TEFNOUT_API OpenGlShader : public IShader
         }
     }
 
-    CompilationResult CheckCompilation(uint32_t shaderId, ShaderType kind);
+    ShaderCheckResult Check(uint32_t shaderId, ShaderType kind);
 };
 
 } // namespace Rendering
