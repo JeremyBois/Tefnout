@@ -1,7 +1,11 @@
 #include "OpenGlContext.hpp"
 
+#include "Tefnout/Core/Core.hpp"
+#include "Tefnout/Rendering/Layout.hpp"
 #include "Tefnout/Rendering/RenderingFactory.hpp"
 #include "Tefnout/Window/IWindow.hpp"
+#include <bits/c++config.h>
+#include <bits/stdint-uintn.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -83,21 +87,36 @@ void OpenGlContext::Init(Window::GenericProperties window_properties)
     SetupCallbacks();
 
     // @TEMP
-    glCreateVertexArrays(1, &m_vertexArray);
-    glBindVertexArray(m_vertexArray);
-
-    // Vertices data
-    glm::vec3 tempPos[] = {{0.0f, 0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}};
-    m_vertexBuffer = CreateVertexBuffer(&tempPos[0].x, sizeof(tempPos));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *)0);
-
-    // Index data
-    uint32_t indexes[3] = {0, 1, 2};
-    m_indexBuffer = CreateIndexBuffer(indexes, 3);
-
-    // Shader
+    //
+    // 1) Create Shader
     m_pShader = CreateShader("Basic", "Assets/Shaders/Basic.vert", "Assets/Shaders/Basic.frag");
+
+    // 2) Create vertex array
+    m_pVertexArray = CreateVertexArray();
+
+    // Create vertex buffer with
+    //   - position
+    //   - color
+    //   - normals (currently not used)
+    float tempPos[3 * 4 * 3 * 3] = {0.0f,  0.5f,  0.0f, 0.521f, 0.6f, 0.f, 1.0f, 0.f, 0.f, 0.f,
+                                    -0.5f, -0.5f, 0.0f, 0.862f, 0.196f, 0.184f, 1.0f, 0.f, 0.f, 0.f,
+                                    0.5f,  -0.5f, 0.0f, 0.164f, 0.631f, 0.596f, 1.0f, 0.f, 0.f, 0.f};
+    Layout layout = {
+        ShaderAttribute{"a_pos", AttributeType::Vec3},
+        ShaderAttribute{"a_color", AttributeType::Vec4},
+        ShaderAttribute{"a_normal", AttributeType::Vec3, true},
+    };
+    auto vertexBuffer = CreateVertexBuffer(tempPos, sizeof(tempPos));
+    vertexBuffer->SetLayout(layout);
+
+    // 3) Create index buffer
+    uint32_t indexes[3] = {0, 1, 2};
+    auto indexBuffer = CreateIndexBuffer(indexes, sizeof(indexes) / sizeof(uint32_t));
+
+    // 4) Assign data to vertex array
+    m_pVertexArray->AddVertexBuffer(vertexBuffer);
+    m_pVertexArray->SetIndexBuffer(indexBuffer);
+    //
     // @TEMP
 }
 
@@ -127,10 +146,9 @@ void OpenGlContext::OnRender()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_pShader->Bind();
-    glBindVertexArray(m_vertexArray);
-    m_vertexBuffer->Bind();
-    m_indexBuffer->Bind();
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+    m_pVertexArray->Bind();
+    glDrawElements(GL_TRIANGLES, m_pVertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT,
+                   nullptr);
 
     // Swap buffer
     glfwSwapBuffers(m_pGlfwWindow);

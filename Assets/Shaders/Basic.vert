@@ -2,9 +2,10 @@
 
 // In
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec4 aColor;
 
 // Out
-out vec3 vertexColor;
+out vec4 vertexColor;
 
 void main()
 {
@@ -12,5 +13,5 @@ void main()
     gl_Position = vec4(aPos, 1.0);
 
     // To pixel shader
-    vertexColor = gl_Position.xyz;
+    vertexColor = aColor;
 }

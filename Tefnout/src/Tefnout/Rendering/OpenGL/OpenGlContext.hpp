@@ -1,6 +1,7 @@
 #ifndef __OPENGLCONTEXT__HPP
 #define __OPENGLCONTEXT__HPP
 
+#include "Tefnout/Rendering/IVertexArray.hpp"
 #include "Tefnout/Rendering/IGraphicContext.hpp"
 #include "Tefnout/Rendering/IIndexBuffer.hpp"
 #include "Tefnout/Rendering/IVertexBuffer.hpp"
@@ -41,9 +42,7 @@ private:
     GLFWwindow *m_pGlfwWindow;
 
      // @TEMP
-    uint32_t m_vertexArray;
-    std::shared_ptr<Rendering::IVertexBuffer> m_vertexBuffer;
-    std::shared_ptr<Rendering::IIndexBuffer> m_indexBuffer;
+    std::shared_ptr<Rendering::IVertexArray> m_pVertexArray;
     std::shared_ptr<Rendering::IShader> m_pShader;
     //
 
