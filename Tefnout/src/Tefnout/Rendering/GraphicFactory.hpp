@@ -1,7 +1,7 @@
 #ifndef __GRAPHICFACTORY__HPP
 #define __GRAPHICFACTORY__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 #include "Tefnout/Rendering/IGraphicContext.hpp"
 
 

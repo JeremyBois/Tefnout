@@ -4,8 +4,9 @@
 // Base application to be supercharged by engine user
 #include "Tefnout/Core/Application.hpp"
 
-// Logging support
+// Debug support
 #include "Tefnout/Core/Logger.hpp"
+#include "Tefnout/Core/Debug.hpp"
 
 // Window
 #include "Tefnout/Window/IWindow.hpp"

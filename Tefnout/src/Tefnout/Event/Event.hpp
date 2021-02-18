@@ -1,7 +1,7 @@
 #ifndef __EVENT__HPP
 #define __EVENT__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 #include <iostream>
 
 namespace Tefnout

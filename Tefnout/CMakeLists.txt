@@ -280,24 +280,23 @@ endif()
 # ------------------------------------------------------------------------------
 # Build options based on build type (Debug, Release, Distribution)
 # ------------------------------------------------------------------------------
-if (NOT CMAKE_CONFIGURATION_TYPES)  # Only for generator without multi-configurations
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(TEFNOUT_LOG_LEVEL 0)
-    endif()
-    if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        set(TEFNOUT_LOG_LEVEL 3)
-    endif()
-    if(CMAKE_BUILD_TYPE STREQUAL "Distribution")
-        set(TEFNOUT_LOG_LEVEL 4)
-    endif()
-
-    message(STATUS "${TEFNOUT_LIB_NAME} logging level set to ${TEFNOUT_LOG_LEVEL} ${CMAKE_CPP_FLAGS}")
-
-    target_compile_definitions(${TEFNOUT_LIB_NAME}
-        PRIVATE
-            TEFNOUT_LOG_LEVEL=${TEFNOUT_LOG_LEVEL}
-    )
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(TEFNOUT_LOG_LEVEL 0)
+    set(TEFNOUT_DEBUG 1)
 endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(TEFNOUT_LOG_LEVEL 3)
+endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Distribution")
+    set(TEFNOUT_LOG_LEVEL 4)
+endif()
+
+message(STATUS "${TEFNOUT_LIB_NAME} logging level set to ${TEFNOUT_LOG_LEVEL} ${CMAKE_CPP_FLAGS}")
+
+target_compile_definitions(${TEFNOUT_LIB_NAME}
+    PRIVATE
+        TEFNOUT_LOG_LEVEL=${TEFNOUT_LOG_LEVEL}
+)
 
 
 
@@ -308,5 +307,4 @@ endif()
 target_precompile_headers(${TEFNOUT_LIB_NAME}
     PRIVATE
         ${PROJECT_SOURCE_DIR}/src/TefnoutPCH.hpp
-        ${PROJECT_SOURCE_DIR}/src/Tefnout/Core/CorePCH.hpp
 )

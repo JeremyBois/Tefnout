@@ -1,7 +1,7 @@
 #ifndef __RINGBUFFER__HPP
 #define __RINGBUFFER__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 
 #include <type_traits>
 

@@ -1,7 +1,7 @@
 #ifndef __IWINDOW__HPP
 #define __IWINDOW__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 #include "Tefnout/Event/Event.hpp"
 #include <functional>
 

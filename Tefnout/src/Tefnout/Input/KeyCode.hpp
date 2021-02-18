@@ -1,7 +1,7 @@
 #ifndef __KEYCODE__HPP
 #define __KEYCODE__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 #include <stdint.h>
 #include <string>
 

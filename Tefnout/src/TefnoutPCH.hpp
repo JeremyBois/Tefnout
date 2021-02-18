@@ -6,15 +6,8 @@
     Will be available in the whole project.
 */
 
-// @WARNINGS
-// Platform specific macros
-// Should be manually included where macro is needed
-// because pre-processing happens before compilation
-#include "Tefnout/Core/Platform.hpp"
-// @WARNINGS
-
 // Debug tools should not be updated too often
-#include "Tefnout/Core/Logger.hpp"
+#include "Tefnout/Core/Core.hpp"
 
 // STL
 #include <iostream>

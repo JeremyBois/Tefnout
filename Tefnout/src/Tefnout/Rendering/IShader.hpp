@@ -1,7 +1,7 @@
 #ifndef __ISHADER__HPP
 #define __ISHADER__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 #include "glm/glm.hpp"
 #include <string>
 

@@ -1,7 +1,7 @@
 #ifndef __MOUSECODE__HPP
 #define __MOUSECODE__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 #include <stdint.h>
 
 namespace Tefnout

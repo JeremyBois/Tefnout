@@ -1,7 +1,7 @@
 #ifndef __ITEXTURE__HPP
 #define __ITEXTURE__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 
 namespace Tefnout
 {

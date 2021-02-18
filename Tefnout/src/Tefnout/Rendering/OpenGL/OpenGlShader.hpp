@@ -2,7 +2,7 @@
 #define __OPENGLSHADER__HPP
 
 #include "Tefnout/Rendering/IShader.hpp"
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 
 
 namespace Tefnout

@@ -1,7 +1,7 @@
 #ifndef __GLFWBACKEND__HPP
 #define __GLFWBACKEND__HPP
 
-#include "Tefnout/Core/CorePCH.hpp"
+#include "Tefnout/Core/Core.hpp"
 #include "Tefnout/Rendering/IGraphicContext.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
