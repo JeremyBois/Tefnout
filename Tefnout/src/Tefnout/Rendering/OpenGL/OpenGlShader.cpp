@@ -2,6 +2,7 @@
 
 #include "Tefnout/Utility/StreamIO.hpp"
 
+
 #include "glad/glad.h"
 #include <glm/gtc/type_ptr.hpp> // needed for glm::value_ptr
 
@@ -9,7 +10,6 @@ namespace Tefnout
 {
 namespace Rendering
 {
-
 OpenGlShader::OpenGlShader(const std::string name, const std::string vertexShaderPath,
                            const std::string fragmentShaderPath)
     : m_programId(0), m_name(name)
@@ -169,8 +169,7 @@ void OpenGlShader::SetMat4(std::string_view name, const glm::mat4 &mat) const
                        glm::value_ptr(mat));
 }
 
-OpenGlShader::ShaderCheckResult OpenGlShader::Check(uint32_t shaderId,
-                                                               ShaderType shaderType)
+OpenGlShader::ShaderCheckResult OpenGlShader::Check(uint32_t shaderId, ShaderType shaderType)
 {
     ShaderCheckResult result(ShaderCheckResult::Ok);
 
