@@ -25,7 +25,7 @@ namespace Tefnout
         // Format as below with color based on level
         // [19:03:44] [TEFNOUT] [-D-] [Logger.cpp:57] OulalaOulala
         sinks[0]->set_pattern("%^[%H:%M:%S] [%n] [%L] [%s:%#] %v %$");
-        sinks[0]->set_level(spdlog::level::trace);  // Console specific
+        sinks[0]->set_level(spdlog::level::debug);  // Console specific
 
         // Add a thread safe (_mt) file sink (false means keeping previous logs)
         // Log in file starting from trace level

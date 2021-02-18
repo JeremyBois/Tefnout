@@ -53,7 +53,7 @@ class TEFNOUT_API Logger
 
 // General macro
 #define TEFNOUT_LOGGER_CALL(logger, level, ...)                                                    \
-    (logger)->log(spdlog::source_loc{__FILE__, __LINE__, SPDLOG_FUNCTION}, level, __VA_ARGS__)
+    (logger)->log(spdlog::source_loc{__FILE__, __LINE__, static_cast<const char *>(__FUNCTION__)}, level, __VA_ARGS__)
 
 // Log levels
 #define TEFNOUT_LEVEL_TRACE 0
