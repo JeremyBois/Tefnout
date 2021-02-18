@@ -16,6 +16,10 @@ class TEFNOUT_LOCAL OpenGlIndexBuffer : public IIndexBuffer
     OpenGlIndexBuffer(uint32_t *indexes, uint32_t count);
     virtual ~OpenGlIndexBuffer();
 
+    // Disable copy
+    OpenGlIndexBuffer &operator=(OpenGlIndexBuffer other) = delete;
+    OpenGlIndexBuffer(const OpenGlIndexBuffer &other) = delete;
+
     void Bind() const override;
     void UnBind() const override;
     inline uint32_t GetCount() const override {return m_count;};

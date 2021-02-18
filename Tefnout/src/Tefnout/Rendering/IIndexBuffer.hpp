@@ -8,6 +8,11 @@ namespace Tefnout
 {
 namespace Rendering
 {
+/**
+ * @brief      Interface describing what is a minimal implementation of a concrete Index
+ *             buffer looks like.
+ * @note       This class is and should remain platform agnostic.
+ */
 class TEFNOUT_API IIndexBuffer
 {
   public:
