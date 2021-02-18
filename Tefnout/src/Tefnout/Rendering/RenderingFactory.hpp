@@ -7,6 +7,7 @@
 #include "ITexture.hpp"
 #include "IVertexBuffer.hpp"
 #include "Tefnout/Rendering/IShader.hpp"
+#include "Tefnout/Rendering/IVertexArray.hpp"
 
 // @NOTE
 // Should add service pattern to handle graphic API initialization
@@ -88,6 +89,13 @@ std::shared_ptr<IVertexBuffer> TEFNOUT_API CreateVertexBuffer(float *data, uint3
  * @return     A shared pointer to created Index buffer.
  */
 std::shared_ptr<IIndexBuffer> TEFNOUT_API CreateIndexBuffer(uint32_t *indexes, uint32_t count);
+
+/**
+ * @brief      Creates an empty array buffer.
+ *
+ * @return     A shared pointer to created Vertex array buffer.
+ */
+std::shared_ptr<IVertexArray> TEFNOUT_API CreateVertexArray();
 } // namespace Rendering
 } // namespace Tefnout
 
