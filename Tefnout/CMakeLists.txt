@@ -197,6 +197,7 @@ file(
     src/Tefnout/Window/GLFW/*
     src/Tefnout/Rendering/*
     src/Tefnout/Rendering/OpenGL/*
+    src/Tefnout/Rendering/Camera/*
 )
 add_library(${TEFNOUT_LIB_NAME} ${LIB_TYPE} ${TEFNOUT_SOURCES})
 
