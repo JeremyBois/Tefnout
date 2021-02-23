@@ -4,6 +4,7 @@
 #include "Tefnout/Core/Core.hpp"
 #include "Tefnout/Rendering/IGraphicContext.hpp"
 #include "Tefnout/Window/IWindow.hpp"
+#include <memory>
 
 // Avoid public include of "GLFW/glfw3.h"
 struct GLFWwindow;
@@ -33,7 +34,7 @@ class TEFNOUT_LOCAL GLFWBackend : public IWindow
     // IWindow interface
     void OnRender() override;
     void OnUpdate() override;
-    void SetEventCallback(const std::function<void(Event::IEvent &)> &callback) override;
+    void SetEventCallback(const std::function<void(std::shared_ptr<Event::IEvent>)> &callback) override;
     void *GetImplementation() const override;
 
   private:
@@ -48,7 +49,7 @@ class TEFNOUT_LOCAL GLFWBackend : public IWindow
         uint32_t Height;
         bool Focused;
 
-        std::function<void(Event::IEvent &)> Callback;
+        std::function<void(std::shared_ptr<Event::IEvent> )> Callback;
     };
 
     /**

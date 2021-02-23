@@ -11,6 +11,7 @@
 
 #include "Tefnout/Rendering/GraphicFactory.hpp"
 #include "Tefnout/Window/IWindow.hpp"
+#include <memory>
 
 // https://www.glfw.org/docs/latest/quick_guide.html#quick_include
 #define GLFW_INCLUDE_NONE
@@ -37,7 +38,8 @@ GLFWBackend::~GLFWBackend()
     Clear();
 }
 
-void GLFWBackend::SetEventCallback(const std::function<void(Event::IEvent &)> &callback)
+void GLFWBackend::SetEventCallback(
+    const std::function<void(std::shared_ptr<Event::IEvent>)> &callback)
 {
     m_information.Callback = callback;
 }
@@ -114,8 +116,7 @@ void GLFWBackend::SetupCallbacks()
         // Get registered structure using glfwSetWindowUserPointer
         Description &data = *static_cast<Description *>(glfwGetWindowUserPointer(window));
 
-        Event::WindowClosed event{};
-        data.Callback(event);
+        data.Callback(std::make_shared<Event::WindowClosed>());
     });
 
     glfwSetWindowSizeCallback(m_pGlfwWindow, [](GLFWwindow *window, int width, int height) {
@@ -125,8 +126,7 @@ void GLFWBackend::SetupCallbacks()
         data.Height = height;
         data.Width = width;
 
-        Event::WindowResized event(data.Width, data.Height);
-        data.Callback(event);
+        data.Callback(std::make_shared<Event::WindowResized>(data.Width, data.Height));
     });
 
     glfwSetWindowFocusCallback(m_pGlfwWindow, [](GLFWwindow *window, int focused) {
@@ -146,18 +146,15 @@ void GLFWBackend::SetupCallbacks()
             switch (action)
             {
             case GLFW_PRESS: {
-                Event::KeyPressed event(Input::KeycodeFromGLFW(key));
-                data.Callback(event);
+                data.Callback(std::make_shared<Event::KeyPressed>(Input::KeycodeFromGLFW(key)));
                 break;
             }
             case GLFW_RELEASE: {
-                Event::KeyReleased event(Input::KeycodeFromGLFW(key));
-                data.Callback(event);
+                data.Callback(std::make_shared<Event::KeyReleased>(Input::KeycodeFromGLFW(key)));
                 break;
             }
             case GLFW_REPEAT: {
-                Event::KeyHeld event(Input::KeycodeFromGLFW(key));
-                data.Callback(event);
+                data.Callback(std::make_shared<Event::KeyHeld>(Input::KeycodeFromGLFW(key)));
                 break;
             }
             }
@@ -167,8 +164,7 @@ void GLFWBackend::SetupCallbacks()
     glfwSetCursorPosCallback(m_pGlfwWindow, [](GLFWwindow *window, double xpos, double ypos) {
         Description &data = *static_cast<Description *>(glfwGetWindowUserPointer(window));
 
-        Event::MouseMoved event(Event::MousePosition(xpos, ypos));
-        data.Callback(event);
+        data.Callback(std::make_shared<Event::MouseMoved>(Event::MousePosition(xpos, ypos)));
     });
 
     glfwSetMouseButtonCallback(
@@ -178,13 +174,13 @@ void GLFWBackend::SetupCallbacks()
             switch (action)
             {
             case GLFW_PRESS: {
-                Event::MouseButtonPressed event(Input::MousecodeFromGLFW(button));
-                data.Callback(event);
+                data.Callback(
+                    std::make_shared<Event::MouseButtonPressed>(Input::MousecodeFromGLFW(button)));
                 break;
             }
             case GLFW_RELEASE: {
-                Event::MouseButtonReleased event(Input::MousecodeFromGLFW(button));
-                data.Callback(event);
+                data.Callback(
+                    std::make_shared<Event::MouseButtonReleased>(Input::MousecodeFromGLFW(button)));
                 break;
             }
             }
@@ -193,8 +189,7 @@ void GLFWBackend::SetupCallbacks()
     glfwSetScrollCallback(m_pGlfwWindow, [](GLFWwindow *window, double xoffset, double yoffset) {
         Description &data = *static_cast<Description *>(glfwGetWindowUserPointer(window));
 
-        Event::MouseScrolled event(Event::MouseOffset(xoffset, yoffset));
-        data.Callback(event);
+        data.Callback(std::make_shared<Event::MouseScrolled>(Event::MouseOffset(xoffset, yoffset)));
     });
 }
 

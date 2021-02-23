@@ -3,6 +3,7 @@
 #include "Tefnout/Event/Event.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 #include "Tefnout/Window/WindowFactory.hpp"
+#include <memory>
 
 namespace Tefnout
 {
@@ -10,7 +11,7 @@ namespace Tefnout
 Application *Application::s_Instance = nullptr;
 
 Application::Application()
-    : m_running(false), m_pWindow(Window::Create(Window::GenericProperties{}))
+    : m_running(false), m_pWindow(Window::Create(Window::GenericProperties{})), m_windowEvents()
 {
     s_Instance = this;
 
@@ -28,6 +29,8 @@ void Application::Run()
     {
         m_pWindow->OnUpdate();
         m_pWindow->OnRender();
+
+        HandleEvents();
     };
 }
 
@@ -36,20 +39,32 @@ void Application::Close()
     m_running = false;
 }
 
-void Application::OnWindowEvent(Event::IEvent &event)
+void Application::OnWindowEvent(std::shared_ptr<Event::IEvent> event)
 {
-    // TEFNOUT_TRACE("Get {0}", event);
+    // TEFNOUT_DEBUG("Get {0}", *event);
 
-    Event::Information eventInformation = event.GetInformation();
+    // Delay event handling
+    m_windowEvents.Push(std::move(event));  // Avoid temporary copy
+}
 
-    switch (eventInformation.Type)
+void Application::HandleEvents()
+{
+    while (m_windowEvents.IsPending())
     {
-    case Event::Kind::WindowClosed: {
-        Close();
-        break;
-    }
-    default:
-        break;
+        auto event = m_windowEvents.Pop();
+        Event::Information eventInformation = event->GetInformation();
+
+        // TEFNOUT_DEBUG("Handle {0}", *event);
+
+        switch (eventInformation.Type)
+        {
+        case Event::Kind::WindowClosed: {
+            Close();
+            break;
+        }
+        default:
+            break;
+        }
     }
 }
 

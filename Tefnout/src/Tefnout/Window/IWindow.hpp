@@ -30,7 +30,7 @@ class TEFNOUT_API IWindow
     virtual void OnUpdate() = 0;
     virtual void OnRender() = 0;
 
-    virtual void SetEventCallback(const std::function<void(Event::IEvent &)> &callback) = 0;
+    virtual void SetEventCallback(const std::function<void(std::shared_ptr<Event::IEvent> )> &callback) = 0;
     virtual void *GetImplementation() const = 0;
 };
 } // namespace Window
