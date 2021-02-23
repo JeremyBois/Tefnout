@@ -2,7 +2,7 @@
 #define __ISHADER__HPP
 
 #include "Tefnout/Core/Core.hpp"
-#include "glm/glm.hpp"
+#include <glm/fwd.hpp>
 #include <string>
 
 namespace Tefnout
