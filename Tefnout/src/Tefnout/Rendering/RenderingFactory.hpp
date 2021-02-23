@@ -3,11 +3,13 @@
 
 #include "Tefnout/Core/Platform.hpp"
 
-#include "IIndexBuffer.hpp"
-#include "ITexture.hpp"
-#include "IVertexBuffer.hpp"
+#include "Tefnout/Rendering/IGraphicRenderer.hpp"
+#include "Tefnout/Rendering/IIndexBuffer.hpp"
 #include "Tefnout/Rendering/IShader.hpp"
+#include "Tefnout/Rendering/ITexture.hpp"
 #include "Tefnout/Rendering/IVertexArray.hpp"
+#include "Tefnout/Rendering/IVertexBuffer.hpp"
+#include <memory>
 
 // @NOTE
 // Should add service pattern to handle graphic API initialization
@@ -18,33 +20,6 @@ namespace Tefnout
 {
 namespace Rendering
 {
-
-/**
- * @brief      An enum that represent all Graphic API allowed in the engine.
- */
-enum class TEFNOUT_API API : uint8_t
-{
-    None = 0,
-    OpenGl = 1
-};
-
-/**
- * @brief      Global state used to get the currently used graphic API.
- *
- */
-class TEFNOUT_API GraphicsAPI
-{
-  public:
-    inline static API GetAPI()
-    {
-        return s_API;
-    }
-
-  private:
-    // Hard coded for now
-    static const API s_API = API::OpenGl;
-};
-
 /**
  * @brief      Factory to load and build a 2D texture from a file path using bound graphic
  *             API.
@@ -54,7 +29,7 @@ class TEFNOUT_API GraphicsAPI
  *
  * @return     A shared pointer to loaded 2D Texture.
  */
-std::shared_ptr<ITexture2D> TEFNOUT_API Create2DTexture(const std::string &path,
+std::shared_ptr<ITexture2D> TEFNOUT_API CreateTexture2D(const std::string &path,
                                                         TextureOptions options);
 
 /**
@@ -96,6 +71,15 @@ std::shared_ptr<IIndexBuffer> TEFNOUT_API CreateIndexBuffer(uint32_t *indexes, u
  * @return     A shared pointer to created Vertex array buffer.
  */
 std::shared_ptr<IVertexArray> TEFNOUT_API CreateVertexArray();
+
+
+/**
+ * @brief      Factory that create a concrete implementation of a rendering API.
+ *
+ * @return     A unique pointer to created graphic renderer API.
+ */
+std::unique_ptr<IGraphicRenderer> TEFNOUT_API CreateGraphicRenderer();
+
 } // namespace Rendering
 } // namespace Tefnout
 

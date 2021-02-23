@@ -1,13 +1,17 @@
-#include "RenderingFactory.hpp"
-#include "Tefnout/Rendering/IVertexArray.hpp"
-#include "Tefnout/Rendering/OpenGL/OpenGlVertexArray.hpp"
 #include "TefnoutPCH.hpp"
 
-#include "Tefnout/Rendering/IShader.hpp"
+#include "RenderingFactory.hpp"
+
+#include "Tefnout/Rendering/IGraphicRenderer.hpp"
+
+// OpenGL
+#include "Tefnout/Rendering/OpenGL/OpenGlGraphicRenderer.hpp"
 #include "Tefnout/Rendering/OpenGL/OpenGlIndexBuffer.hpp"
 #include "Tefnout/Rendering/OpenGL/OpenGlShader.hpp"
 #include "Tefnout/Rendering/OpenGL/OpenGlTexture2D.hpp"
+#include "Tefnout/Rendering/OpenGL/OpenGlVertexArray.hpp"
 #include "Tefnout/Rendering/OpenGL/OpenGlVertexBuffer.hpp"
+
 #include <memory>
 
 namespace Tefnout
@@ -15,9 +19,9 @@ namespace Tefnout
 namespace Rendering
 {
 
-std::shared_ptr<ITexture2D> Create2DTexture(const std::string &path, TextureOptions options)
+std::shared_ptr<ITexture2D> CreateTexture2D(const std::string &path, TextureOptions options)
 {
-    switch (GraphicsAPI::GetAPI())
+    switch (IGraphicRenderer::GetAPI())
     {
     case API::None: {
         TEFNOUT_ERROR("Null graphic API not yet implemented. Come back later !");
@@ -37,7 +41,7 @@ std::shared_ptr<ITexture2D> Create2DTexture(const std::string &path, TextureOpti
 std::shared_ptr<IShader> CreateShader(const std::string name, const std::string vertexShaderPath,
                                       const std::string fragmentShaderPath)
 {
-    switch (GraphicsAPI::GetAPI())
+    switch (IGraphicRenderer::GetAPI())
     {
     case API::None: {
         TEFNOUT_ERROR("Null graphic API not yet implemented. Come back later !");
@@ -55,7 +59,7 @@ std::shared_ptr<IShader> CreateShader(const std::string name, const std::string 
 
 std::shared_ptr<IVertexBuffer> CreateVertexBuffer(float *data, uint32_t dataSize)
 {
-    switch (GraphicsAPI::GetAPI())
+    switch (IGraphicRenderer::GetAPI())
     {
     case API::None: {
         TEFNOUT_ERROR("Null graphic API not yet implemented. Come back later !");
@@ -73,7 +77,7 @@ std::shared_ptr<IVertexBuffer> CreateVertexBuffer(float *data, uint32_t dataSize
 
 std::shared_ptr<IIndexBuffer> CreateIndexBuffer(uint32_t *indexes, uint32_t count)
 {
-    switch (GraphicsAPI::GetAPI())
+    switch (IGraphicRenderer::GetAPI())
     {
     case API::None: {
         TEFNOUT_ERROR("Null graphic API not yet implemented. Come back later !");
@@ -89,9 +93,9 @@ std::shared_ptr<IIndexBuffer> CreateIndexBuffer(uint32_t *indexes, uint32_t coun
     }
 }
 
-std::shared_ptr<Rendering::IVertexArray> CreateVertexArray()
+std::shared_ptr<IVertexArray> CreateVertexArray()
 {
-    switch (GraphicsAPI::GetAPI())
+    switch (IGraphicRenderer::GetAPI())
     {
     case API::None: {
         TEFNOUT_ERROR("Null graphic API not yet implemented. Come back later !");
@@ -99,6 +103,24 @@ std::shared_ptr<Rendering::IVertexArray> CreateVertexArray()
     }
     case API::OpenGl: {
         return std::make_shared<OpenGlVertexArray>();
+    }
+    default: {
+        TEFNOUT_CRITICAL("Non existing graphic API.");
+        return nullptr;
+    }
+    }
+}
+
+std::unique_ptr<IGraphicRenderer> CreateGraphicRenderer()
+{
+    switch (IGraphicRenderer::GetAPI())
+    {
+    case API::None: {
+        TEFNOUT_ERROR("Null graphic API not yet implemented. Come back later !");
+        return nullptr;
+    }
+    case API::OpenGl: {
+        return std::make_unique<OpenGlGraphicRenderer>();
     }
     default: {
         TEFNOUT_CRITICAL("Non existing graphic API.");
