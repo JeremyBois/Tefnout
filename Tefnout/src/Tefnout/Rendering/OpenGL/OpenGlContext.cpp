@@ -1,11 +1,16 @@
 #include "OpenGlContext.hpp"
 
 #include "Tefnout/Core/Core.hpp"
+#include "Tefnout/Core/Logger.hpp"
 #include "Tefnout/Rendering/Layout.hpp"
+#include "Tefnout/Rendering/Renderer.hpp"
 #include "Tefnout/Rendering/RenderingFactory.hpp"
 #include "Tefnout/Window/IWindow.hpp"
+#include "Tefnout/Rendering/Camera/OrthographicCamera.hpp"
+
 #include <bits/c++config.h>
 #include <bits/stdint-uintn.h>
+#include <memory>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -88,6 +93,13 @@ void OpenGlContext::Init(Window::GenericProperties window_properties)
 
     // @TEMP
     //
+    // Create Camera with specific aspect ratio
+    auto ratio = static_cast<float>(window_properties.Width) / static_cast<float>(window_properties.Height);
+    m_pCamera = std::make_shared<Camera::Orthographic>(Camera::FrustrumBounds(-ratio, ratio, -1.0f, 1.0f));
+    auto test = static_cast<Camera::Orthographic*>(m_pCamera.get());
+    test->SetPosition({1.0f, 0.5f, 0.0f});
+    test->SetRotationZ(30.0f);
+
     // 1) Create Shader
     m_pShader = CreateShader("Basic", "Assets/Shaders/Basic.vert", "Assets/Shaders/Basic.frag");
 
@@ -141,14 +153,16 @@ void OpenGlContext::OnUpdate()
 
 void OpenGlContext::OnRender()
 {
-    // @TEMP
-    glClearColor(0.149f, 0.545f, 0.823f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    using namespace Rendering;
 
-    m_pShader->Bind();
-    m_pVertexArray->Bind();
-    glDrawElements(GL_TRIANGLES, m_pVertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT,
-                   nullptr);
+    // @TEMP
+    Renderer::ClearColor({0.149f, 0.545f, 0.823f, 1.0f});
+    Renderer::Clear();
+
+    Renderer::Begin(m_pCamera);
+    Renderer::Push(m_pShader, m_pVertexArray);
+    Renderer::End();
+    // @TEMP
 
     // Swap buffer
     glfwSwapBuffers(m_pGlfwWindow);

@@ -1,6 +1,7 @@
 #ifndef __OPENGLCONTEXT__HPP
 #define __OPENGLCONTEXT__HPP
 
+#include "Tefnout/Rendering/Camera/ICamera.hpp"
 #include "Tefnout/Rendering/IVertexArray.hpp"
 #include "Tefnout/Rendering/IGraphicContext.hpp"
 #include "Tefnout/Rendering/IIndexBuffer.hpp"
@@ -44,7 +45,8 @@ private:
      // @TEMP
     std::shared_ptr<Rendering::IVertexArray> m_pVertexArray;
     std::shared_ptr<Rendering::IShader> m_pShader;
-    //
+    std::shared_ptr<Camera::ICamera> m_pCamera;
+    // @TEMP
 
     void SetupCallbacks();
 };
