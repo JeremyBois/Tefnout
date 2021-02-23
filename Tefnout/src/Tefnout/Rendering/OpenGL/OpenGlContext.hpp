@@ -8,11 +8,6 @@
 #include "Tefnout/Rendering/IVertexBuffer.hpp"
 #include "Tefnout/Window/IWindow.hpp"
 
-// @TEMP
-#include "Tefnout/Rendering/IShader.hpp"
-#include <memory>
-//
-
 
 struct GLFWwindow;
 
@@ -41,12 +36,6 @@ class TEFNOUT_LOCAL OpenGlContext : public IGraphicContext
 
 private:
     GLFWwindow *m_pGlfwWindow;
-
-     // @TEMP
-    std::shared_ptr<Rendering::IVertexArray> m_pVertexArray;
-    std::shared_ptr<Rendering::IShader> m_pShader;
-    std::shared_ptr<Camera::ICamera> m_pCamera;
-    // @TEMP
 
     void SetupCallbacks();
 };
