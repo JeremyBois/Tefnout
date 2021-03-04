@@ -60,38 +60,7 @@ add_subdirectory(Tefnout)
 # Engine TESTS
 # ------------------------------------------------------------------------------
 if(TEFNOUT_BUILD_TESTING)
-    add_subdirectory(Tefnout/vendors/Catch2)
-
-    list(APPEND tests_SOURCES
-        ${CMAKE_SOURCE_DIR}/Tests/src/CatchMain.cpp
-        ${CMAKE_SOURCE_DIR}/Tests/src/Container/RingBuffer.cpp
-    )
-
-    add_executable(tefnout-testing ${tests_SOURCES})
-
-    set_target_properties(tefnout-testing
-    PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/Tests/"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/Tests/"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/Tests/"
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED ON
-    LINKER_LANGUAGE CXX
-    )
-
-    if (TEFNOUT_BUILD_SHARED_LIBS)
-        target_include_directories(tefnout-testing
-            PRIVATE
-                ${CMAKE_SOURCE_DIR}/Tefnout/src
-                ${CMAKE_SOURCE_DIR}/Tests/src
-        )
-    endif()
-
-    target_link_libraries(tefnout-testing
-        PRIVATE
-            tefnout::tefnout
-            Catch2::Catch2
-    )
+    add_subdirectory(Tests)
 endif()
 
 

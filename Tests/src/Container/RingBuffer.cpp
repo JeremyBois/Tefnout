@@ -7,7 +7,7 @@
 
 /*
  Unit-Tests for Ring buffer implementation.
- */
+*/
 
 TEST_CASE("Ring buffer can be create", "[RingBuffer]")
 {

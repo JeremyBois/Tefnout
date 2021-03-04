@@ -8,5 +8,5 @@
 	path = Tefnout/vendors/glfw
 	url = https://github.com/glfw/glfw.git
 [submodule "Tefnout/vendors/Catch2"]
-	path = Tefnout/vendors/Catch2
+	path = Tests/vendors/Catch2
 	url = https://github.com/catchorg/Catch2.git
