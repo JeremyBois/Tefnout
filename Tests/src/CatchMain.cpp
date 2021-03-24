@@ -14,10 +14,3 @@ int main(int argc, char *argv[])
 
     return result;
 }
-
-// Kept in case of but using a specific main should be better
-// TEST_CASE("Init logger", "[Logger]")
-// {
-//     // Needed to avoid core dump when logging
-//     Tefnout::Logger::Init();
-// }

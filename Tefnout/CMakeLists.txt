@@ -198,6 +198,9 @@ file(
     src/Tefnout/Rendering/*
     src/Tefnout/Rendering/OpenGL/*
     src/Tefnout/Rendering/Camera/*
+    src/Tefnout/Rendering/ECS/*
+    src/Tefnout/Rendering/Memory/*
+    src/Tefnout/Rendering/Memory/Allocator/*
 )
 add_library(${TEFNOUT_LIB_NAME} ${LIB_TYPE} ${TEFNOUT_SOURCES})
 
@@ -207,6 +210,7 @@ if (TEFNOUT_BUILD_SHARED_LIBS)
     target_include_directories(${TEFNOUT_LIB_NAME}
         PRIVATE
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+            $<INSTALL_INTERFACE:include>
     )
     # Set pre processor command for Shared lib export
     target_compile_definitions(${TEFNOUT_LIB_NAME}
@@ -219,6 +223,7 @@ else()
     target_include_directories(${TEFNOUT_LIB_NAME}
         PUBLIC
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+            $<INSTALL_INTERFACE:include>
     )
 endif()
 
@@ -228,9 +233,9 @@ target_link_libraries(${TEFNOUT_LIB_NAME}
     PUBLIC
         spdlog::spdlog
         glm::glm
+    PRIVATE
         glad
         stb_image
-    PRIVATE
         glfw
 )
 set_target_properties(${TEFNOUT_LIB_NAME}
@@ -241,6 +246,9 @@ set_target_properties(${TEFNOUT_LIB_NAME}
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
     LINKER_LANGUAGE CXX
+    # https://gcc.gnu.org/wiki/Visibility
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
 )
 
 # Read only alias
@@ -252,18 +260,26 @@ add_library(tefnout::tefnout ALIAS ${TEFNOUT_LIB_NAME})
 # ------------------------------------------------------------------------------
 # Build options based on platform (Windows, Unix)
 # ------------------------------------------------------------------------------
-if (MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # warning level 4 and all warnings as errors
     target_compile_options(${TEFNOUT_LIB_NAME}
         PRIVATE
             /W4
             # /WX
     )
+
+    # # Disable RTTI (run-time type information)
+    # target_compile_options(${TEFNOUT_LIB_NAME}
+    #     PRIVATE
+    #         /GR-
+    # )
+
+
     target_link_options(${MY_LIB_NAME}
         PUBLIC
             -MACHINE:x64
     )
-else()
+else(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # lots of warnings and all warnings as errors
     target_compile_options(${TEFNOUT_LIB_NAME}
         PRIVATE
@@ -273,6 +289,12 @@ else()
         PUBLIC
             -m64
     )
+
+    # # Disable RTTI (run-time type information)
+    # target_compile_options(${TEFNOUT_LIB_NAME}
+    #     PRIVATE
+    #         -fno-rtti -Wno-error
+    # )
 endif()
 
 
