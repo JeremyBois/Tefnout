@@ -83,7 +83,7 @@ glxinfo | grep "OpenGL core profile version"
 # On my computer --> OpenGL core profile version string: 4.6 (Core Profile) Mesa 20.3.3
 ```
 
-If you have OpenGL you can now move on to [GLFW](#GLFW).
+If you have OpenGL you can now move on to [GLFW](#GLFW3).
 
 
 #### GLFW3
