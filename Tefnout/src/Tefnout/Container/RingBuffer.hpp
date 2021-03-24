@@ -4,6 +4,7 @@
 #include "Tefnout/Core/Core.hpp"
 
 #include <type_traits>
+#include <utility>
 
 namespace Tefnout
 {
@@ -26,10 +27,10 @@ enum class TEFNOUT_API Response : uint32_t
     Abort = 3
 };
 
-template <typename T, std::size_t TCapacity, bool TFlagConst> struct TEFNOUT_API RingIterator;
+template <typename T, std::size_t capacity, bool isConst> struct TEFNOUT_API RingIterator;
 
 /**
- * @brief      A fixed size container keeping avantages of an array but also allowing to
+ * @brief      A fixed capacity container keeping avantages of an array but also allowing to
  *             queue element without any shifting (as with a linked list) using a cyclic
  *             array as described in "Game programming patterns"
  *             (https://gameprogrammingpatterns.com/event-queue.html#a-ring-buffer).
@@ -44,9 +45,9 @@ template <typename T, std::size_t TCapacity, bool TFlagConst> struct TEFNOUT_API
  *             index points to a valid memory address.
  *
  * @tparam     T          Type of stored elements
- * @tparam     TCapacity  Maximal container capacity
+ * @tparam     capacity  Maximal container capacity
  */
-template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
+template <typename T, std::size_t capacity> class TEFNOUT_API Ring
 {
   public:
     // Required alias for STL trait definition
@@ -56,8 +57,8 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
     using const_reference = const value_type &;
 
     // Alias for all available iterators
-    using iterator = RingIterator<T, TCapacity, false>;
-    using const_iterator = RingIterator<T, TCapacity, true>;
+    using iterator = RingIterator<T, capacity, false>;
+    using const_iterator = RingIterator<T, capacity, true>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -114,7 +115,7 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
     {
         auto old_head = m_head;
         UpdateHeadAndSize();
-        return m_container[old_head];
+        return std::move(m_container[old_head]);
     }
 
     /**
@@ -125,7 +126,7 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
      *
      * @return     Buffer response indicating the operation result (@ref Response)
      */
-    Response TryPush(T item)
+    Response TryPush(const T& item)
     {
         auto response = Response::Unknown;
 
@@ -139,7 +140,36 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
         else
         {
             // Do nothing
-            TEFNOUT_ERROR("Nothing pushed to avoid an overflow (TCapacity = {0})", TCapacity);
+            TEFNOUT_ERROR("Nothing pushed to avoid an overflow (capacity = {0})", capacity);
+            response = Response::Abort;
+        }
+
+        return response;
+    }
+
+    /**
+     * @brief      Safe way to add a new item to the queue. Only added if not already
+     *             full.
+     *
+     * @param[in]  item  The item to enqueue
+     *
+     * @return     Buffer response indicating the operation result (@ref Response)
+     */
+    Response TryPush(T&& item)
+    {
+        auto response = Response::Unknown;
+
+        if (!IsFull())
+        {
+            UpdateTailAndSize();
+            response = Response::Ok;
+            m_container[m_tail] = std::move(item);
+            // TEFNOUT_DEBUG("tail={1} head={2} (pending = {0})", m_pendingSize, m_tail, m_head);
+        }
+        else
+        {
+            // Do nothing
+            TEFNOUT_ERROR("Nothing pushed to avoid an overflow (capacity = {0})", capacity);
             response = Response::Abort;
         }
 
@@ -155,24 +185,9 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
      *
      * @return     Buffer response indicating the operation result (@ref Response)
      */
-    Response Push(T item)
+    Response Push(const T& item)
     {
-        auto response = Response::Unknown;
-
-        if (!IsFull())
-        {
-            UpdateTailAndSize();
-            response = Response::Ok;
-        }
-        else
-        {
-            // Advance both due to overflow
-            // Oldest item is lost
-            UpdateHeadAndSize();
-            UpdateTailAndSize();
-            TEFNOUT_ERROR("Overflow of Ring occurs (TCapacity = {0})", TCapacity);
-            response = Response::Overflow;
-        }
+        auto response = PreparePush();
 
         m_container[m_tail] = item;
         // TEFNOUT_DEBUG("tail={1} head={2} (pending = {0})", m_pendingSize, m_tail, m_head);
@@ -180,12 +195,47 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
         return response;
     }
 
+    Response Push(T&& item)
+    {
+        auto response = PreparePush();
+
+        m_container[m_tail] = std::move(item);
+        // TEFNOUT_DEBUG("tail={1} head={2} (pending = {0})", m_pendingSize, m_tail, m_head);
+
+        return response;
+    }
+
+    /**
+     * @brief      Emplace a new item to the buffer. Avoid creating the object on the
+     *             caller function stackframe by directly created it in buffer storage.
+     *
+     * @param      args  The arguments used to build the object
+     *
+     * @tparam     Args  Variadic arguments used to build a type instance
+     *
+     * @return     Newly created and added instance
+     */
+    template<typename ... Args>
+    T& Emplace(Args&& ... args)
+    {
+        auto response = PreparePush();
+
+        m_container[m_tail] = T(std::forward<Args>(args) ...);
+
+        return m_container[m_tail];
+    }
+
+    constexpr size_type Capacity() const
+    {
+        return capacity;
+    }
+
     /**
      * @brief      Determines the number of queued items.
      *
      * @return     The number of item inside the queue.
      */
-    size_type Size()
+    size_type Size() const
     {
         return m_pendingSize;
     }
@@ -195,9 +245,9 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
      *
      * @return     True if full, False otherwise.
      */
-    bool IsFull()
+    bool IsFull() const
     {
-        return m_pendingSize == TCapacity;
+        return m_pendingSize == capacity;
     }
 
     /**
@@ -205,7 +255,7 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
      *
      * @return     True if empty, False otherwise.
      */
-    bool IsEmpty()
+    bool IsEmpty() const
     {
         return m_pendingSize == s_Zero;
     }
@@ -215,7 +265,7 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
      *
      * @return     True if pending, False otherwise.
      */
-    bool IsPending()
+    bool IsPending() const
     {
         return !IsEmpty();
     }
@@ -270,19 +320,19 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
 
     reference operator[](size_type index)
     {
-        auto indexInBounds = index % TCapacity;
+        auto indexInBounds = index % capacity;
         return m_container[indexInBounds];
     }
 
     const_reference &operator[](size_type index) const
     {
-        auto indexInBounds = index % TCapacity;
+        auto indexInBounds = index % capacity;
         return m_container[indexInBounds];
     }
 
   private:
     // Thin wrapper around a raw array without overhead
-    std::array<T, TCapacity> m_container;
+    std::array<T, capacity> m_container;
     size_type m_head;
     size_type m_tail;
     size_type m_pendingSize;
@@ -293,14 +343,36 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
 
     inline void UpdateHeadAndSize()
     {
-        m_head = (m_head + s_One) % TCapacity;
+        m_head = (m_head + s_One) % capacity;
         --m_pendingSize;
     }
 
     inline void UpdateTailAndSize()
     {
-        m_tail = (m_tail + s_One) % TCapacity;
+        m_tail = (m_tail + s_One) % capacity;
         ++m_pendingSize;
+    }
+
+    Response PreparePush()
+    {
+        auto response = Response::Unknown;
+
+        if (!IsFull())
+        {
+            UpdateTailAndSize();
+            response = Response::Ok;
+        }
+        else
+        {
+            // Advance both due to overflow
+            // Oldest item is lost
+            UpdateHeadAndSize();
+            UpdateTailAndSize();
+            TEFNOUT_ERROR("Overflow of Ring occurs (capacity = {0})", capacity);
+            response = Response::Overflow;
+        }
+
+        return response;
     }
 };
 
@@ -308,12 +380,12 @@ template <typename T, std::size_t TCapacity> class TEFNOUT_API Ring
  * @brief      Iterator implementation for Ring as a bidirectionnal (mutable or constant)
  *             iterator.
  *
- * @tparam     T           Type of items inside the container.
- * @tparam     TCapacity   Size of the container.
- * @tparam     TFlagConst  Version of the iterator to create : true for a constant, false
- *                         for a mutable (default).
+ * @tparam     T         Type of items inside the container.
+ * @tparam     capacity  Capacity of the container.
+ * @tparam     isConst   Version of the iterator to create : true for a constant, false
+ *                       for a mutable (default).
  */
-template <typename T, std::size_t TCapacity, bool TFlagConst = false> struct TEFNOUT_API RingIterator
+template <typename T, std::size_t capacity, bool isConst = false> struct TEFNOUT_API RingIterator
 {
   public:
     // Iterator traits
@@ -323,17 +395,17 @@ template <typename T, std::size_t TCapacity, bool TFlagConst = false> struct TEF
     using size_type = std::size_t;
     using value_type = T;
 
-    // Const or non-const based on boolean TFlagConst
+    // Const or non-const based on boolean isConst
     // https://stackoverflow.com/questions/2150192/how-to-avoid-code-duplication-implementing-const-and-non-const-iterators
-    // TFlagConst == true  --> const iterator
-    // TFlagConst == false --> iterator
-    using pointer = typename std::conditional_t<TFlagConst, value_type const *, value_type *>;
-    using reference = typename std::conditional_t<TFlagConst, value_type const &, value_type &>;
+    // isConst == true  --> const iterator
+    // isConst == false --> iterator
+    using pointer = typename std::conditional_t<isConst, value_type const *, value_type *>;
+    using reference = typename std::conditional_t<isConst, value_type const &, value_type &>;
 
     // Use flag to deduce correct type (const or non const buffer pointer version)
     // Allow to remove explicit type in template argument
     using buffer_pointer_type =
-        typename std::conditional_t<TFlagConst, const Ring<T, TCapacity> *, Ring<T, TCapacity> *>;
+        typename std::conditional_t<isConst, const Ring<T, capacity> *, Ring<T, capacity> *>;
 
     explicit RingIterator(buffer_pointer_type ptr, size_type head, size_type delta)
         : buffer_ptr(ptr), m_head(head), m_delta(delta)
@@ -345,20 +417,20 @@ template <typename T, std::size_t TCapacity, bool TFlagConst = false> struct TEF
     // Allow conversion from non-const to const but not the other way arround
     // preserving trivial construction
     // More at https://quuxplusone.github.io/blog/2018/12/01/const-iterator-antipatterns/
-    template <bool WasConst, class = std::enable_if_t<TFlagConst || !WasConst>>
-    RingIterator(const RingIterator<T, TCapacity, WasConst> &rhs)
+    template <bool WasConst, class = std::enable_if_t<isConst || !WasConst>>
+    RingIterator(const RingIterator<T, capacity, WasConst> &rhs)
         : buffer_ptr(rhs.buffer_ptr), m_head(m_head), m_delta(m_delta)
     {
     }
 
-    // @NOTE Const or non const based on template TFlagConst
+    // @NOTE Const or non const based on template isConst
     reference operator*()
     {
         // Item pointer
         return (*buffer_ptr)[m_head + m_delta];
     }
 
-    // @NOTE Const or non const based on template TFlagConst
+    // @NOTE Const or non const based on template isConst
     pointer operator->()
     {
         // Reference of item pointer
