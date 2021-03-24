@@ -18,8 +18,9 @@
 #include "Tefnout/Rendering/Camera/ICamera.hpp"
 #include "Tefnout/Rendering/Camera/OrthographicCamera.hpp"
 
-// IO
+// Utility
 #include "Tefnout/Utility/StreamIO.hpp"
+#include "Tefnout/Utility/Timer.hpp"
 
 // Container
 #include "Tefnout/Container/RingBuffer.hpp"
