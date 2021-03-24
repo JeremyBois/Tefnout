@@ -1,6 +1,7 @@
 #include "TefnoutPCH.hpp"
 
 #include "OrthographicCamera.hpp"
+
 #include "glm/ext/matrix_transform.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 
@@ -17,12 +18,11 @@ namespace Camera
 // @NOTE
 
 Orthographic::Orthographic(const FrustrumBounds bounds, const ClippingLimits clippingLimits)
-    : m_bounds(bounds), m_clipping(clippingLimits), m_view(1.0f),
+    : m_bounds{bounds}, m_clipping{clippingLimits}, m_view{1.0f},
       m_projection(glm::ortho(m_bounds.Left, m_bounds.Right, m_bounds.Bottom, m_bounds.Top,
                               m_clipping.Near, m_clipping.Far)),
-      m_rotationZ(0.0f), m_position(0.0f)
+      m_projectionView{m_projection * m_view}, m_rotationZ{0.0f}, m_position{0.0f}
 {
-    m_projectionView = m_projection * m_view;
 }
 
 

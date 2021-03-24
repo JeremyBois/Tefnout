@@ -1,11 +1,6 @@
-#include "Tefnout/Core/Logger.hpp"
 #include "TefnoutPCH.hpp"
 
 #include "Layout.hpp"
-#include <bits/c++config.h>
-#include <bits/stdint-intn.h>
-#include <bits/stdint-uintn.h>
-#include <sys/types.h>
 #include <utility>
 
 namespace Tefnout
@@ -59,9 +54,11 @@ constexpr std::pair<uint32_t, uint32_t> ComputeSizeAndCount(const AttributeType 
     case AttributeType::Mat4: {
         return {sizeof(float) * 4 * 3, 4};
     }
-
-        TEFNOUT_WARN("Unsupported/Unimplemented Shader attribute type <{0}>", attributeType);
+    default: {
+        TEFNOUT_ASSERT(false, "Unsupported/Unimplemented Shader attribute type <{0}>",
+                       attributeType);
         return {0, 0};
+    }
     }
 }
 
@@ -104,8 +101,11 @@ std::string ToString(AttributeType attributeType)
     case AttributeType::Mat4: {
         return "Mat4";
     }
-        TEFNOUT_WARN("Unsupported/Unimplemented Shader attribute type <{0}>", attributeType);
-        return "";
+    default: {
+        TEFNOUT_ASSERT(false, "Unsupported/Unimplemented Shader attribute type <{0}>",
+                       attributeType);
+        return "Undefined";
+    }
     }
 }
 
@@ -113,7 +113,7 @@ std::string ToString(AttributeType attributeType)
 // Shader attribute
 //--------------------------------------------------------------------------------
 ShaderAttribute::ShaderAttribute(const std::string &name, AttributeType attributeType)
-    : m_name(name), m_type(attributeType), m_size(0), m_normalized(false), m_count(0)
+    : m_name{name}, m_type{attributeType}, m_size{0}, m_normalized{false}, m_count{0}
 {
     std::tie(m_size, m_count) = ComputeSizeAndCount(attributeType);
 }
@@ -136,11 +136,10 @@ LayoutElement::LayoutElement(const ShaderAttribute &attribute, std::size_t offse
 //--------------------------------------------------------------------------------
 // Layout
 //--------------------------------------------------------------------------------
-Layout::Layout() noexcept : m_elements({}), m_strideSize(0)
+Layout::Layout() noexcept : m_elements({}), m_strideSize{0}
 {
 }
-Layout::Layout(std::initializer_list<ShaderAttribute> attributes)
-    : m_elements({}), m_strideSize(0)
+Layout::Layout(std::initializer_list<ShaderAttribute> attributes) : m_elements({}), m_strideSize(0)
 {
     StoreAttributes(attributes);
 }

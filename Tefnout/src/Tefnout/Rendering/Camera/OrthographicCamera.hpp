@@ -1,5 +1,5 @@
-#ifndef __PROJECTIONCAMERA__HPP
-#define __PROJECTIONCAMERA__HPP
+#ifndef __ORTHOGRAPHICCAMERA__HPP
+#define __ORTHOGRAPHICCAMERA__HPP
 
 #include "ICamera.hpp"
 

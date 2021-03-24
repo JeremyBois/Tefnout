@@ -18,7 +18,7 @@
         #define TEFNOUT_HELPER_DLL_IMPORT __declspec(dllimport)
         #define TEFNOUT_HELPER_DLL_EXPORT __declspec(dllexport)
         #define TEFNOUT_HELPER_DLL_LOCAL
-#endif
+    #endif
 #else
     #if __GNUC__ >= 4
         // GCC

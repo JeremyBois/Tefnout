@@ -7,7 +7,7 @@ namespace Tefnout
 {
 namespace Utility
 {
-TimedCallback::TimedCallback() : isActive(false)
+TimedCallback::TimedCallback() : isActive(false), internalThread{}
 {
 }
 

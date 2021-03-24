@@ -32,7 +32,7 @@ class TEFNOUT_API ApplicationLayer
     virtual void OnRender(){};
     virtual void OnGui(){};
 
-    virtual void OnEvent(const std::shared_ptr<Event::IEvent> &event){}; // NOLINT
+    virtual void OnEvent(const std::shared_ptr<Event::IEvent> &){};
 };
 } // namespace Tefnout
 

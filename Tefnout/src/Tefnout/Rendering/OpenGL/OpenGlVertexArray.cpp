@@ -40,7 +40,9 @@ GLenum OpenGLTypeFromShaderType(AttributeType attributeType)
     case AttributeType::UInt: {
         return GL_UNSIGNED_INT;
     }
-        TEFNOUT_WARN("Unsupported/Unimplemented Shader attribute type <{0}>", attributeType);
+    default:
+        TEFNOUT_ASSERT(false, "Unsupported/Unimplemented Shader attribute type <{0}>", attributeType);
+        return GL_FLOAT;
     }
 }
 

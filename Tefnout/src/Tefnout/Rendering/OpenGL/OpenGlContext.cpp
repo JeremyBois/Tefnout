@@ -63,7 +63,7 @@ void OpenGlContext::Init(Window::GenericProperties window_properties)
 
     std::stringstream ss;
     ss << glGetStringi(GL_EXTENSIONS, 0);
-    for (int i = 1; i < GL_NUM_EXTENSIONS; ++i)
+    for (decltype(GL_NUM_EXTENSIONS) i = 1; i < GL_NUM_EXTENSIONS; ++i)
     {
         ss << " - " << glGetStringi(GL_EXTENSIONS, i);
     }

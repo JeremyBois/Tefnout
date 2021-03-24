@@ -42,7 +42,7 @@ template <typename T> class TEFNOUT_API Stack
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     // Force compile time check of constraints
-    explicit Stack() : m_nextIndex(0){ IsStackable<T>{}; }
+    explicit Stack() : m_container{}, m_nextIndex{0} { IsStackable<T>{}; }
     ~Stack();
 
     // Operator
