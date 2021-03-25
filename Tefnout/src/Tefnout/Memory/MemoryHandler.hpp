@@ -24,6 +24,7 @@ namespace Memory
 {
 
 // Forward declaration of policy constraints
+// Both defined using sfinae or type constraints
 template <typename T> struct IsAllocator;
 template <typename T> struct IsMemoryTracker;
 template <typename T> struct IsBoundsChecker;
@@ -52,7 +53,7 @@ class TEFNOUT_API Handler
     using const_size_type = const std::size_t;
 
     template <typename MemoryBlockPolicy>
-    explicit Handler(const MemoryBlockPolicy &reservedMemory)
+    explicit Handler(const MemoryBlockPolicy& reservedMemory)
         : m_allocator(reservedMemory.GetStart(), reservedMemory.GetEnd())
     {
         // Checks policies at compile time
@@ -66,7 +67,7 @@ class TEFNOUT_API Handler
     ~Handler() = default;
 
     // Interface
-    void *Allocate(size_type size, size_type alignment, const char *description)
+    void* Allocate(size_type size, size_type alignment, const char* description)
     {
         m_threadHandler.Lock();
 
@@ -77,7 +78,7 @@ class TEFNOUT_API Handler
         const_size_type sizeWithBounds =
             size + BoundsCheckingPolicy::s_sizeFront + BoundsCheckingPolicy::s_sizeBack;
 
-        char *allocatedMemory = static_cast<char *>(
+        char* allocatedMemory = static_cast<char*>(
             m_allocator.Allocate(sizeWithBounds, alignment, BoundsCheckingPolicy::s_sizeFront));
 
         // @TODO add SetupFront and SetupBack in BoundsCheckerPolicy
@@ -92,12 +93,12 @@ class TEFNOUT_API Handler
         return (allocatedMemory + BoundsCheckingPolicy::s_sizeFront);
     }
 
-    void Free(void *objPtr)
+    void Free(void* objPtr)
     {
         m_threadHandler.Lock();
 
         // Account for bounds do get CorrectType address
-        char *originalMemory = static_cast<char *>(objPtr) - BoundsCheckingPolicy::s_sizeFront;
+        char* originalMemory = static_cast<char*>(objPtr) - BoundsCheckingPolicy::s_sizeFront;
 
         // @TODO add CheckFront and CheckBack in BoundsCheckerPolicy
 
@@ -108,7 +109,7 @@ class TEFNOUT_API Handler
         m_threadHandler.UnLock();
     }
 
-    const AllocatorPolicy &GetAllocator() const
+    const AllocatorPolicy& GetAllocator() const
     {
         return m_allocator;
     };
@@ -121,19 +122,19 @@ class TEFNOUT_API Handler
 };
 
 template <typename T, typename TMemoryHandler, typename... Args>
-T *MakeNew(TMemoryHandler &handler, const char *description, Args &&...args)
+T* MakeNew(TMemoryHandler& handler, const char* description, Args&&... args)
 {
     // Memory is allocated by the handler NOT the new operator
     // Using new placement operator not the operator new
     return new (handler.Allocate(sizeof(T), std::alignment_of<T>::value, description)) T(args...);
 }
 
-template <typename T, class TMemoryHandler> void MakeDelete(T *objectPtr, TMemoryHandler &handler)
+template <typename T, class TMemoryHandler> void MakeDelete(T* objectPtr, TMemoryHandler& handler)
 {
     if (nullptr != objectPtr)
     {
-        // As delete operator will never be called
-        // so destructor must be called manually
+        // Because delete operator will never be called
+        // then destructor must be called manually
         objectPtr->~T();
 
         handler.Free(objectPtr);
