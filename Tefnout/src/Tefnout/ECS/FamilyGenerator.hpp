@@ -17,20 +17,20 @@ namespace ECS
 class TEFNOUT_LOCAL FamilyGenerator
 {
   public:
-    FamilyGenerator(FamilyGenerator const &) = delete;
-    void operator=(FamilyGenerator const &) = delete;
+    FamilyGenerator(FamilyGenerator const&) = delete;
+    void operator=(FamilyGenerator const&) = delete;
 
     // Empty template to force compiler to generate a version for
     // each type during compilation
-    template<typename>
-    static std::size_t GetIdentifier() noexcept
+    template <typename> inline static std::size_t TypeIdentifier() noexcept
     {
-       static const std::size_t value = Generate();
-       return value;
+        // Only called once per type at compile time
+        // Value is then always the same
+        static const std::size_t value = Generate();
+        return value;
     }
 
-private:
-
+  private:
     static std::size_t Generate() noexcept
     {
         // Local static is resolved at compilation

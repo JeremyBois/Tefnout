@@ -9,11 +9,11 @@
 TEST_CASE("FamilyGenerator ID are unique to a type", "[FamilyGenerator]")
 {
 
-    auto a = Tefnout::ECS::FamilyGenerator::GetIdentifier<int>();
-    auto aBis = Tefnout::ECS::FamilyGenerator::GetIdentifier<int>();
-    auto aBisBis = Tefnout::ECS::FamilyGenerator::GetIdentifier<int>();
-    auto b = Tefnout::ECS::FamilyGenerator::GetIdentifier<float>();
-    auto c = Tefnout::ECS::FamilyGenerator::GetIdentifier<long>();
+    auto a = Tefnout::ECS::FamilyGenerator::TypeIdentifier<int>();
+    auto aBis = Tefnout::ECS::FamilyGenerator::TypeIdentifier<int>();
+    auto aBisBis = Tefnout::ECS::FamilyGenerator::TypeIdentifier<int>();
+    auto b = Tefnout::ECS::FamilyGenerator::TypeIdentifier<float>();
+    auto c = Tefnout::ECS::FamilyGenerator::TypeIdentifier<long>();
 
     // Different types
     REQUIRE(a != b);
