@@ -22,7 +22,7 @@ class TEFNOUT_LOCAL FamilyGenerator
 
     // Empty template to force compiler to generate a version for
     // each type during compilation
-    template <typename> inline static std::size_t TypeIdentifier() noexcept
+    template <typename> static std::size_t TypeIdentifier() noexcept
     {
         // Only called once per type at compile time
         // Value is then always the same
