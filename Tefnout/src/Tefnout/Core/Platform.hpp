@@ -7,20 +7,25 @@
 
 
 // Generic helper definitions for shared library support
-#if defined _WIN32 || defined __CYGWIN__
-    #if defined __MINGW32__
+#if defined _WIN32 || (defined __CYGWIN__)
+    #if defined __MINGW32__ || (defined __MINGW64__)
         // GCC with MINGW
         #define TEFNOUT_HELPER_DLL_IMPORT __attribute__ ((visibility ("default")))
         #define TEFNOUT_HELPER_DLL_EXPORT __attribute__ ((visibility ("default")))
         #define TEFNOUT_HELPER_DLL_LOCAL  __attribute__ ((visibility ("hidden")))
-    #else
-        // Windows
+    #elif defined _MSC_VER
+        // Microsoft compiler
         #define TEFNOUT_HELPER_DLL_IMPORT __declspec(dllimport)
         #define TEFNOUT_HELPER_DLL_EXPORT __declspec(dllexport)
         #define TEFNOUT_HELPER_DLL_LOCAL
+    #else
+        // Unknown
+        #define TEFNOUT_HELPER_DLL_IMPORT
+        #define TEFNOUT_HELPER_DLL_EXPORT
+        #define TEFNOUT_HELPER_DLL_LOCAL
     #endif
 #else
-    #if __GNUC__ >= 4
+    #if __GNUC__ >= 4 || (defined __clang__)
         // GCC
         #define TEFNOUT_HELPER_DLL_IMPORT __attribute__ ((visibility ("default")))
         #define TEFNOUT_HELPER_DLL_EXPORT __attribute__ ((visibility ("default")))
@@ -47,6 +52,15 @@
     #define TEFNOUT_API
     #define TEFNOUT_LOCAL
 #endif // TEFNOUT_SHARED
+
+
+// Compile time hash function that works also for template function
+// as opposed to __func__ that only extract function name
+#if defined _MSC_VER
+    #define FUNC_NAME __FUNCSIG__
+#elif defined __clang__ || (defined __GNUC__)
+    #define FUNC_NAME __PRETTY_FUNCTION__
+#endif
 
 
 #endif
