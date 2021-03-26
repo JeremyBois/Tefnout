@@ -9,8 +9,13 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/vendors/Catch2)
 
 list(APPEND tests_SOURCES
     ${PROJECT_SOURCE_DIR}/src/CatchMain.cpp
+
     ${PROJECT_SOURCE_DIR}/src/Container/RingBuffer.cpp
+
     ${PROJECT_SOURCE_DIR}/src/ECS/FamilyGenerator.cpp
+    ${PROJECT_SOURCE_DIR}/src/ECS/Entity.cpp
+    ${PROJECT_SOURCE_DIR}/src/ECS/SparseSet.cpp
+
     ${PROJECT_SOURCE_DIR}/src/Utility/Timer.cpp
     ${PROJECT_SOURCE_DIR}/src/Utility/BitsController.cpp
 )
