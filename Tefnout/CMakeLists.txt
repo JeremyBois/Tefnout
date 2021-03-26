@@ -198,9 +198,9 @@ file(
     src/Tefnout/Rendering/*
     src/Tefnout/Rendering/OpenGL/*
     src/Tefnout/Rendering/Camera/*
-    src/Tefnout/Rendering/ECS/*
-    src/Tefnout/Rendering/Memory/*
-    src/Tefnout/Rendering/Memory/Allocator/*
+    src/Tefnout/Memory/*
+    src/Tefnout/Memory/Allocator/*
+    src/Tefnout/ECS/*
 )
 add_library(${TEFNOUT_LIB_NAME} ${LIB_TYPE} ${TEFNOUT_SOURCES})
 
