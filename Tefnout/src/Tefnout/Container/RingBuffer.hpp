@@ -49,12 +49,15 @@ template <typename T, std::size_t capacity, bool isConst> struct TEFNOUT_API Rin
  */
 template <typename T, std::size_t capacity> class TEFNOUT_API Ring
 {
+    static_assert(std::is_move_constructible_v<T> && std::is_move_assignable_v<T>,
+                  "The managed type must be at least move constructible and assignable");
+
   public:
     // Required alias for STL trait definition
     using size_type = std::size_t;
     using value_type = T;
-    using reference = value_type &;
-    using const_reference = const value_type &;
+    using reference = value_type&;
+    using const_reference = const value_type&;
 
     // Alias for all available iterators
     using iterator = RingIterator<T, capacity, false>;
@@ -215,12 +218,11 @@ template <typename T, std::size_t capacity> class TEFNOUT_API Ring
      *
      * @return     Newly created and added instance
      */
-    template<typename ... Args>
-    T& Emplace(Args&& ... args)
+    template <typename... Args> T& Emplace(Args&&... args)
     {
         auto response = PreparePush();
 
-        m_container[m_tail] = T(std::forward<Args>(args) ...);
+        m_container[m_tail] = T(std::forward<Args>(args)...);
 
         return m_container[m_tail];
     }
@@ -324,7 +326,7 @@ template <typename T, std::size_t capacity> class TEFNOUT_API Ring
         return m_container[indexInBounds];
     }
 
-    const_reference &operator[](size_type index) const
+    const_reference& operator[](size_type index) const
     {
         auto indexInBounds = index % capacity;
         return m_container[indexInBounds];
@@ -399,16 +401,16 @@ template <typename T, std::size_t capacity, bool isConst = false> struct TEFNOUT
     // https://stackoverflow.com/questions/2150192/how-to-avoid-code-duplication-implementing-const-and-non-const-iterators
     // isConst == true  --> const iterator
     // isConst == false --> iterator
-    using pointer = typename std::conditional_t<isConst, value_type const *, value_type *>;
-    using reference = typename std::conditional_t<isConst, value_type const &, value_type &>;
+    using pointer = typename std::conditional_t<isConst, value_type const*, value_type*>;
+    using reference = typename std::conditional_t<isConst, value_type const&, value_type&>;
 
     // Use flag to deduce correct type (const or non const buffer pointer version)
     // Allow to remove explicit type in template argument
     using buffer_pointer_type =
-        typename std::conditional_t<isConst, const Ring<T, capacity> *, Ring<T, capacity> *>;
+        typename std::conditional_t<isConst, const Ring<T, capacity>*, Ring<T, capacity>*>;
 
     explicit RingIterator(buffer_pointer_type ptr, size_type head, size_type delta)
-        : buffer_ptr(ptr), m_head(head), m_delta(delta)
+        : m_buffer_ptr(ptr), m_head(head), m_delta(delta)
     {
     }
 
@@ -418,8 +420,8 @@ template <typename T, std::size_t capacity, bool isConst = false> struct TEFNOUT
     // preserving trivial construction
     // More at https://quuxplusone.github.io/blog/2018/12/01/const-iterator-antipatterns/
     template <bool WasConst, class = std::enable_if_t<isConst || !WasConst>>
-    RingIterator(const RingIterator<T, capacity, WasConst> &rhs)
-        : buffer_ptr(rhs.buffer_ptr), m_head(m_head), m_delta(m_delta)
+    RingIterator(const RingIterator<T, capacity, WasConst>& rhs)
+        : m_buffer_ptr(rhs.m_buffer_ptr), m_head(rhs.m_head), m_delta(rhs.m_delta)
     {
     }
 
@@ -427,7 +429,7 @@ template <typename T, std::size_t capacity, bool isConst = false> struct TEFNOUT
     reference operator*()
     {
         // Item pointer
-        return (*buffer_ptr)[m_head + m_delta];
+        return (*m_buffer_ptr)[m_head + m_delta];
     }
 
     // @NOTE Const or non const based on template isConst
@@ -438,7 +440,7 @@ template <typename T, std::size_t capacity, bool isConst = false> struct TEFNOUT
     }
 
     // Prefix increment
-    RingIterator &operator++()
+    RingIterator& operator++()
     {
         ++m_delta;
         return *this;
@@ -453,7 +455,7 @@ template <typename T, std::size_t capacity, bool isConst = false> struct TEFNOUT
     }
 
     // Prefix decrement
-    RingIterator &operator--()
+    RingIterator& operator--()
     {
         --m_delta;
         return *this;
@@ -469,34 +471,34 @@ template <typename T, std::size_t capacity, bool isConst = false> struct TEFNOUT
 
     // friend allows to declare this operator as non-member
     // but still getting access to private fields in implementation
-    friend bool operator==(const RingIterator &a, const RingIterator &b)
+    friend bool operator==(const RingIterator& a, const RingIterator& b)
     {
         return (a.m_head + a.m_delta) == (b.m_head + b.m_delta);
     };
-    friend bool operator!=(const RingIterator &a, const RingIterator &b)
+    friend bool operator!=(const RingIterator& a, const RingIterator& b)
     {
         return (a.m_head + a.m_delta) != (b.m_head + b.m_delta);
     };
 
-    friend bool operator<(const RingIterator &a, const RingIterator &b)
+    friend bool operator<(const RingIterator& a, const RingIterator& b)
     {
         return (a.m_head + a.m_pendingSize < b.m_head + b.m_pendingSize);
     }
-    friend bool operator<=(const RingIterator &a, const RingIterator &b)
+    friend bool operator<=(const RingIterator& a, const RingIterator& b)
     {
         return (a.m_head + a.m_pendingSize <= b.m_head + b.m_pendingSize);
     }
-    friend bool operator>(const RingIterator &a, const RingIterator &b)
+    friend bool operator>(const RingIterator& a, const RingIterator& b)
     {
         return !a->operator<=(b);
     }
-    friend bool operator>=(const RingIterator &a, const RingIterator &b)
+    friend bool operator>=(const RingIterator& a, const RingIterator& b)
     {
         return !a->operator<(b);
     }
 
   private:
-    buffer_pointer_type buffer_ptr;
+    buffer_pointer_type m_buffer_ptr;
     size_type m_head;
     size_type m_delta;
 };

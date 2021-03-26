@@ -14,10 +14,6 @@
 
 // @TODO Add bound checking requirements and implement one.
 
-// @WARNING
-// Policy interfaces for Memory::Handler must be declared AND implemented inside a header file.
-// @WARNING
-
 namespace Tefnout
 {
 namespace Memory
