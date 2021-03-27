@@ -24,16 +24,16 @@ template <typename TData, std::size_t capacity> class SparseSet
 
   public:
     // Iterators for data
-    using iterator = SparseSetIterator<TData, false>;
-    using const_iterator = SparseSetIterator<TData, true>;
-    using reverse_iterator = std::reverse_iterator<iterator>;
-    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+    using reverse_iterator = SparseSetIterator<TData, false>;
+    using const_reverse_iterator = SparseSetIterator<TData, true>;
+    using iterator = std::reverse_iterator<reverse_iterator>;
+    using const_iterator = std::reverse_iterator<const_reverse_iterator>;
 
     // Iterators for entities
-    using iterator_entities = SparseSetIterator<Entity, false>;
-    using const_iterator_entities = SparseSetIterator<Entity, true>;
-    using reverse_iterator_entities = std::reverse_iterator<iterator_entities>;
-    using const_reverse_iterator_entities = std::reverse_iterator<const_iterator_entities>;
+    using reverse_iterator_entities = SparseSetIterator<Entity, false>;
+    using const_reverse_iterator_entities = SparseSetIterator<Entity, true>;
+    using iterator_entities = std::reverse_iterator<reverse_iterator_entities>;
+    using const_iterator_entities = std::reverse_iterator<const_reverse_iterator_entities>;
 
 
     SparseSet() : m_size(0)
@@ -51,64 +51,64 @@ template <typename TData, std::size_t capacity> class SparseSet
     // Iterators for entities
     iterator_entities beginEntities()
     {
-        return iterator_entities{m_dense.data(), 0};
+        return iterator_entities{rendEntities()};
     }
 
     iterator_entities endEntities()
     {
-        return iterator_entities{m_dense.data(), m_size};
+        return iterator_entities{rbeginEntities()};
     }
 
     reverse_iterator_entities rbeginEntities()
     {
-        return reverse_iterator_entities(endEntities());
+        return reverse_iterator_entities{m_dense.data(), 0};
     }
 
     reverse_iterator_entities rendEntities()
     {
-        return reverse_iterator_entities(beginEntities());
+        return reverse_iterator_entities{m_dense.data(), m_size};
     }
 
 
     // Iterators for data
     iterator begin()
     {
-        return iterator{m_data.data(), 0};
+        return iterator{rend()};
     }
 
     iterator end()
     {
-        return iterator{m_data.data(), m_size};
+        return iterator{rbegin()};
     }
 
     reverse_iterator rbegin()
     {
-        return reverse_iterator{end()};
+        return reverse_iterator{m_data.data(), 0};
     }
 
     reverse_iterator rend()
     {
-        return reverse_iterator{begin()};
+        return reverse_iterator{m_data.data(), m_size};
     }
 
     const_iterator cbegin() const
     {
-        return const_iterator{m_data.data(), 0};
+        return const_iterator{crend()};
     }
 
     const_iterator cend() const
     {
-        return const_iterator{m_data.data(), m_size};
+        return const_iterator{crbegin()};
     }
 
     const_reverse_iterator crbegin() const
     {
-        return const_reverse_iterator{cend()};
+        return const_reverse_iterator{m_data.data(), 0};
     }
 
     const_reverse_iterator crend() const
     {
-        return const_reverse_iterator{cbegin()};
+        return const_reverse_iterator{m_data.data(), m_size};
     }
 
     /**
@@ -321,7 +321,7 @@ template <typename TData, std::size_t capacity> class SparseSet
      */
     void Clear()
     {
-        Remove(rbeginEntities(), rendEntities());
+        Remove(beginEntities(), endEntities());
     }
 
   private:
@@ -397,11 +397,11 @@ static_assert(
     std::is_convertible_v<SparseSet<int, 5>::iterator, SparseSet<int, 5>::const_iterator>);
 // Assert we CANNOT convert from const to non-const iterator
 static_assert(
-    not std::is_convertible_v<SparseSet<int, 5>::const_iterator, SparseSet<int, 5>::iterator>);
+    not std::is_convertible_v<SparseSet<int, 5>::const_reverse_iterator, SparseSet<int, 5>::reverse_iterator>);
 
 // Both const and non-const construction are trivial
-static_assert(std::is_trivially_copy_constructible_v<SparseSet<int, 5>::const_iterator>);
-static_assert(std::is_trivially_copy_constructible_v<SparseSet<int, 5>::iterator>);
+static_assert(std::is_trivially_copy_constructible_v<SparseSet<int, 5>::const_reverse_iterator>);
+static_assert(std::is_trivially_copy_constructible_v<SparseSet<int, 5>::reverse_iterator>);
 // @TEST - AVOID REGRESSIONS
 
 } // namespace ECS

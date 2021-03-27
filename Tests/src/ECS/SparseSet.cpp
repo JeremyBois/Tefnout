@@ -30,6 +30,11 @@ struct Simple
     {
         return first.aInt != second.aInt && first.aFloat == second.aFloat;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const Simple& simple)
+    {
+        return os << "Simple<int=" << simple.aInt << ">- float=<" << simple.aFloat << ">";
+    }
 };
 
 struct Dynamic
@@ -85,6 +90,11 @@ struct Dynamic
     friend bool operator!=(const Dynamic& first, const Dynamic& second)
     {
         return first.aInt != second.aInt && first.aFloat != second.aFloat;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Dynamic& dynamic)
+    {
+        return os << "Dynamic<int=" << dynamic.aInt << ">- float=<" << dynamic.aFloat << ">";
     }
 };
 
@@ -192,7 +202,8 @@ TEST_CASE("SparseSet can be manipulated", "[SparseSet]")
                 REQUIRE(sparseContainer.Contains(collection[2].first));
 
                 // Start from last added minus one (keep only last added)
-                sparseContainer.Remove(++sparseContainer.rbeginEntities(), sparseContainer.rendEntities());
+                sparseContainer.Remove(++sparseContainer.beginEntities(),
+                                       sparseContainer.endEntities());
                 REQUIRE(sparseContainer.Contains(collection[0].first) == false);
                 REQUIRE(sparseContainer.Contains(collection[1].first) == false);
                 REQUIRE(sparseContainer.Contains(collection[2].first) == true);
@@ -238,76 +249,76 @@ TEST_CASE("SparseSet can be iterated", "[SparseSet]")
         REQUIRE(sparseContainer.Size() == size + 1);
     }
 
-    SECTION("Can iterate over data in a forward manner (mutable ref)")
+    SECTION("Can iterate over DATA in a forward (end to start) manner (mutable ref)")
     {
-        std::size_t count = 0;
+        std::size_t count = collection.size() - 1;
         for (auto& component : sparseContainer)
         {
             REQUIRE(collection[count].second == component);
-            count++;
+            count--;
         }
 
-        count = 0;
+        count = collection.size() - 1;
         for (auto it = sparseContainer.begin(); it != sparseContainer.end(); it++)
         {
             REQUIRE(collection[count].second == *it);
-            count++;
+            count--;
         }
     }
 
-    SECTION("Can iterate over data in a forward manner (const ref)")
+    SECTION("Can iterate over DATA in a forward (end to start) manner (const ref)")
     {
-        std::size_t count = 0;
+        std::size_t count = collection.size() - 1;
         for (const auto& component : sparseContainer)
         {
             REQUIRE(collection[count].second == component);
-            count++;
+            count--;
         }
 
-        count = 0;
+        count = collection.size() - 1;
         for (auto it = sparseContainer.cbegin(); it != sparseContainer.cend(); it++)
         {
             REQUIRE(collection[count].second == *it);
-            count++;
+            count--;
         }
     }
 
-    SECTION("Can iterate over data in a backward manner (mutable ref)")
+    SECTION("Can iterate over DATA in a backward (start to end) manner (mutable ref)")
     {
-        std::size_t count = collection.size() - 1;
+        std::size_t count = 0;
         for (auto it = sparseContainer.rbegin(); it != sparseContainer.rend(); it++)
         {
             REQUIRE(collection[count].second == *it);
-            count--;
+            count++;
         }
     }
 
-        SECTION("Can iterate over data in a backward manner (const ref)")
+    SECTION("Can iterate over DATA in a backward (start to end) manner (const ref)")
     {
-        std::size_t count = collection.size() - 1;
+        std::size_t count = 0;
         for (auto it = sparseContainer.crbegin(); it != sparseContainer.crend(); it++)
         {
             REQUIRE(collection[count].second == *it);
-            count--;
+            count++;
         }
     }
 
-    SECTION("Can iterate over entities in a backward and forward manner (mutable ref)")
+    SECTION("Can iterate over ENTITIES in a backward and forward manner (mutable ref)")
     {
-        // Forward
-        std::size_t count = 0;
+        // Forward is the default and iterate from END to START
+        std::size_t count = collection.size() - 1;
         for (auto it = sparseContainer.beginEntities(); it != sparseContainer.endEntities(); it++)
         {
             REQUIRE(collection[count].first == *it);
-            count++;
+            count--;
         }
 
-        // Backward
-        count = collection.size() - 1;
+        // Backward iterate from START to END
+        count = 0;
         for (auto it = sparseContainer.rbeginEntities(); it != sparseContainer.rendEntities(); it++)
         {
             REQUIRE(collection[count].first == *it);
-            count--;
+            count++;
         }
     }
 }
