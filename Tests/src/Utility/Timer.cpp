@@ -22,7 +22,7 @@ TEST_CASE("Timer can be created with different tick type and different callback"
         auto test_callback = [](const Tefnout::Utility::TimerReport<timeType> report) -> void {
             // std::cout << report.Start << "--->" << report.End << "(ID=" << report.Id << ")"
             //           << std::endl;
-            REQUIRE(report.Start == report.End - 2);
+            REQUIRE(report.Start != report.End);
         };
 
         Tefnout::Utility::Timer<timeType> timer("Couscous", test_callback);
