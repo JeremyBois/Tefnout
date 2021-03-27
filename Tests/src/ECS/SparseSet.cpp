@@ -89,7 +89,7 @@ struct Dynamic
     }
     friend bool operator!=(const Dynamic& first, const Dynamic& second)
     {
-        return first.aInt != second.aInt && first.aFloat != second.aFloat;
+        return first.aInt != second.aInt || first.aFloat != second.aFloat;
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Dynamic& dynamic)
@@ -225,6 +225,46 @@ TEST_CASE("SparseSet can be manipulated", "[SparseSet]")
                 REQUIRE(sparseContainer.Size() == 0);
             }
         }
+    }
+}
+
+TEST_CASE("SparseSet can be updated inplace", "[SparseSet]")
+{
+    const std::size_t dataSize = 1000u;
+    Tefnout::ECS::SparseSet<Dynamic, dataSize> sparseContainer{};
+    REQUIRE(sparseContainer.Size() == 0);
+    REQUIRE(sparseContainer.Capacity() == dataSize);
+
+    // Can construct data directly inside the container neither move nor copy
+    std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> collection{};
+    collection[0] = std::make_pair(Tefnout::ECS::Entity{11}, Dynamic(4, 4.0f));
+    collection[1] = std::make_pair(Tefnout::ECS::Entity{100}, Dynamic(111, 99.0f));
+    collection[2] = std::make_pair(Tefnout::ECS::Entity{33}, Dynamic(0, 0.0f));
+
+    for (const auto [entity, data] : collection)
+    {
+        std::size_t size = sparseContainer.Size();
+        sparseContainer.EmplaceBack(entity, data.aInt, data.aFloat);
+        REQUIRE(sparseContainer.Contains(entity));
+        REQUIRE(sparseContainer.Size() == size + 1);
+    }
+
+    SECTION("Stored data can be updated inplace")
+    {
+        auto entity = collection[0].first;
+        const int increment = 4;
+        auto dummyUpdater = [increment](auto& data, const int anotherArg){ data.aInt += increment + anotherArg;};
+
+        REQUIRE(sparseContainer.Size() == collection.size());
+        REQUIRE(sparseContainer.Contains(entity));
+
+        auto updatedData = sparseContainer.Update(entity, dummyUpdater, increment);
+
+        REQUIRE(sparseContainer.Contains(entity));
+        REQUIRE(sparseContainer.Size() == collection.size());
+        REQUIRE(updatedData != collection[0].second);
+
+        REQUIRE(updatedData.aInt == collection[0].second.aInt + increment + increment);
     }
 }
 

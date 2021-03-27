@@ -8,7 +8,7 @@
 
 #include <array>
 #include <bits/c++config.h>
-
+#include <utility>
 
 namespace Tefnout
 {
@@ -34,7 +34,6 @@ template <typename TData, std::size_t capacity> class SparseSet
     using const_reverse_iterator_entities = SparseSetIterator<Entity, true>;
     using iterator_entities = std::reverse_iterator<reverse_iterator_entities>;
     using const_iterator_entities = std::reverse_iterator<const_reverse_iterator_entities>;
-
 
     SparseSet() : m_size(0)
     {
@@ -68,7 +67,6 @@ template <typename TData, std::size_t capacity> class SparseSet
     {
         return reverse_iterator_entities{m_dense.data(), m_size};
     }
-
 
     // Iterators for data
     iterator begin()
@@ -190,6 +188,13 @@ template <typename TData, std::size_t capacity> class SparseSet
         return index < m_size ? m_dense[index] : nullEntity;
     }
 
+    std::size_t EntityIndex(const Entity entity) const
+    {
+        TEFNOUT_ASSERT(Contains(entity), "{0} - Entity does not exists.", entity);
+
+        return m_sparse[entity.GetId()].GetId();
+    }
+
     /**
      * @brief      Get data associated with @p entity.
      *
@@ -286,6 +291,32 @@ template <typename TData, std::size_t capacity> class SparseSet
     }
 
     /**
+     * @brief      Call a @p updater function on the found entity data to update it
+     *             inplace returning the new value to caller.
+     *
+     * @see        https://stackoverflow.com/a/3582313
+     *
+     * @param[in]  entity    The entity used to find the corresponding data
+     * @param      updater   The function used to update the data
+     *
+     * @tparam     Function  a Variadic function that takes found data as first argument.
+     *
+     * @return     Updated data corresponding to @p entity argument after calling @updater
+     *             on it.
+     */
+    template <typename Function, typename... Args>
+    TData& Update(const Entity entity, Function updater, Args... args)
+    {
+        // Get reference
+        auto&& data = m_data[EntityIndex(entity)];
+
+        // Call user defined function with any number of arguments
+        updater(data, std::forward<Args>(args)...);
+
+        return data;
+    }
+
+    /**
      * @brief      Removes the specified entity from the container and return it.
      *
      * @param[in]  entity  The entity
@@ -306,8 +337,7 @@ template <typename TData, std::size_t capacity> class SparseSet
      * @param[in]  itBegin  The iterator begin
      * @param[in]  itEnd    The iterator end
      */
-    template<typename Iterator>
-    void Remove(Iterator itBegin, Iterator itEnd)
+    template <typename Iterator> void Remove(Iterator itBegin, Iterator itEnd)
     {
         // Loop over the whole collection
         for (; itBegin != itEnd; ++itBegin)
@@ -365,7 +395,7 @@ template <typename TData, std::size_t capacity> class SparseSet
 
         // Entity from dense array to get sparse array indexes
         const auto from = entity.GetId();
-        const auto to = m_dense[m_size-1].GetId();
+        const auto to = m_dense[m_size - 1].GetId();
 
         // Extract data
         auto data = std::move(m_data[m_sparse[from].GetId()]);
@@ -384,7 +414,6 @@ template <typename TData, std::size_t capacity> class SparseSet
     }
 };
 
-
 // @TEST - AVOID REGRESSIONS
 // Assert we CAN convert from const to const iterator
 static_assert(
@@ -396,8 +425,8 @@ static_assert(std::is_convertible_v<SparseSet<int, 5>::iterator, SparseSet<int, 
 static_assert(
     std::is_convertible_v<SparseSet<int, 5>::iterator, SparseSet<int, 5>::const_iterator>);
 // Assert we CANNOT convert from const to non-const iterator
-static_assert(
-    not std::is_convertible_v<SparseSet<int, 5>::const_reverse_iterator, SparseSet<int, 5>::reverse_iterator>);
+static_assert(not std::is_convertible_v<SparseSet<int, 5>::const_reverse_iterator,
+                                        SparseSet<int, 5>::reverse_iterator>);
 
 // Both const and non-const construction are trivial
 static_assert(std::is_trivially_copy_constructible_v<SparseSet<int, 5>::const_reverse_iterator>);
