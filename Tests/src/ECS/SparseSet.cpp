@@ -94,7 +94,7 @@ struct Dynamic
 
     friend std::ostream& operator<<(std::ostream& os, const Dynamic& dynamic)
     {
-        return os << "Dynamic<int=" << dynamic.aInt << ">- float=<" << dynamic.aFloat << ">";
+        return os << "Dynamic{int=" << dynamic.aInt << " float=" << dynamic.aFloat << "}";
     }
 };
 
@@ -118,6 +118,32 @@ TEST_CASE("SparseSet can be created", "[SparseSet]")
         REQUIRE(sparseContainer.Size() == 0);
         REQUIRE(sparseContainer.Capacity() == dataSize);
     }
+}
+
+TEST_CASE("SparseSet can be printed")
+{
+    const std::size_t dataSize = 1000u;
+    Tefnout::ECS::SparseSet<Dynamic, dataSize> sparseContainer{};
+    REQUIRE(sparseContainer.Size() == 0);
+    REQUIRE(sparseContainer.Capacity() == dataSize);
+
+    // Can construct data directly inside the container neither move nor copy
+    std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> collection{};
+    collection[0] = std::make_pair(Tefnout::ECS::Entity{11}, Dynamic(4, 4.0f));
+    collection[1] = std::make_pair(Tefnout::ECS::Entity{100}, Dynamic(111, 99.0f));
+    collection[2] = std::make_pair(Tefnout::ECS::Entity{33}, Dynamic(0, 0.0f));
+
+    for (const auto [entity, data] : collection)
+    {
+        std::size_t size = sparseContainer.Size();
+        sparseContainer.EmplaceBack(entity, data.aInt, data.aFloat);
+        REQUIRE(sparseContainer.Contains(entity));
+        REQUIRE(sparseContainer.Size() == size + 1);
+    }
+
+    std::string result("SparseSet{(Entity<id=33>, Dynamic{int=0 float=0})(Entity<id=100>, "
+                       "Dynamic{int=111 float=99})(Entity<id=11>, Dynamic{int=4 float=4})}");
+    REQUIRE(sparseContainer.ToString() == result);
 }
 
 TEST_CASE("SparseSet can be manipulated", "[SparseSet]")
@@ -253,7 +279,9 @@ TEST_CASE("SparseSet can be updated inplace", "[SparseSet]")
     {
         auto entity = collection[0].first;
         const int increment = 4;
-        auto dummyUpdater = [increment](auto& data, const int anotherArg){ data.aInt += increment + anotherArg;};
+        auto dummyUpdater = [increment](auto& data, const int anotherArg) {
+            data.aInt += increment + anotherArg;
+        };
 
         REQUIRE(sparseContainer.Size() == collection.size());
         REQUIRE(sparseContainer.Contains(entity));

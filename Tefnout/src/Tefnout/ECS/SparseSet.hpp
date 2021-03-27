@@ -8,36 +8,52 @@
 
 #include <array>
 #include <bits/c++config.h>
+#include <sstream>
 #include <utility>
+
+// @TODO
+//  - use a callback to let user do some stuff before a component is destructed
+//      using OnRemoveCallback = std::function<void(const Entity entity, TComponent destroyedData)>;
+//  - use a callback to let user do some stuff after a component is added
+//      using OnAddCallback = std::function<void(const Entity entity, TComponent addedData)>;
+//  - use a callback to let user do some stuff after a component is updated
+//      using OnUpdateCallback = std::function<void(const Entity entity, TComponent updatedData)>;
+// @TODO
 
 namespace Tefnout
 {
 namespace ECS
 {
 
-template <typename TData, std::size_t capacity> class SparseSet
+template <typename TComponent, std::size_t capacity> class SparseSet
 {
-    static_assert(std::is_move_constructible<TData>::value && std::is_move_assignable<TData>::value,
+    static_assert(std::is_move_constructible<TComponent>::value &&
+                      std::is_move_assignable<TComponent>::value,
                   "The managed type must be at least move constructible and assignable");
-    static_assert(std::is_copy_constructible<TData>::value && std::is_copy_assignable<TData>::value,
+    static_assert(std::is_copy_constructible<TComponent>::value &&
+                      std::is_copy_assignable<TComponent>::value,
                   "The managed type must be at least move constructible and assignable");
 
   public:
-    // Iterators for data
-    using reverse_iterator = SparseSetIterator<TData, false>;
-    using const_reverse_iterator = SparseSetIterator<TData, true>;
+    // Internal types
+    using size_type = decltype(capacity);
+    using components_type = std::array<TComponent, capacity>;
+    using dense_array_type = std::array<Entity, capacity>;
+    using sparse_array_type = std::vector<Entity>;
+
+    // Iterators for component
+    using reverse_iterator = SparseSetIterator<TComponent, false>;
+    using const_reverse_iterator = SparseSetIterator<TComponent, true>;
     using iterator = std::reverse_iterator<reverse_iterator>;
     using const_iterator = std::reverse_iterator<const_reverse_iterator>;
 
     // Iterators for entities
-    using reverse_iterator_entities = SparseSetIterator<Entity, false>;
     using const_reverse_iterator_entities = SparseSetIterator<Entity, true>;
-    using iterator_entities = std::reverse_iterator<reverse_iterator_entities>;
     using const_iterator_entities = std::reverse_iterator<const_reverse_iterator_entities>;
 
     SparseSet() : m_size(0)
     {
-        // fill is done at compile time in C++20
+        // Fill is done at compile time in C++20
         m_dense.fill(nullEntity);
 
         // Init elements with placeholder
@@ -45,30 +61,36 @@ template <typename TData, std::size_t capacity> class SparseSet
                        m_sparse.size());
     }
 
+    // Default destructor
     ~SparseSet() = default;
 
+    // Default move/copy operators
+    SparseSet(const SparseSet& other) = default;
+    SparseSet(SparseSet&& other) = default;
+    SparseSet& operator=(const SparseSet& other) = default;
+
     // Iterators for entities
-    iterator_entities beginEntities()
+    const_iterator_entities beginEntities()
     {
-        return iterator_entities{rendEntities()};
+        return const_iterator_entities{rendEntities()};
     }
 
-    iterator_entities endEntities()
+    const_iterator_entities endEntities()
     {
-        return iterator_entities{rbeginEntities()};
+        return const_iterator_entities{rbeginEntities()};
     }
 
-    reverse_iterator_entities rbeginEntities()
+    const_reverse_iterator_entities rbeginEntities()
     {
-        return reverse_iterator_entities{m_dense.data(), 0};
+        return const_reverse_iterator_entities{m_dense.data(), 0};
     }
 
-    reverse_iterator_entities rendEntities()
+    const_reverse_iterator_entities rendEntities()
     {
-        return reverse_iterator_entities{m_dense.data(), m_size};
+        return const_reverse_iterator_entities{m_dense.data(), m_size};
     }
 
-    // Iterators for data
+    // Iterators for component
     iterator begin()
     {
         return iterator{rend()};
@@ -81,12 +103,12 @@ template <typename TData, std::size_t capacity> class SparseSet
 
     reverse_iterator rbegin()
     {
-        return reverse_iterator{m_data.data(), 0};
+        return reverse_iterator{m_components.data(), 0};
     }
 
     reverse_iterator rend()
     {
-        return reverse_iterator{m_data.data(), m_size};
+        return reverse_iterator{m_components.data(), m_size};
     }
 
     const_iterator cbegin() const
@@ -101,12 +123,12 @@ template <typename TData, std::size_t capacity> class SparseSet
 
     const_reverse_iterator crbegin() const
     {
-        return const_reverse_iterator{m_data.data(), 0};
+        return const_reverse_iterator{m_components.data(), 0};
     }
 
     const_reverse_iterator crend() const
     {
-        return const_reverse_iterator{m_data.data(), m_size};
+        return const_reverse_iterator{m_components.data(), m_size};
     }
 
     /**
@@ -115,7 +137,7 @@ template <typename TData, std::size_t capacity> class SparseSet
      *
      * @return     The maximum number of Entity that can be stored inside this container.
      */
-    inline constexpr std::size_t Capacity() const
+    inline constexpr size_type Capacity() const
     {
         return capacity;
     }
@@ -135,27 +157,31 @@ template <typename TData, std::size_t capacity> class SparseSet
     /**
      * @brief      Size is the number of slot currently in used in the container.
      *
-     * @return     Number of entity with data in this container.
+     * @return     Number of entity with component in this container.
      */
-    inline std::size_t Size() const
+    inline size_type Size() const
     {
         return m_size;
     }
 
     /**
-     * @brief      Read-only access to continuous array of data store inside the
+     * @brief      Read-only access to continuous array of component store inside the
      *             container.
+     * @note       Forward iterators loop in the reverse order of internal raw component to
+     *             avoid pitfall when entities are removed.
      *
-     * @return     Read-only access to continuous array of data.
+     * @return     Read-only access to continuous array of component.
      */
-    const TData* RawData() const
+    const TComponent* RawData() const
     {
-        return m_data.data();
+        return m_components.data();
     }
 
     /**
      * @brief      Read-only access to continuous array of entities store inside the
      *             container.
+     * @note       Forward iterators loop in the reverse order of internal raw component to
+     *             avoid pitfall when entities are removed.
      *
      * @return     Read-only access to continuous array of entities.
      */
@@ -183,12 +209,12 @@ template <typename TData, std::size_t capacity> class SparseSet
      *
      * @return     Found entity or nullEntity placeholder.
      */
-    Entity At(const std::size_t index) const
+    Entity At(const size_type index) const
     {
         return index < m_size ? m_dense[index] : nullEntity;
     }
 
-    std::size_t EntityIndex(const Entity entity) const
+    size_type EntityIndex(const Entity entity) const
     {
         TEFNOUT_ASSERT(Contains(entity), "{0} - Entity does not exists.", entity);
 
@@ -196,91 +222,91 @@ template <typename TData, std::size_t capacity> class SparseSet
     }
 
     /**
-     * @brief      Get data associated with @p entity.
+     * @brief      Get component associated with @p entity.
      *
      * @param[in]  entity  The entity
      *
      * @return     { description_of_the_return_value }
      */
-    TData& Get(const Entity entity)
+    TComponent& Get(const Entity entity)
     {
         TEFNOUT_ASSERT(Contains(entity), "{0} - Entity does not exists.", entity);
 
         const Entity denseIndex = m_sparse[entity.GetId()];
-        return m_data[denseIndex.GetId()];
+        return m_components[denseIndex.GetId()];
     }
 
     /**
-     * @brief      Add data (@p data) to @p entity using move operator.
-     * @see        SparseSet::EmplaceBack Faster alternative because data directly built
+     * @brief      Add component (@p component) to @p entity using move operator.
+     * @see        SparseSet::EmplaceBack Faster alternative because component directly built
      *             in the container memory area.
      *
      * @param[in]  entity  The entity
-     * @param[in]  data    The data
+     * @param[in]  component    The component
      */
-    void PushBack(const Entity entity, TData&& data)
+    void PushBack(const Entity entity, TComponent&& component)
     {
         TEFNOUT_ASSERT(!Contains(entity), "{0} - Entity already inside.", entity);
 
         // Must be called before moving entity
         const auto sparseIndex = entity.GetId();
 
-        // Store Entity and copy of data
+        // Store Entity and copy of component
         m_dense[m_size] = std::move(entity);
-        m_data[m_size] = data;
+        m_components[m_size] = component;
 
-        // Setup fast lookup from Entity to data using sparse array
+        // Setup fast lookup from Entity to component using sparse array
         InsureSparseSize(sparseIndex);
         m_sparse[sparseIndex] = Entity{m_size};
         m_size++;
     }
 
     /**
-     * @brief      Add a new copy of data (@p data) to @p entity.
-     * @see        SparseSet::EmplaceBack Faster alternative because data directly built
+     * @brief      Add a new copy of component (@p component) to @p entity.
+     * @see        SparseSet::EmplaceBack Faster alternative because component directly built
      *             in the container memory area.
      *
      * @param[in]  entity  The entity
-     * @param[in]  data    The data
+     * @param[in]  component    The component
      */
-    void PushBack(const Entity entity, const TData& data)
+    void PushBack(const Entity entity, const TComponent& component)
     {
         TEFNOUT_ASSERT(!Contains(entity), "{0} - Entity already inside.", entity);
 
         // Must be called before moving entity
         const auto sparseIndex = entity.GetId();
 
-        // Store Entity and copy of data
+        // Store Entity and copy of component
         m_dense[m_size] = std::move(entity);
-        m_data[m_size] = data;
+        m_components[m_size] = component;
 
-        // Setup fast lookup from Entity to data using sparse array
+        // Setup fast lookup from Entity to component using sparse array
         InsureSparseSize(sparseIndex);
         m_sparse[sparseIndex] = Entity{m_size};
         m_size++;
     }
 
     /**
-     * @brief      Construct and add new data to be associated with @p entity in a more
+     * @brief      Construct and add new component to be associated with @p entity in a more
      *             optimal way than PushBack.
      * @see        SparseSet::PushBack requires move/copy operations whereas EmplaceBack
-     *             builds data directly in the container memory area.
+     *             builds component directly in the container memory area.
      *
      * @param[in]  entity  The entity
-     * @param      args    The arguments needed to buid the data.
+     * @param      args    The arguments needed to buid the component.
      *
      * @tparam     Args    Variadic template type
      *
-     * @return     Newly added data
+     * @return     Newly added component
      */
-    template <typename... Args> TData& EmplaceBack(const Entity entity, Args&&... args)
+    template <typename... Args> TComponent& EmplaceBack(const Entity entity, Args&&... args)
     {
         TEFNOUT_ASSERT(!Contains(entity), "{0} - Entity already inside this container.", entity);
 
         // Construct first to avoid inconsistent state in case of failure/throw
-        m_data[m_size] = TData(std::forward<Args>(args)...);
+        m_components[m_size] = TComponent(std::forward<Args>(args)...);
 
-        // Setup fast lookup from Entity to data using sparse array
+        // Setup fast lookup from Entity to component using sparse array
         const auto sparseIndex = entity.GetId();
         InsureSparseSize(sparseIndex);
         m_sparse[sparseIndex] = Entity{m_size};
@@ -291,29 +317,29 @@ template <typename TData, std::size_t capacity> class SparseSet
     }
 
     /**
-     * @brief      Call a @p updater function on the found entity data to update it
+     * @brief      Call a @p updater function on the found entity component to update it
      *             inplace returning the new value to caller.
      *
      * @see        https://stackoverflow.com/a/3582313
      *
-     * @param[in]  entity    The entity used to find the corresponding data
-     * @param      updater   The function used to update the data
+     * @param[in]  entity    The entity used to find the corresponding component
+     * @param      updater   The function used to update the component
      *
-     * @tparam     Function  a Variadic function that takes found data as first argument.
+     * @tparam     Function  a Variadic function that takes found component as first argument.
      *
-     * @return     Updated data corresponding to @p entity argument after calling @updater
+     * @return     Updated component corresponding to @p entity argument after calling @updater
      *             on it.
      */
     template <typename Function, typename... Args>
-    TData& Update(const Entity entity, Function updater, Args... args)
+    TComponent& Update(const Entity entity, Function updater, Args... args)
     {
         // Get reference
-        auto&& data = m_data[EntityIndex(entity)];
+        auto&& component = m_components[EntityIndex(entity)];
 
         // Call user defined function with any number of arguments
-        updater(data, std::forward<Args>(args)...);
+        updater(component, std::forward<Args>(args)...);
 
-        return data;
+        return component;
     }
 
     /**
@@ -321,14 +347,12 @@ template <typename TData, std::size_t capacity> class SparseSet
      *
      * @param[in]  entity  The entity
      *
-     * @return     Removed data.
+     * @return     Removed component.
      */
     void Remove(const Entity entity)
     {
-        auto data = SwapAndPop(entity);
+        auto component = SwapAndPop(entity);
         m_size--;
-
-        // @TODO use a callback to let user do some stuff before destruction
     }
 
     /**
@@ -354,18 +378,30 @@ template <typename TData, std::size_t capacity> class SparseSet
         Remove(beginEntities(), endEntities());
     }
 
+    std::string ToString()
+    {
+        std::stringstream ss;
+        ss << "SparseSet{";
+        for (size_type i = m_size; i > 0; --i)
+        {
+            ss << "(" << m_dense[i - 1] << ", " << m_components[i - 1] << ")";
+        }
+        ss << "}";
+        return ss.str();
+    }
+
   private:
     // Used to keep track of dense array size
-    std::size_t m_size;
+    size_type m_size;
 
     // Max size equals max ID allowed
-    std::vector<Entity> m_sparse;
+    sparse_array_type m_sparse;
 
     // Max size equals max number of entity/component
-    std::array<Entity, capacity> m_dense;
-    std::array<TData, capacity> m_data;
+    dense_array_type m_dense;
+    components_type m_components;
 
-    void InsureSparseSize(const std::size_t index)
+    void InsureSparseSize(const size_type index)
     {
         if (index >= m_sparse.size())
         {
@@ -386,10 +422,10 @@ template <typename TData, std::size_t capacity> class SparseSet
         using std::swap;
         swap(m_sparse[from], m_sparse[to]);
         swap(m_dense[m_sparse[from].GetId()], m_dense[m_sparse[to].GetId()]);
-        swap(m_data[m_sparse[from].GetId()], m_data[m_sparse[to].GetId()]);
+        swap(m_components[m_sparse[from].GetId()], m_components[m_sparse[to].GetId()]);
     }
 
-    TData SwapAndPop(const Entity entity)
+    TComponent SwapAndPop(const Entity entity)
     {
         TEFNOUT_ASSERT(Contains(entity), "{0} - Entity does not exists.", entity);
 
@@ -397,20 +433,20 @@ template <typename TData, std::size_t capacity> class SparseSet
         const auto from = entity.GetId();
         const auto to = m_dense[m_size - 1].GetId();
 
-        // Extract data
-        auto data = std::move(m_data[m_sparse[from].GetId()]);
+        // Extract component
+        auto component = std::move(m_components[m_sparse[from].GetId()]);
 
         // Clear and swap (leaving null placeholder on the last element)
         m_dense[m_sparse[from].GetId()] = nullEntity;
         {
             using std::swap;
             swap(m_dense[m_sparse[from].GetId()], m_dense[m_sparse[to].GetId()]);
-            swap(m_data[m_sparse[from].GetId()], m_data[m_sparse[to].GetId()]);
+            swap(m_components[m_sparse[from].GetId()], m_components[m_sparse[to].GetId()]);
             swap(m_sparse[from], m_sparse[to]);
         }
         m_sparse[from] = nullEntity;
 
-        return std::move(data);
+        return std::move(component);
     }
 };
 
