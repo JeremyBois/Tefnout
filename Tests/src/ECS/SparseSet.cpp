@@ -1,14 +1,11 @@
-#include "Tefnout/Core/Logger.hpp"
-#include "Tefnout/ECS/Entity.hpp"
 #include "catch2/catch.hpp"
 
-#include "Tefnout/ECS/SparseSet.hpp"
-#include <array>
-#include <bits/c++config.h>
-#include <utility>
+#include "Tefnout/ECS/ComponentSparseSet.hpp"
+
+#include <limits>
 
 /*
- Unit-Tests for SparseSet implementation.
+ Unit-Tests for ComponentSparseSet implementation.
 */
 
 struct Simple
@@ -39,8 +36,8 @@ struct Simple
 
 struct Dynamic
 {
-    int aInt = 3;
-    float aFloat = 2;
+    int aInt = std::numeric_limits<int>::max();
+    float aFloat = std::numeric_limits<float>::max();
 
     int* dynamic = new int[33];
 
@@ -98,13 +95,13 @@ struct Dynamic
     }
 };
 
-TEST_CASE("SparseSet can be created", "[SparseSet]")
+TEST_CASE("ComponentSparseSet can be created", "[ComponentSparseSet]")
 {
     const std::size_t dataSize = 1000u;
 
     SECTION("With object allocating memory only on the Stack")
     {
-        Tefnout::ECS::SparseSet<Simple, dataSize> simples{};
+        Tefnout::ECS::ComponentSparseSet<Simple, dataSize> simples{};
 
         REQUIRE(simples.IsEmpty());
         REQUIRE(simples.Size() == 0);
@@ -113,17 +110,17 @@ TEST_CASE("SparseSet can be created", "[SparseSet]")
 
     SECTION("With object using Stack and Heap memory")
     {
-        Tefnout::ECS::SparseSet<Dynamic, dataSize> sparseContainer{};
+        Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
 
         REQUIRE(sparseContainer.Size() == 0);
         REQUIRE(sparseContainer.Capacity() == dataSize);
     }
 }
 
-TEST_CASE("SparseSet can be printed")
+TEST_CASE("ComponentSparseSet can be printed")
 {
     const std::size_t dataSize = 1000u;
-    Tefnout::ECS::SparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
     REQUIRE(sparseContainer.Capacity() == dataSize);
 
@@ -141,19 +138,19 @@ TEST_CASE("SparseSet can be printed")
         REQUIRE(sparseContainer.Size() == size + 1);
     }
 
-    std::string result("SparseSet{(Entity<id=33>, Dynamic{int=0 float=0})(Entity<id=100>, "
+    std::string result("ComponentSparseSet{(Entity<id=33>, Dynamic{int=0 float=0})(Entity<id=100>, "
                        "Dynamic{int=111 float=99})(Entity<id=11>, Dynamic{int=4 float=4})}");
     REQUIRE(sparseContainer.ToString() == result);
 }
 
-TEST_CASE("SparseSet can be manipulated", "[SparseSet]")
+TEST_CASE("ComponentSparseSet can be manipulated", "[ComponentSparseSet]")
 {
     const std::size_t dataSize = 1000u;
-    Tefnout::ECS::SparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
     REQUIRE(sparseContainer.Capacity() == dataSize);
 
-    SECTION("Can add element to a SparseSet")
+    SECTION("Can add element to a ComponentSparseSet")
     {
         const auto pair1 = std::make_pair(Tefnout::ECS::Entity{0}, Dynamic{1, 1.0f});
         const auto pair2 = std::make_pair(Tefnout::ECS::Entity{1}, Dynamic{2, 2.0f});
@@ -208,56 +205,78 @@ TEST_CASE("SparseSet can be manipulated", "[SparseSet]")
                 data = sparseContainer.Get(collection[2].first);
                 REQUIRE(data == collection[2].second);
             }
-
-            SECTION("Can remove a single data")
-            {
-                std::size_t previousSize = sparseContainer.Size();
-
-                REQUIRE(sparseContainer.Contains(collection[0].first));
-                sparseContainer.Remove(collection[0].first);
-                REQUIRE(sparseContainer.Contains(collection[0].first) == false);
-                REQUIRE(sparseContainer.Size() == previousSize - 1);
-            }
-
-            SECTION("Can remove a specific range data")
-            {
-                std::size_t previousSize = sparseContainer.Size();
-
-                REQUIRE(sparseContainer.Contains(collection[0].first));
-                REQUIRE(sparseContainer.Contains(collection[1].first));
-                REQUIRE(sparseContainer.Contains(collection[2].first));
-
-                // Start from last added minus one (keep only last added)
-                sparseContainer.Remove(++sparseContainer.beginEntities(),
-                                       sparseContainer.endEntities());
-                REQUIRE(sparseContainer.Contains(collection[0].first) == false);
-                REQUIRE(sparseContainer.Contains(collection[1].first) == false);
-                REQUIRE(sparseContainer.Contains(collection[2].first) == true);
-                REQUIRE(sparseContainer.Size() == 1);
-            }
-
-            SECTION("Can clear the whole container")
-            {
-                std::size_t previousSize = sparseContainer.Size();
-
-                REQUIRE(sparseContainer.Contains(collection[0].first));
-                REQUIRE(sparseContainer.Contains(collection[1].first));
-                REQUIRE(sparseContainer.Contains(collection[2].first));
-
-                sparseContainer.Clear();
-                REQUIRE(sparseContainer.Contains(collection[0].first) == false);
-                REQUIRE(sparseContainer.Contains(collection[1].first) == false);
-                REQUIRE(sparseContainer.Contains(collection[2].first) == false);
-                REQUIRE(sparseContainer.Size() == 0);
-            }
         }
     }
 }
 
-TEST_CASE("SparseSet can be updated inplace", "[SparseSet]")
+TEST_CASE("ComponentSparseSet components can be removed", "[ComponentSparseSet]")
 {
     const std::size_t dataSize = 1000u;
-    Tefnout::ECS::SparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
+    REQUIRE(sparseContainer.Size() == 0);
+    REQUIRE(sparseContainer.Capacity() == dataSize);
+
+    // Can construct data directly inside the container neither move nor copy
+    std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> collection{};
+    collection[0] = std::make_pair(Tefnout::ECS::Entity{11}, Dynamic(4, 4.0f));
+    collection[1] = std::make_pair(Tefnout::ECS::Entity{100}, Dynamic(111, 99.0f));
+    collection[2] = std::make_pair(Tefnout::ECS::Entity{33}, Dynamic(0, 0.0f));
+
+    for (const auto [entity, data] : collection)
+    {
+        std::size_t size = sparseContainer.Size();
+        sparseContainer.EmplaceBack(entity, data.aInt, data.aFloat);
+        REQUIRE(sparseContainer.Contains(entity));
+        REQUIRE(sparseContainer.Size() == size + 1);
+    }
+
+    SECTION("Can remove a single data")
+    {
+        std::size_t previousSize = sparseContainer.Size();
+
+        REQUIRE(sparseContainer.Contains(collection[0].first));
+        sparseContainer.Remove(collection[0].first);
+        REQUIRE(sparseContainer.Contains(collection[0].first) == false);
+        REQUIRE(sparseContainer.Size() == previousSize - 1);
+    }
+
+    SECTION("Can clear the whole container")
+    {
+        std::size_t previousSize = sparseContainer.Size();
+
+        REQUIRE(sparseContainer.Contains(collection[0].first));
+        REQUIRE(sparseContainer.Contains(collection[1].first));
+        REQUIRE(sparseContainer.Contains(collection[2].first));
+
+        sparseContainer.Clear();
+        REQUIRE(sparseContainer.Contains(collection[0].first) == false);
+        REQUIRE(sparseContainer.Contains(collection[1].first) == false);
+        REQUIRE(sparseContainer.Contains(collection[2].first) == false);
+        REQUIRE(sparseContainer.Size() == 0);
+    }
+
+    SECTION("Can remove a specific range data")
+    {
+        std::size_t previousSize = sparseContainer.Size();
+
+        REQUIRE(sparseContainer.Contains(collection[0].first));
+        REQUIRE(sparseContainer.Contains(collection[1].first));
+        REQUIRE(sparseContainer.Contains(collection[2].first));
+
+        // Start from last added minus one (keep only last added)
+        sparseContainer.Remove(++sparseContainer.SparseSet::begin(),
+                               sparseContainer.SparseSet::end());
+        REQUIRE(sparseContainer.Contains(collection[0].first) == false);
+        REQUIRE(sparseContainer.Contains(collection[1].first) == false);
+        REQUIRE(sparseContainer.Contains(collection[2].first) == true);
+        REQUIRE(sparseContainer.Size() == 1);
+    }
+}
+
+TEST_CASE("ComponentSparseSet can be updated inplace", "[ComponentSparseSet]")
+{
+    const std::size_t dataSize = 1000u;
+    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
     REQUIRE(sparseContainer.Capacity() == dataSize);
 
@@ -296,10 +315,10 @@ TEST_CASE("SparseSet can be updated inplace", "[SparseSet]")
     }
 }
 
-TEST_CASE("SparseSet can be iterated", "[SparseSet]")
+TEST_CASE("ComponentSparseSet can be iterated", "[ComponentSparseSet]")
 {
     const std::size_t dataSize = 1000u;
-    Tefnout::ECS::SparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
     REQUIRE(sparseContainer.Capacity() == dataSize);
 
@@ -375,7 +394,8 @@ TEST_CASE("SparseSet can be iterated", "[SparseSet]")
     {
         // Forward is the default and iterate from END to START
         std::size_t count = collection.size() - 1;
-        for (auto it = sparseContainer.beginEntities(); it != sparseContainer.endEntities(); it++)
+        for (auto it = sparseContainer.SparseSet::begin(); it != sparseContainer.SparseSet::end();
+             it++)
         {
             REQUIRE(collection[count].first == *it);
             count--;
@@ -383,7 +403,8 @@ TEST_CASE("SparseSet can be iterated", "[SparseSet]")
 
         // Backward iterate from START to END
         count = 0;
-        for (auto it = sparseContainer.rbeginEntities(); it != sparseContainer.rendEntities(); it++)
+        for (auto it = sparseContainer.SparseSet::rbegin(); it != sparseContainer.SparseSet::rend();
+             it++)
         {
             REQUIRE(collection[count].first == *it);
             count++;

@@ -44,7 +44,8 @@ template <typename T, bool isConst = false> struct TEFNOUT_API SparseSetIterator
     // preserving trivial construction
     // More at https://quuxplusone.github.io/blog/2018/12/01/const-iterator-antipatterns/
     template <bool WasConst, class = std::enable_if_t<isConst || !WasConst>>
-    SparseSetIterator(const SparseSetIterator<T, WasConst>& rhs) : m_ptr(rhs.m_ptr), m_index(rhs.m_index)
+    SparseSetIterator(const SparseSetIterator<T, WasConst>& rhs)
+        : m_ptr(rhs.m_ptr), m_index(rhs.m_index)
     {
     }
 
