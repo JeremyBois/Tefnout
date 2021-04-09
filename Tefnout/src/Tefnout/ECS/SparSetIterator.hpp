@@ -52,14 +52,12 @@ template <typename T, bool isConst = false> struct TEFNOUT_API SparseSetIterator
     // @NOTE Const or non const based on template isConst
     reference operator*()
     {
-        // Item pointer
         return m_ptr[m_index];
     }
 
     // @NOTE Const or non const based on template isConst
     pointer operator->()
     {
-        // Reference of item pointer
         return &(operator*());
     }
 

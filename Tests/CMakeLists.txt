@@ -15,6 +15,7 @@ list(APPEND tests_SOURCES
     ${PROJECT_SOURCE_DIR}/src/ECS/FamilyGenerator.cpp
     ${PROJECT_SOURCE_DIR}/src/ECS/Entity.cpp
     ${PROJECT_SOURCE_DIR}/src/ECS/SparseSet.cpp
+    ${PROJECT_SOURCE_DIR}/src/ECS/View.cpp
 
     ${PROJECT_SOURCE_DIR}/src/Utility/Timer.cpp
     ${PROJECT_SOURCE_DIR}/src/Utility/BitsController.cpp
