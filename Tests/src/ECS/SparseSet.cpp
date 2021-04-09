@@ -97,32 +97,27 @@ struct Dynamic
 
 TEST_CASE("ComponentSparseSet can be created", "[ComponentSparseSet]")
 {
-    const std::size_t dataSize = 1000u;
 
     SECTION("With object allocating memory only on the Stack")
     {
-        Tefnout::ECS::ComponentSparseSet<Simple, dataSize> simples{};
+        Tefnout::ECS::ComponentSparseSet<Simple> simples{};
 
         REQUIRE(simples.IsEmpty());
         REQUIRE(simples.Size() == 0);
-        REQUIRE(simples.Capacity() == dataSize);
     }
 
     SECTION("With object using Stack and Heap memory")
     {
-        Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
+        Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
 
         REQUIRE(sparseContainer.Size() == 0);
-        REQUIRE(sparseContainer.Capacity() == dataSize);
     }
 }
 
 TEST_CASE("ComponentSparseSet can be printed")
 {
-    const std::size_t dataSize = 1000u;
-    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
-    REQUIRE(sparseContainer.Capacity() == dataSize);
 
     // Can construct data directly inside the container neither move nor copy
     std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> collection{};
@@ -145,10 +140,8 @@ TEST_CASE("ComponentSparseSet can be printed")
 
 TEST_CASE("ComponentSparseSet can be manipulated", "[ComponentSparseSet]")
 {
-    const std::size_t dataSize = 1000u;
-    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
-    REQUIRE(sparseContainer.Capacity() == dataSize);
 
     SECTION("Can add element to a ComponentSparseSet")
     {
@@ -160,28 +153,24 @@ TEST_CASE("ComponentSparseSet can be manipulated", "[ComponentSparseSet]")
         // Can COPY data to container
         sparseContainer.PushBack(pair1.first, pair1.second);
         REQUIRE(sparseContainer.Size() == 1);
-        REQUIRE(sparseContainer.Capacity() == dataSize);
 
         // Can MOVE data to container
         sparseContainer.PushBack(pair2.first, Dynamic{});
         REQUIRE(sparseContainer.Size() == 2);
-        REQUIRE(sparseContainer.Capacity() == dataSize);
 
         // Can MOVE to container using EmplaceBack
         sparseContainer.EmplaceBack(pair3.first, pair3.second);
         REQUIRE(sparseContainer.Size() == 3);
-        REQUIRE(sparseContainer.Capacity() == dataSize);
 
         // Can construct inplace inside the container using EmplaceBack
         sparseContainer.EmplaceBack(pair4.first, pair4.second.aInt, pair4.second.aFloat);
         REQUIRE(sparseContainer.Size() == 4);
-        REQUIRE(sparseContainer.Capacity() == dataSize);
 
         SECTION("Data can be added without using a specific Entity ID order")
         {
             // Can construct data directly inside the container neither move nor copy
             std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> collection{};
-            collection[0] = std::make_pair(Tefnout::ECS::Entity{11}, Dynamic(4, 4.0f));
+            collection[0] = std::make_pair(Tefnout::ECS::Entity{11}, Dynamic(5, 5.0f));
             collection[1] = std::make_pair(Tefnout::ECS::Entity{100}, Dynamic(111, 99.0f));
             collection[2] = std::make_pair(Tefnout::ECS::Entity{33}, Dynamic(0, 0.0f));
 
@@ -211,10 +200,8 @@ TEST_CASE("ComponentSparseSet can be manipulated", "[ComponentSparseSet]")
 
 TEST_CASE("ComponentSparseSet components can be removed", "[ComponentSparseSet]")
 {
-    const std::size_t dataSize = 1000u;
-    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
-    REQUIRE(sparseContainer.Capacity() == dataSize);
 
     // Can construct data directly inside the container neither move nor copy
     std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> collection{};
@@ -275,10 +262,8 @@ TEST_CASE("ComponentSparseSet components can be removed", "[ComponentSparseSet]"
 
 TEST_CASE("ComponentSparseSet can be updated inplace", "[ComponentSparseSet]")
 {
-    const std::size_t dataSize = 1000u;
-    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
-    REQUIRE(sparseContainer.Capacity() == dataSize);
 
     // Can construct data directly inside the container neither move nor copy
     std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> collection{};
@@ -317,10 +302,8 @@ TEST_CASE("ComponentSparseSet can be updated inplace", "[ComponentSparseSet]")
 
 TEST_CASE("ComponentSparseSet can be iterated", "[ComponentSparseSet]")
 {
-    const std::size_t dataSize = 1000u;
-    Tefnout::ECS::ComponentSparseSet<Dynamic, dataSize> sparseContainer{};
+    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
-    REQUIRE(sparseContainer.Capacity() == dataSize);
 
     // Can construct data directly inside the container neither move nor copy
     std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> collection{};

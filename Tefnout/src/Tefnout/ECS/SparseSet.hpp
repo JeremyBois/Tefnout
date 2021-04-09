@@ -4,7 +4,6 @@
 #include "Tefnout/Core/Core.hpp"
 
 #include "SparSetIterator.hpp"
-#include "Tefnout/Core/Logger.hpp"
 #include "Tefnout/ECS/Entity.hpp"
 
 #include <bits/c++config.h>
@@ -15,12 +14,12 @@ namespace Tefnout
 namespace ECS
 {
 
-template <std::size_t capacity> class TEFNOUT_API SparseSet
+class TEFNOUT_API SparseSet
 {
   public:
     // Internal types
-    using size_type = decltype(capacity);
-    using dense_array_type = std::array<Entity, capacity>;
+    using size_type = std::size_t;
+    using dense_array_type = std::vector<Entity>;
     using sparse_array_type = std::vector<Entity>;
 
     // Iterators for entities
@@ -29,9 +28,10 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
     using reverse_iterator = SparseSetIterator<Entity, false>;
     using iterator = std::reverse_iterator<reverse_iterator>;
 
-    SparseSet() : m_size(0)
+    SparseSet()
     {
-        m_dense.fill(nullEntity);
+        TEFNOUT_ASSERT(m_dense.size() == 0, "Initial size of dense array should be 0 not {0}",
+                       m_dense.size());
 
         TEFNOUT_ASSERT(m_sparse.size() == 0, "Initial size of sparse array should be 0 not {0}",
                        m_sparse.size());
@@ -63,7 +63,7 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
 
     reverse_iterator rend()
     {
-        return reverse_iterator{m_dense.data(), m_size};
+        return reverse_iterator{m_dense.data(), m_dense.size()};
     }
 
     const_iterator cbegin()
@@ -83,7 +83,7 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
 
     const_reverse_iterator crend()
     {
-        return const_reverse_iterator{m_dense.data(), m_size};
+        return const_reverse_iterator{m_dense.data(), m_dense.size()};
     }
 
     /**
@@ -92,9 +92,9 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
      *
      * @return     The maximum number of Entity that can be stored inside this container.
      */
-    inline constexpr size_type Capacity() const
+    inline size_type Capacity() const
     {
-        return capacity;
+        return m_dense.capacity();
     }
 
     /**
@@ -104,9 +104,7 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
      */
     inline bool IsEmpty() const
     {
-        // Cannot use m_dense.size() because it return the capacity
-        // not the currently used range
-        return m_size == 0;
+        return m_dense.empty();
     }
 
     /**
@@ -116,7 +114,7 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
      */
     inline size_type Size() const
     {
-        return m_size;
+        return m_dense.size();
     }
 
     /**
@@ -153,7 +151,7 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
      */
     Entity At(const size_type index) const
     {
-        return index < m_size ? m_dense[index] : nullEntity;
+        return index < m_dense.size() ? m_dense[index] : nullEntity;
     }
 
     /**
@@ -184,9 +182,8 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
 
         const auto sparseIndex = entity.GetId();
         InsureSparseSize(sparseIndex);
-        m_sparse[sparseIndex] = Entity{m_size};
-        m_dense[m_size] = std::move(entity);
-        m_size++;
+        m_sparse[sparseIndex] = Entity{m_dense.size()};
+        m_dense.emplace_back(std::move(entity));
     }
 
     /**
@@ -199,7 +196,6 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
     void Remove(const Entity entity)
     {
         SwapAndPop(entity);
-        m_size--;
     }
 
     /**
@@ -259,7 +255,6 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
 
   private:
     // Used to keep track of dense array size
-    size_type m_size;
     sparse_array_type m_sparse;
     dense_array_type m_dense;
 
@@ -294,7 +289,7 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
         TEFNOUT_ASSERT(Contains(entity), "{0} - Entity does not exists.", entity);
 
         const auto from = IndexEntity(entity);
-        const auto to = m_size - 1;
+        const auto to = m_dense.size() - 1;
         // Needed when removed entity is also the last one
         // In this special case calling m_dense[to].GetId() later is undefined
         const auto toInSparse = m_dense[to].GetId();
@@ -310,24 +305,27 @@ template <std::size_t capacity> class TEFNOUT_API SparseSet
             swap(m_dense[from], m_dense[to]);
         }
         m_sparse[entity.GetId()] = nullEntity;
+
+        // Remove last one
+        m_dense.pop_back();
     }
 };
 
 // @TEST - AVOID REGRESSIONS
 // Assert we CAN convert from const to const iterator
-static_assert(std::is_convertible_v<SparseSet<5>::const_iterator, SparseSet<5>::const_iterator>);
+static_assert(std::is_convertible_v<SparseSet::const_iterator, SparseSet::const_iterator>);
 // Assert we CAN convert from non-const to non-const iterator
-static_assert(std::is_convertible_v<SparseSet<5>::iterator, SparseSet<5>::iterator>);
+static_assert(std::is_convertible_v<SparseSet::iterator, SparseSet::iterator>);
 
 // Assert we CAN convert from non-const to const iterator
-static_assert(std::is_convertible_v<SparseSet<5>::iterator, SparseSet<5>::const_iterator>);
+static_assert(std::is_convertible_v<SparseSet::iterator, SparseSet::const_iterator>);
 // Assert we CANNOT convert from const to non-const iterator
-static_assert(not std::is_convertible_v<SparseSet<5>::const_reverse_iterator,
-                                        SparseSet<5>::reverse_iterator>);
+static_assert(not std::is_convertible_v<SparseSet::const_reverse_iterator,
+                                        SparseSet::reverse_iterator>);
 
 // Both const and non-const construction are trivial
-static_assert(std::is_trivially_copy_constructible_v<SparseSet<5>::const_reverse_iterator>);
-static_assert(std::is_trivially_copy_constructible_v<SparseSet<5>::reverse_iterator>);
+static_assert(std::is_trivially_copy_constructible_v<SparseSet::const_reverse_iterator>);
+static_assert(std::is_trivially_copy_constructible_v<SparseSet::reverse_iterator>);
 // @TEST - AVOID REGRESSIONS
 
 } // namespace ECS

@@ -14,8 +14,8 @@ namespace Tefnout
 namespace ECS
 {
 
-template <typename TComponent, std::size_t capacity>
-class TEFNOUT_API ComponentSparseSet final : public SparseSet<capacity>
+template <typename TComponent>
+class TEFNOUT_API ComponentSparseSet final : public SparseSet
 {
     static_assert(std::is_move_constructible<TComponent>::value &&
                       std::is_move_assignable<TComponent>::value,
@@ -26,9 +26,9 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet<capacity>
 
   public:
     // Internal types
-    using size_type = decltype(capacity);
-    using base_type = SparseSet<capacity>;
-    using components_type = std::array<TComponent, capacity>;
+    using size_type = SparseSet::size_type;
+    using base_type = SparseSet;
+    using components_type = std::vector<TComponent>;
 
     // Iterators for component
     using reverse_iterator = SparseSetIterator<TComponent, false>;
@@ -90,9 +90,9 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet<capacity>
      */
     void PushBack(const Entity entity, TComponent&& component)
     {
-        m_components[this->Size()] = component;
+        m_components.push_back(component);
 
-        this->EmplaceBack(entity);
+        base_type::EmplaceBack(entity);
     }
 
     /**
@@ -105,9 +105,9 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet<capacity>
      */
     void PushBack(const Entity entity, const TComponent& component)
     {
-        m_components[this->Size()] = component;
+        m_components.push_back(component);
 
-        this->EmplaceBack(entity);
+        base_type::EmplaceBack(entity);
     }
 
     /**
@@ -126,7 +126,7 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet<capacity>
     template <typename... Args> TComponent& EmplaceBack(const Entity entity, Args&&... args)
     {
         // Construct first to avoid inconsistent state in case of failure/throw
-        m_components[this->Size()] = TComponent(std::forward<Args>(args)...);
+        m_components.emplace_back(std::forward<Args>(args)...);
 
         base_type::EmplaceBack(entity);
 
@@ -198,6 +198,7 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet<capacity>
 
         using std::swap;
         swap(m_components[entityIndex], m_components[this->Size() - 1]);
+        m_components.pop_back();
     }
 
     /**
@@ -216,23 +217,23 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet<capacity>
 
 // @TEST - AVOID REGRESSIONS
 // Assert we CAN convert from const to const iterator
-static_assert(std::is_convertible_v<ComponentSparseSet<int, 5>::const_iterator,
-                                    ComponentSparseSet<int, 5>::const_iterator>);
+static_assert(std::is_convertible_v<ComponentSparseSet<int>::const_iterator,
+                                    ComponentSparseSet<int>::const_iterator>);
 // Assert we CAN convert from non-const to non-const iterator
-static_assert(std::is_convertible_v<ComponentSparseSet<int, 5>::iterator,
-                                    ComponentSparseSet<int, 5>::iterator>);
+static_assert(std::is_convertible_v<ComponentSparseSet<int>::iterator,
+                                    ComponentSparseSet<int>::iterator>);
 
 // Assert we CAN convert from non-const to const iterator
-static_assert(std::is_convertible_v<ComponentSparseSet<int, 5>::iterator,
-                                    ComponentSparseSet<int, 5>::const_iterator>);
+static_assert(std::is_convertible_v<ComponentSparseSet<int>::iterator,
+                                    ComponentSparseSet<int>::const_iterator>);
 // Assert we CANNOT convert from const to non-const iterator
-static_assert(not std::is_convertible_v<ComponentSparseSet<int, 5>::const_reverse_iterator,
-                                        ComponentSparseSet<int, 5>::reverse_iterator>);
+static_assert(not std::is_convertible_v<ComponentSparseSet<int>::const_reverse_iterator,
+                                        ComponentSparseSet<int>::reverse_iterator>);
 
 // Both const and non-const construction are trivial
 static_assert(
-    std::is_trivially_copy_constructible_v<ComponentSparseSet<int, 5>::const_reverse_iterator>);
-static_assert(std::is_trivially_copy_constructible_v<ComponentSparseSet<int, 5>::reverse_iterator>);
+    std::is_trivially_copy_constructible_v<ComponentSparseSet<int>::const_reverse_iterator>);
+static_assert(std::is_trivially_copy_constructible_v<ComponentSparseSet<int>::reverse_iterator>);
 // @TEST - AVOID REGRESSIONS
 
 } // namespace ECS
