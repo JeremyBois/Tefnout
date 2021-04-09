@@ -1,106 +1,19 @@
 #include "Tefnout/Core/Logger.hpp"
 #include "catch2/catch.hpp"
 
-#include "Tefnout/ECS/ComponentSparseSet.hpp"
 #include "Tefnout/ECS/View.hpp"
+#include "Tefnout/ECS/Warehouse.hpp"
 
-#include <limits>
+#include "DataStructure.hpp"
 
 /*
  Unit-Tests for SparseSet View implementation.
 */
 
-struct Simple
-{
-    int aInt = 3;
-    float aFloat = 2;
-
-    Simple() = default;
-
-    Simple(int valInt, float valFloat) : aInt{valInt}, aFloat{valFloat}
-    {
-    }
-
-    friend bool operator==(const Simple& first, const Simple& second)
-    {
-        return first.aInt == second.aInt && first.aFloat == second.aFloat;
-    }
-    friend bool operator!=(const Simple& first, const Simple& second)
-    {
-        return first.aInt != second.aInt && first.aFloat == second.aFloat;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Simple& simple)
-    {
-        return os << "Simple<int=" << simple.aInt << ">- float=<" << simple.aFloat << ">";
-    }
-};
-
-struct Dynamic
-{
-    int aInt = std::numeric_limits<int>::max();
-    float aFloat = std::numeric_limits<float>::max();
-
-    int* dynamic = new int[33];
-
-    Dynamic() = default;
-
-    ~Dynamic()
-    {
-        // std::cout << "Deleted" << std::endl;
-        delete[] dynamic;
-    }
-
-    Dynamic(int valInt, float valFloat) : aInt{valInt}, aFloat{valFloat}
-    {
-    }
-
-    Dynamic(const Dynamic& other) : aInt(other.aInt), aFloat(other.aFloat)
-    {
-        std::copy(other.dynamic, other.dynamic + 33, dynamic);
-    }
-
-    Dynamic(Dynamic&& other) : Dynamic()
-    {
-        swap(*this, other);
-    }
-
-    // Let the compiler do the copy for us
-    Dynamic& operator=(Dynamic other)
-    {
-        swap(*this, other);
-
-        return *this;
-    }
-
-    friend void swap(Dynamic& first, Dynamic& second) noexcept
-    {
-        using std::swap;
-
-        swap(first.aInt, second.aInt);
-        swap(first.aFloat, second.aFloat);
-        swap(first.dynamic, second.dynamic);
-    }
-
-    friend bool operator==(const Dynamic& first, const Dynamic& second)
-    {
-        return first.aInt == second.aInt && first.aFloat == second.aFloat;
-    }
-    friend bool operator!=(const Dynamic& first, const Dynamic& second)
-    {
-        return first.aInt != second.aInt || first.aFloat != second.aFloat;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Dynamic& dynamic)
-    {
-        return os << "Dynamic{int=" << dynamic.aInt << " float=" << dynamic.aFloat << "}";
-    }
-};
-
 TEST_CASE("SparseSet view can be created", "[SparseSet View]")
 {
-    Tefnout::ECS::ComponentSparseSet<Dynamic> dynamicContainer{};
-    Tefnout::ECS::ComponentSparseSet<Simple> simpleContainer{};
+    Tefnout::ECS::Warehouse<Dynamic> dynamicContainer{};
+    Tefnout::ECS::Warehouse<Simple> simpleContainer{};
 
     // Only 3 entities have a Simple component
     std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> dynamicCollection{};
@@ -159,12 +72,12 @@ TEST_CASE("SparseSet view can be created", "[SparseSet View]")
 
 TEST_CASE("SparseSet view can have any number of collections", "[SparseSet View]")
 {
-    Tefnout::ECS::ComponentSparseSet<Dynamic> dynamicContainer{};
-    Tefnout::ECS::ComponentSparseSet<Simple> simpleContainer{};
-    Tefnout::ECS::ComponentSparseSet<int> intContainer{};
-    Tefnout::ECS::ComponentSparseSet<float> floatContainer{};
-    Tefnout::ECS::ComponentSparseSet<double> doubleContainer{};
-    Tefnout::ECS::ComponentSparseSet<std::string> stringContainer{};
+    Tefnout::ECS::Warehouse<Dynamic> dynamicContainer{};
+    Tefnout::ECS::Warehouse<Simple> simpleContainer{};
+    Tefnout::ECS::Warehouse<int> intContainer{};
+    Tefnout::ECS::Warehouse<float> floatContainer{};
+    Tefnout::ECS::Warehouse<double> doubleContainer{};
+    Tefnout::ECS::Warehouse<std::string> stringContainer{};
 
     // Only 3 entities have a Simple component
     std::array<std::pair<Tefnout::ECS::Entity, Dynamic>, 3> dynamicCollection{};

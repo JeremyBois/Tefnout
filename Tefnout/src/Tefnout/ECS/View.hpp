@@ -3,7 +3,7 @@
 
 #include "Tefnout/Core/Core.hpp"
 
-#include "Tefnout/ECS/ComponentSparseSet.hpp"
+#include "Tefnout/ECS/Warehouse.hpp"
 #include "Tefnout/ECS/SparseSet.hpp"
 
 #include <iterator>
@@ -72,7 +72,7 @@ template <typename... Components> class TEFNOUT_API View
     {
     }
 
-    View(ComponentSparseSet<Components>&... components)
+    View(Warehouse<Components>&... components)
         : m_pool{std::make_tuple(&components...)}, m_view(SelectViewFromPool())
     {
     }
@@ -82,7 +82,7 @@ template <typename... Components> class TEFNOUT_API View
   private:
     // Store each container inside a tuple to allow access by type
     // Types must be uniques but not currently checked
-    const std::tuple<ComponentSparseSet<Components>*...> m_pool;
+    const std::tuple<Warehouse<Components>*...> m_pool;
 
     SparseSet* m_view;
 

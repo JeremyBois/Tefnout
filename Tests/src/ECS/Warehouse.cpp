@@ -1,106 +1,21 @@
 #include "catch2/catch.hpp"
 
-#include "Tefnout/ECS/ComponentSparseSet.hpp"
+#include "Tefnout/ECS/Warehouse.hpp"
 
-#include <limits>
+#include "DataStructure.hpp"
+
 
 /*
- Unit-Tests for ComponentSparseSet implementation.
+ Unit-Tests for Warehouse implementation.
 */
 
-struct Simple
-{
-    int aInt = 3;
-    float aFloat = 2;
 
-    Simple() = default;
-
-    Simple(int valInt, float valFloat) : aInt{valInt}, aFloat{valFloat}
-    {
-    }
-
-    friend bool operator==(const Simple& first, const Simple& second)
-    {
-        return first.aInt == second.aInt && first.aFloat == second.aFloat;
-    }
-    friend bool operator!=(const Simple& first, const Simple& second)
-    {
-        return first.aInt != second.aInt && first.aFloat == second.aFloat;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Simple& simple)
-    {
-        return os << "Simple<int=" << simple.aInt << ">- float=<" << simple.aFloat << ">";
-    }
-};
-
-struct Dynamic
-{
-    int aInt = std::numeric_limits<int>::max();
-    float aFloat = std::numeric_limits<float>::max();
-
-    int* dynamic = new int[33];
-
-    Dynamic() = default;
-
-    ~Dynamic()
-    {
-        // std::cout << "Deleted" << std::endl;
-        delete[] dynamic;
-    }
-
-    Dynamic(int valInt, float valFloat) : aInt{valInt}, aFloat{valFloat}
-    {
-    }
-
-    Dynamic(const Dynamic& other) : aInt(other.aInt), aFloat(other.aFloat)
-    {
-        std::copy(other.dynamic, other.dynamic + 33, dynamic);
-    }
-
-    Dynamic(Dynamic&& other) : Dynamic()
-    {
-        swap(*this, other);
-    }
-
-    // Let the compiler do the copy for us
-    Dynamic& operator=(Dynamic other)
-    {
-        swap(*this, other);
-
-        return *this;
-    }
-
-    friend void swap(Dynamic& first, Dynamic& second) noexcept
-    {
-        using std::swap;
-
-        swap(first.aInt, second.aInt);
-        swap(first.aFloat, second.aFloat);
-        swap(first.dynamic, second.dynamic);
-    }
-
-    friend bool operator==(const Dynamic& first, const Dynamic& second)
-    {
-        return first.aInt == second.aInt && first.aFloat == second.aFloat;
-    }
-    friend bool operator!=(const Dynamic& first, const Dynamic& second)
-    {
-        return first.aInt != second.aInt || first.aFloat != second.aFloat;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Dynamic& dynamic)
-    {
-        return os << "Dynamic{int=" << dynamic.aInt << " float=" << dynamic.aFloat << "}";
-    }
-};
-
-TEST_CASE("ComponentSparseSet can be created", "[ComponentSparseSet]")
+TEST_CASE("Warehouse can be created", "[Warehouse]")
 {
 
     SECTION("With object allocating memory only on the Stack")
     {
-        Tefnout::ECS::ComponentSparseSet<Simple> simples{};
+        Tefnout::ECS::Warehouse<Simple> simples{};
 
         REQUIRE(simples.IsEmpty());
         REQUIRE(simples.Size() == 0);
@@ -108,15 +23,15 @@ TEST_CASE("ComponentSparseSet can be created", "[ComponentSparseSet]")
 
     SECTION("With object using Stack and Heap memory")
     {
-        Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
+        Tefnout::ECS::Warehouse<Dynamic> sparseContainer{};
 
         REQUIRE(sparseContainer.Size() == 0);
     }
 }
 
-TEST_CASE("ComponentSparseSet can be printed")
+TEST_CASE("Warehouse can be printed")
 {
-    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
+    Tefnout::ECS::Warehouse<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
 
     // Can construct data directly inside the container neither move nor copy
@@ -133,17 +48,17 @@ TEST_CASE("ComponentSparseSet can be printed")
         REQUIRE(sparseContainer.Size() == size + 1);
     }
 
-    std::string result("ComponentSparseSet{(Entity<id=33>, Dynamic{int=0 float=0})(Entity<id=100>, "
+    std::string result("Warehouse{(Entity<id=33>, Dynamic{int=0 float=0})(Entity<id=100>, "
                        "Dynamic{int=111 float=99})(Entity<id=11>, Dynamic{int=4 float=4})}");
     REQUIRE(sparseContainer.ToString() == result);
 }
 
-TEST_CASE("ComponentSparseSet can be manipulated", "[ComponentSparseSet]")
+TEST_CASE("Warehouse can be manipulated", "[Warehouse]")
 {
-    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
+    Tefnout::ECS::Warehouse<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
 
-    SECTION("Can add element to a ComponentSparseSet")
+    SECTION("Can add element to a Warehouse")
     {
         const auto pair1 = std::make_pair(Tefnout::ECS::Entity{0}, Dynamic{1, 1.0f});
         const auto pair2 = std::make_pair(Tefnout::ECS::Entity{1}, Dynamic{2, 2.0f});
@@ -198,9 +113,9 @@ TEST_CASE("ComponentSparseSet can be manipulated", "[ComponentSparseSet]")
     }
 }
 
-TEST_CASE("ComponentSparseSet components can be removed", "[ComponentSparseSet]")
+TEST_CASE("Warehouse components can be removed", "[Warehouse]")
 {
-    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
+    Tefnout::ECS::Warehouse<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
 
     // Can construct data directly inside the container neither move nor copy
@@ -260,9 +175,9 @@ TEST_CASE("ComponentSparseSet components can be removed", "[ComponentSparseSet]"
     }
 }
 
-TEST_CASE("ComponentSparseSet can be updated inplace", "[ComponentSparseSet]")
+TEST_CASE("Warehouse can be updated inplace", "[Warehouse]")
 {
-    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
+    Tefnout::ECS::Warehouse<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
 
     // Can construct data directly inside the container neither move nor copy
@@ -300,9 +215,9 @@ TEST_CASE("ComponentSparseSet can be updated inplace", "[ComponentSparseSet]")
     }
 }
 
-TEST_CASE("ComponentSparseSet can be iterated", "[ComponentSparseSet]")
+TEST_CASE("Warehouse can be iterated", "[Warehouse]")
 {
-    Tefnout::ECS::ComponentSparseSet<Dynamic> sparseContainer{};
+    Tefnout::ECS::Warehouse<Dynamic> sparseContainer{};
     REQUIRE(sparseContainer.Size() == 0);
 
     // Can construct data directly inside the container neither move nor copy

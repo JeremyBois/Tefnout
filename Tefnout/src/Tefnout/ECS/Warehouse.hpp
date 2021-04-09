@@ -1,5 +1,5 @@
-#ifndef __COMPONENTSPARSESET__HPP
-#define __COMPONENTSPARSESET__HPP
+#ifndef __WAREHOUSE__HPP
+#define __WAREHOUSE__HPP
 
 #include "SparseSet.hpp"
 #include "Tefnout/Core/Core.hpp"
@@ -14,8 +14,7 @@ namespace Tefnout
 namespace ECS
 {
 
-template <typename TComponent>
-class TEFNOUT_API ComponentSparseSet final : public SparseSet
+template <typename TComponent> class TEFNOUT_API Warehouse final : public SparseSet
 {
     static_assert(std::is_move_constructible<TComponent>::value &&
                       std::is_move_assignable<TComponent>::value,
@@ -77,8 +76,8 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet
         return const_reverse_iterator{m_components.data(), this->Size()};
     }
 
-    ComponentSparseSet() = default;
-    ~ComponentSparseSet() = default;
+    Warehouse() = default;
+    ~Warehouse() = default;
 
     /**
      * @brief      Add component (@p component) to @p entity using move operator.
@@ -174,7 +173,7 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet
     std::string ToString()
     {
         std::stringstream ss;
-        ss << "ComponentSparseSet{";
+        ss << "Warehouse{";
         for (size_type i = this->Size(); i > 0; --i)
         {
             ss << "(" << this->At(i - 1) << ", " << m_components[i - 1] << ")";
@@ -217,23 +216,20 @@ class TEFNOUT_API ComponentSparseSet final : public SparseSet
 
 // @TEST - AVOID REGRESSIONS
 // Assert we CAN convert from const to const iterator
-static_assert(std::is_convertible_v<ComponentSparseSet<int>::const_iterator,
-                                    ComponentSparseSet<int>::const_iterator>);
+static_assert(
+    std::is_convertible_v<Warehouse<int>::const_iterator, Warehouse<int>::const_iterator>);
 // Assert we CAN convert from non-const to non-const iterator
-static_assert(std::is_convertible_v<ComponentSparseSet<int>::iterator,
-                                    ComponentSparseSet<int>::iterator>);
+static_assert(std::is_convertible_v<Warehouse<int>::iterator, Warehouse<int>::iterator>);
 
 // Assert we CAN convert from non-const to const iterator
-static_assert(std::is_convertible_v<ComponentSparseSet<int>::iterator,
-                                    ComponentSparseSet<int>::const_iterator>);
+static_assert(std::is_convertible_v<Warehouse<int>::iterator, Warehouse<int>::const_iterator>);
 // Assert we CANNOT convert from const to non-const iterator
-static_assert(not std::is_convertible_v<ComponentSparseSet<int>::const_reverse_iterator,
-                                        ComponentSparseSet<int>::reverse_iterator>);
+static_assert(not std::is_convertible_v<Warehouse<int>::const_reverse_iterator,
+                                        Warehouse<int>::reverse_iterator>);
 
 // Both const and non-const construction are trivial
-static_assert(
-    std::is_trivially_copy_constructible_v<ComponentSparseSet<int>::const_reverse_iterator>);
-static_assert(std::is_trivially_copy_constructible_v<ComponentSparseSet<int>::reverse_iterator>);
+static_assert(std::is_trivially_copy_constructible_v<Warehouse<int>::const_reverse_iterator>);
+static_assert(std::is_trivially_copy_constructible_v<Warehouse<int>::reverse_iterator>);
 // @TEST - AVOID REGRESSIONS
 
 } // namespace ECS
