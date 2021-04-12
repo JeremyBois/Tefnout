@@ -1,3 +1,4 @@
+#include "Tefnout/Core/Logger.hpp"
 #include "catch2/catch.hpp"
 
 #include "Tefnout/Utility/BitsController.hpp"
@@ -22,10 +23,10 @@ TEST_CASE("Tests bits manipulation", "[BitsController]")
     {
         const std::uint64_t container = 1038; // 0b10000001110
 
-        REQUIRE(Bits::Extract(container, 0, 0) == 0); // 0b1000000111[0]
-        REQUIRE(Bits::Extract(container, 0, 2) == 2); // 0b100000011[10]
-        REQUIRE(Bits::Extract(container, 2, 2) == 3); // 0b1000000[11]10
-        REQUIRE(Bits::Extract(container, 8, 3) == 4); // 0b[100]00001110
+        REQUIRE(Bits::Extract(container, 0u, 0u) == 0); // 0b1000000111[0]
+        REQUIRE(Bits::Extract(container, 0u, 2u) == 2); // 0b100000011[10]
+        REQUIRE(Bits::Extract(container, 2u, 2u) == 3); // 0b1000000[11]10
+        REQUIRE(Bits::Extract(container, 8u, 3u) == 4); // 0b[100]00001110
     }
 
     SECTION("Can set a specific value at a specific position inside a single int64")
@@ -52,14 +53,14 @@ TEST_CASE("Tests bits manipulation", "[BitsController]")
 
         SECTION("When using ClearAndSet old value is first cleared")
         {
-            builtContainer = Bits::ClearAndSet(builtContainer, 3, 8, 3);
-            REQUIRE(Bits::Extract(builtContainer, 8, 3) == 3); // 0b[011]00001110
+            builtContainer = Bits::ClearAndSet(builtContainer, 3ul, 8u, 3u);
+            REQUIRE(Bits::Extract(builtContainer, 8u, 3u) == 3); // 0b[011]00001110
         }
 
         SECTION("When using Set old value is NOT first cleared")
         {
-            builtContainer = Bits::Set(builtContainer, 3, 8);
-            REQUIRE(Bits::Extract(builtContainer, 8, 3) == 7); // 0b[111]00001110
+            builtContainer = Bits::Set(builtContainer, 3ul, 8u);
+            REQUIRE(Bits::Extract(builtContainer, 8u, 3u) == 7); // 0b[111]00001110
         }
     }
 
@@ -67,7 +68,45 @@ TEST_CASE("Tests bits manipulation", "[BitsController]")
     {
         const std::uint64_t container = 1038; // 0b10000001110
 
-        REQUIRE(Bits::Clear(container, 8, 3) == 14);   // 0b1110
-        REQUIRE(Bits::Clear(container, 0, 2) == 1036); // 0b10000001100
+        REQUIRE(Bits::Clear(container, 8u, 3u) == 14);   // 0b1110
+        REQUIRE(Bits::Clear(container, 0u, 2u) == 1036); // 0b10000001100
+    }
+}
+
+TEST_CASE("Tests bits manipulation for unsigned int", "[BitsController]")
+{
+    using namespace Tefnout::Utility;
+
+    const unsigned char a = 127;
+    const unsigned char b = 33;
+    const unsigned char c = 0;
+    const unsigned char d = 1;
+
+    SECTION("Can create a packed unsigned int from unsigned char")
+    {
+        const unsigned char shift = 8;
+        const unsigned int result = 0;
+        const unsigned int resultWithA =
+            Bits::Set(result, static_cast<unsigned int>(a), static_cast<unsigned char>(24));
+        REQUIRE(Bits::Extract(resultWithA, static_cast<unsigned char>(24), shift) == a);
+
+        const unsigned int resultWithB =
+            Bits::Set(resultWithA, static_cast<unsigned int>(b), static_cast<unsigned char>(16));
+        REQUIRE(Bits::Extract(resultWithB, static_cast<unsigned char>(24), shift) == a);
+        REQUIRE(Bits::Extract(resultWithB, static_cast<unsigned char>(16), shift) == b);
+
+        const unsigned int resultWithC =
+            Bits::Set(resultWithB, static_cast<unsigned int>(c), static_cast<unsigned char>(8));
+        REQUIRE(Bits::Extract(resultWithC, static_cast<unsigned char>(24), shift) == a);
+        REQUIRE(Bits::Extract(resultWithC, static_cast<unsigned char>(16), shift) == b);
+        REQUIRE(Bits::Extract(resultWithC, static_cast<unsigned char>(8), shift) == c);
+
+
+        const unsigned int resultWithD =
+            Bits::Set(resultWithC, static_cast<unsigned int>(d), static_cast<unsigned char>(0));
+        REQUIRE(Bits::Extract(resultWithD, static_cast<unsigned char>(24), shift) == a);
+        REQUIRE(Bits::Extract(resultWithD, static_cast<unsigned char>(16), shift) == b);
+        REQUIRE(Bits::Extract(resultWithD, static_cast<unsigned char>(8), shift) == c);
+        REQUIRE(Bits::Extract(resultWithD, static_cast<unsigned char>(0), shift) == d);
     }
 }
