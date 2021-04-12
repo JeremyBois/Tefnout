@@ -8,6 +8,11 @@
 #include "Socket.hpp"
 #include <netinet/in.h>
 
+// @RESOURCE
+// htons      - host-to-network         - https://stackoverflow.com/a/19209503
+// INADDR_ANY - Listen at all interface - https://stackoverflow.com/a/16510000
+// @RESOURCE
+
 namespace Tefnout
 {
 namespace Network
