@@ -63,4 +63,19 @@
 #endif
 
 
+// Allow to test current platform at compile time
+// Needed for networking
+#define TEFNOUT_PLATFORM_WINDOWS  1
+#define TEFNOUT_PLATFORM_MAC      2
+#define TEFNOUT_PLATFORM_UNIX     3
+
+#if defined _WIN32 || (defined __CYGWIN__)
+    #define TEFNOUT_PLATFORM TEFNOUT_PLATFORM_WINDOWS
+#elif defined(__APPLE__)
+    #define TEFNOUT_PLATFORM TEFNOUT_PLATFORM_MAC
+#else
+    #define TEFNOUT_PLATFORM TEFNOUT_PLATFORM_UNIX
+#endif
+
+
 #endif
