@@ -9,9 +9,6 @@
 #include <bits/stdint-uintn.h>
 #include <cstdint>
 
-// @NEED FIX
-// Left shift of negative value when building the mask
-// @NEED FIX
 
 namespace Tefnout
 {
@@ -95,6 +92,16 @@ inline std::uint64_t TEFNOUT_LOCAL Extract(std::uint64_t source, const unsigned 
     return (source >> offset) & mask;
 }
 
+/**
+ * @brief      Clear a bits range (set all to zero) defined by @p offset from least
+ *             significant bits and a @p size.
+ *
+ * @param[in]  source  The copy of source where bits range must be cleaned
+ * @param[in]  offset  The offset to locate the start of the range
+ * @param[in]  size    The size of the range
+ *
+ * @return     @p source with bits range reset to 0.
+ */
 template <>
 inline std::uint64_t TEFNOUT_LOCAL Clear(std::uint64_t source, const unsigned int offset,
                                          const unsigned int size)
