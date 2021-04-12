@@ -56,7 +56,7 @@ class TEFNOUT_API LinearAllocator
      *
      * @param      objPtr  The object pointer
      */
-    inline void Free(void *objPtr){};
+    inline void Free(void*){};
 
     /**
      * @brief      Gets the allocated size for a specific object pointer
