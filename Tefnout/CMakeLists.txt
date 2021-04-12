@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
 PROJECT("Tefnout")
 
 
@@ -52,7 +52,7 @@ endif()
 # Options
 # ------------------------------------------------------------------------------
 # Allow the developer to select if Dynamic or Static libraries are built
-OPTION (TEFNOUT_BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+OPTION (TEFNOUT_BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 
 # Allow the developer to select if Dynamic or Static libraries are built
 OPTION (TEFNOUT_USE_PRECOMPILED_GLFW "Use pre-compiled libraries for GLFW" ON)
@@ -201,6 +201,7 @@ file(
     src/Tefnout/Memory/*
     src/Tefnout/Memory/Allocator/*
     src/Tefnout/ECS/*
+    src/Tefnout/Network/*
 )
 add_library(${TEFNOUT_LIB_NAME} ${LIB_TYPE} ${TEFNOUT_SOURCES})
 
@@ -227,8 +228,8 @@ else()
     )
 endif()
 
-# Expose SPDLOG as a PUBLIC dependency
-# because it is used in both header and source files
+# Expose SPDLOG and GLM as a PUBLIC dependency
+# because they are used in both header and source files
 target_link_libraries(${TEFNOUT_LIB_NAME}
     PUBLIC
         spdlog::spdlog
@@ -238,6 +239,13 @@ target_link_libraries(${TEFNOUT_LIB_NAME}
         stb_image
         glfw
 )
+
+# Needed for networking
+if(WIN32)
+  target_link_libraries(${TEFNOUT_LIB_NAME} wsock32 ws2_32)
+endif()
+
+
 set_target_properties(${TEFNOUT_LIB_NAME}
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
@@ -247,6 +255,7 @@ set_target_properties(${TEFNOUT_LIB_NAME}
     CXX_STANDARD_REQUIRED ON
     LINKER_LANGUAGE CXX
     # https://gcc.gnu.org/wiki/Visibility
+    # https://github.com/elucideye/drishti/issues/225
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
 )
@@ -275,7 +284,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # )
 
 
-    target_link_options(${MY_LIB_NAME}
+    target_link_options(${TEFNOUT_LIB_NAME}
         PUBLIC
             -MACHINE:x64
     )
