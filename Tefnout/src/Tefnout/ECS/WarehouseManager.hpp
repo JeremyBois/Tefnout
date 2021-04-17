@@ -27,36 +27,40 @@ class WarehouseManager
 
     ~WarehouseManager() = default;
 
-    template <typename T> T& Get(Entity entity)
+    template <typename T> Warehouse<T>& Get()
     {
-        // Will assert if warehouse exists but entity not
-        const size_type warehouseId = FamilyGenerator::TypeIdentifier<T>();
-        return static_cast<Warehouse<T>*>(m_warehouses.at(warehouseId).get())->Get(entity);
+        return *PrepareWarehouse<T>();
     }
 
-    template <typename T> T& Add(Entity entity, T component)
+
+    template <typename T> T& GetComponent(Entity entity)
     {
-        auto& warehouse = PrepareWarehouse<T>();
-        return warehouse.EmplaceBack(std::move(entity), std::move(component));
+        auto* warehouse = PrepareWarehouse<T>();
+        return warehouse->Get(entity);
     }
 
-    template <typename T, typename... Args> T& Add(Entity entity, Args&&... args)
+    template <typename T> T& AddComponent(Entity entity, T component)
     {
-        auto& warehouse = PrepareWarehouse<T>();
-        return warehouse.EmplaceBack(std::move(entity), std::forward<Args>(args)...);
+        auto* warehouse = PrepareWarehouse<T>();
+        return warehouse->EmplaceBack(std::move(entity), std::move(component));
     }
 
-    template <typename T> void Remove(Entity entity)
+    template <typename T, typename... Args> T& AddComponent(Entity entity, Args&&... args)
     {
-        // Will assert if warehouse exists but entity not
-        const size_type warehouseId = FamilyGenerator::TypeIdentifier<T>();
-        m_warehouses.at(warehouseId)->Remove(entity);
+        auto* warehouse = PrepareWarehouse<T>();
+        return warehouse->EmplaceBack(std::move(entity), std::forward<Args>(args)...);
+    }
+
+    template <typename T> void RemoveComponent(Entity entity)
+    {
+        auto* warehouse = PrepareWarehouse<T>();
+        return warehouse->Remove(entity);
     }
 
   private:
     std::vector<std::unique_ptr<SparseSet>> m_warehouses;
 
-    template <typename T> Warehouse<T>& PrepareWarehouse()
+    template <typename T> Warehouse<T>* PrepareWarehouse()
     {
         const size_type warehouseId = FamilyGenerator::TypeIdentifier<T>();
 
@@ -74,7 +78,7 @@ class WarehouseManager
         }
 
         // Extract a reference to wrapped data
-        return *(static_cast<Warehouse<T>*>(mgr.get()));
+        return static_cast<Warehouse<T>*>(mgr.get());
     }
 
     void InsureSpace(const size_type index)
