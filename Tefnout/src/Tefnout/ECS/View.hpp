@@ -3,8 +3,9 @@
 
 #include "Tefnout/Core/Core.hpp"
 
-#include "Tefnout/ECS/Warehouse.hpp"
+#include "Tefnout/ECS/Entity.hpp"
 #include "Tefnout/ECS/SparseSet.hpp"
+#include "Tefnout/ECS/Warehouse.hpp"
 
 #include <iterator>
 #include <tuple>
@@ -27,22 +28,23 @@ namespace ECS
  * @brief      A view is a light wrapper arround multiple components containers allowing
  *             to loop over all entities shared among all containers in an efficient way.
  *
- * @tparam     Components  Variadic type name for components to add to this collection.
+ * @tparam     ComponentTypes  Variadic type name for components to add to this collection.
  */
-template <typename... Components> class TEFNOUT_API View
+template <typename... ComponentTypes> class TEFNOUT_API View
 {
   private:
     // Forward declaration needed
-    template <typename ComponentIterator> class ViewIterator;
+    template <typename ComponentIterator> class ViewEntitiesIterator;
+    template <typename ComponentIterator> class ViewComponentsIterator;
 
   public:
     // Type of container used to store component collection without the current view (hence)
     // https://en.cppreference.com/w/cpp/language/sizeof...
-    using others_type = std::array<const SparseSet*, (sizeof...(Components) - 1)>;
+    using others_type = std::array<const SparseSet*, (sizeof...(ComponentTypes) - 1)>;
 
     using size_type = std::size_t;
-    using const_iterator = ViewIterator<typename SparseSet::const_iterator>;
-    using const_reverse_iterator = ViewIterator<typename SparseSet::const_reverse_iterator>;
+    using const_iterator = ViewEntitiesIterator<typename SparseSet::const_iterator>;
+    using const_reverse_iterator = ViewEntitiesIterator<typename SparseSet::const_reverse_iterator>;
 
     const_iterator begin() const
     {
@@ -72,17 +74,45 @@ template <typename... Components> class TEFNOUT_API View
     {
     }
 
-    View(Warehouse<Components>&... components)
+    View(Warehouse<ComponentTypes>&... components)
         : m_pool{std::make_tuple(&components...)}, m_view(SelectViewFromPool())
     {
     }
-
     ~View() = default;
+
+    /**
+     * @brief      Extract all or a specific selection of component from this view. Can be
+     *             safely used to extract components while iterating over view entities.
+     *
+     * @note       Trying to get a component not owned by @p entity result in an assertion
+     *             error or an empty tuple depending on build type.
+     *
+     * @param[in]  entity  The entity used to select components
+     *
+     * @tparam     Cs      Variadic types for components. Assumes all component is empty.
+     *
+     * @return     A tuple of required components extracted from the view
+     */
+    template <typename... Cs> decltype(auto) Components(const Entity entity) const
+    {
+        if constexpr (sizeof...(Cs) == 0)
+        {
+            // All components
+            return std::tuple_cat(
+                std::forward_as_tuple(std::get<Warehouse<ComponentTypes>*>(m_pool)->Get(entity))...);
+        }
+        else
+        {
+            // Only required components
+            return std::tuple_cat(
+                std::forward_as_tuple(std::get<Warehouse<Cs>*>(m_pool)->Get(entity))...);
+        }
+    }
 
   private:
     // Store each container inside a tuple to allow access by type
     // Types must be uniques but not currently checked
-    const std::tuple<Warehouse<Components>*...> m_pool;
+    const std::tuple<Warehouse<ComponentTypes>*...> m_pool;
 
     SparseSet* m_view;
 
@@ -139,7 +169,7 @@ template <typename... Components> class TEFNOUT_API View
      *
      * @tparam     ComponentIterator  Iterator type used for looping over.
      */
-    template <typename ComponentIterator> class ViewIterator
+    template <typename ComponentIterator> class ViewEntitiesIterator
     {
       public:
         // Only interested in looping over a set of components so restrict category
@@ -152,14 +182,15 @@ template <typename... Components> class TEFNOUT_API View
         using pointer = typename std::iterator_traits<ComponentIterator>::pointer;
         using reference = typename std::iterator_traits<ComponentIterator>::reference;
 
-        ViewIterator(ComponentIterator start, ComponentIterator end, ComponentIterator current,
-                     others_type other)
+        ViewEntitiesIterator(ComponentIterator start, ComponentIterator end,
+                             ComponentIterator current, others_type other)
             : m_start(start), m_end(end), m_current(current), m_others(other)
         {
         }
 
         reference operator*()
         {
+            // auto test = std::tuple_cat(std::make_tuple(*it), view->get(*it));
             return *m_current;
         }
 
@@ -170,7 +201,7 @@ template <typename... Components> class TEFNOUT_API View
         }
 
         // Prefix increment
-        ViewIterator& operator++()
+        ViewEntitiesIterator& operator++()
         {
 
             while (++m_current != m_end && !HasAllComponents())
@@ -181,15 +212,15 @@ template <typename... Components> class TEFNOUT_API View
         }
 
         // Postfix increment
-        ViewIterator operator++(int)
+        ViewEntitiesIterator operator++(int)
         {
-            ViewIterator tmp = *this;
+            ViewEntitiesIterator tmp = *this;
             ++(*this); // Delegate to prefix increment
             return tmp;
         }
 
         // Prefix decrement
-        ViewIterator& operator--()
+        ViewEntitiesIterator& operator--()
         {
             while (--m_current != m_start && !HasAllComponents())
             {
@@ -199,37 +230,37 @@ template <typename... Components> class TEFNOUT_API View
         }
 
         // Postfix decrement
-        ViewIterator operator--(int)
+        ViewEntitiesIterator operator--(int)
         {
-            ViewIterator tmp = *this;
+            ViewEntitiesIterator tmp = *this;
             --(*this); // Delegate to prefix decrement
             return tmp;
         }
 
         // friend allows to declare this operator as non-member
         // but still getting access to private fields in implementation
-        friend bool operator==(const ViewIterator& a, const ViewIterator& b)
+        friend bool operator==(const ViewEntitiesIterator& a, const ViewEntitiesIterator& b)
         {
             return a.m_current == b.m_current;
         };
-        friend bool operator!=(const ViewIterator& a, const ViewIterator& b)
+        friend bool operator!=(const ViewEntitiesIterator& a, const ViewEntitiesIterator& b)
         {
             return a.m_current != b.m_current;
         };
 
-        friend bool operator<(const ViewIterator& a, const ViewIterator& b)
+        friend bool operator<(const ViewEntitiesIterator& a, const ViewEntitiesIterator& b)
         {
             return a.m_current < b.m_current;
         }
-        friend bool operator<=(const ViewIterator& a, const ViewIterator& b)
+        friend bool operator<=(const ViewEntitiesIterator& a, const ViewEntitiesIterator& b)
         {
             return a.m_current <= b.m_current;
         }
-        friend bool operator>(const ViewIterator& a, const ViewIterator& b)
+        friend bool operator>(const ViewEntitiesIterator& a, const ViewEntitiesIterator& b)
         {
             return !a->operator<=(b);
         }
-        friend bool operator>=(const ViewIterator& a, const ViewIterator& b)
+        friend bool operator>=(const ViewEntitiesIterator& a, const ViewEntitiesIterator& b)
         {
             return !a->operator<(b);
         }
@@ -239,7 +270,6 @@ template <typename... Components> class TEFNOUT_API View
         ComponentIterator m_end;
         ComponentIterator m_current;
 
-        // @TODO Should only contains others, currently contains all
         others_type m_others;
 
         /**

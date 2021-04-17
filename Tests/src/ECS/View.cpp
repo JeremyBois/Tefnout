@@ -134,4 +134,50 @@ TEST_CASE("SparseSet view can have any number of collections", "[SparseSet View]
         // Only iterate over entities that have both components
         REQUIRE(counter == 1);
     }
+
+    SECTION("Can access components from a view")
+    {
+        const auto view = Tefnout::ECS::View(dynamicContainer, simpleContainer, intContainer,
+                                             floatContainer, doubleContainer, stringContainer);
+
+        SECTION("Can access all components from the view")
+        {
+            for (const auto entity : view)
+            {
+                auto [dynamicComp, simpleComp, intComp, floatComp, doubleComp, stringComp] =
+                    view.Components(sharedEntity);
+
+                REQUIRE(dynamicContainer.Get(entity) == dynamicComp);
+                REQUIRE(simpleContainer.Get(entity) == simpleComp);
+                REQUIRE(intContainer.Get(entity) == intComp);
+                REQUIRE(floatContainer.Get(entity) == floatComp);
+                REQUIRE(doubleContainer.Get(entity) == doubleComp);
+                REQUIRE(stringContainer.Get(entity) == stringComp);
+            }
+        }
+
+        SECTION("Can access a specific component from the view")
+        {
+            for (const auto entity : view)
+            {
+                auto [dynamicComp] = view.Components<Dynamic>(sharedEntity);
+
+                REQUIRE(dynamicContainer.Get(entity) == dynamicComp);
+            }
+        }
+
+        SECTION("Can access specific components list from the view")
+        {
+            for (const auto entity : view)
+            {
+                auto [dynamicComp, intComp, doubleComp, stringComp] =
+                    view.Components<Dynamic, int, double, std::string>(sharedEntity);
+
+                REQUIRE(dynamicContainer.Get(entity) == dynamicComp);
+                REQUIRE(intContainer.Get(entity) == intComp);
+                REQUIRE(doubleContainer.Get(entity) == doubleComp);
+                REQUIRE(stringContainer.Get(entity) == stringComp);
+            }
+        }
+    }
 }
