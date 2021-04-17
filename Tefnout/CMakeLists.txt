@@ -134,7 +134,7 @@ else()
     message("      libraries:  ${OPENGL_LIBRARIES}")
 
     set(GLAD_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/vendors/glad/include")
-    set(GLAD_SOURCES "${PROJECT_SOURCE_DIR}/vendors/glad/src/glad")
+    set(GLAD_SOURCES "${PROJECT_SOURCE_DIR}/vendors/glad/src/glad.c")
 
     # Setup target for glad (glad::glad is reserved)
     add_library(glad SHARED ${GLAD_SOURCES})

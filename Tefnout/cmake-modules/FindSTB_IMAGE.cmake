@@ -56,7 +56,7 @@ find_package_handle_standard_args(STB_IMAGE DEFAULT_MSG STB_IMAGE_INCLUDE_DIR)
 # Define STB_IMAGE_INCLUDE_DIRS
 if (STB_IMAGE_FOUND AND NOT TARGET stb_image)
     set(STB_IMAGE_INCLUDE_DIRS ${STB_IMAGE_INCLUDE_DIR})
-    set(STB_IMAGE_SOURCES "${STB_IMAGE_INCLUDE_DIR}/stb_image/stb_image")
+    set(STB_IMAGE_SOURCES "${STB_IMAGE_INCLUDE_DIR}/stb_image/stb_image.cpp")
 
     # Prepare target
     add_library(stb_image SHARED ${STB_IMAGE_SOURCES})
