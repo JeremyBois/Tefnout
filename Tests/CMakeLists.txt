@@ -16,12 +16,14 @@ list(APPEND tests_SOURCES
     ${PROJECT_SOURCE_DIR}/src/ECS/FamilyGenerator.cpp
     ${PROJECT_SOURCE_DIR}/src/ECS/Entity.cpp
     ${PROJECT_SOURCE_DIR}/src/ECS/Warehouse.cpp
+    ${PROJECT_SOURCE_DIR}/src/ECS/WarehouseManager.cpp
     ${PROJECT_SOURCE_DIR}/src/ECS/View.cpp
     # Utility
     ${PROJECT_SOURCE_DIR}/src/Utility/Timer.cpp
     ${PROJECT_SOURCE_DIR}/src/Utility/BitsController.cpp
     # Network
     ${PROJECT_SOURCE_DIR}/src/Network/Socket.cpp
+    ${PROJECT_SOURCE_DIR}/src/Network/Sequence.cpp
 )
 
 add_executable(tefnout-testing ${tests_SOURCES})

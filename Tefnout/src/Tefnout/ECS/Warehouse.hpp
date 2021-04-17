@@ -35,6 +35,9 @@ template <typename TComponent> class TEFNOUT_API Warehouse final : public Sparse
     using iterator = std::reverse_iterator<reverse_iterator>;
     using const_iterator = std::reverse_iterator<const_reverse_iterator>;
 
+    Warehouse() = default;
+    ~Warehouse() = default;
+
     // Iterators for component
     iterator begin()
     {
@@ -75,9 +78,6 @@ template <typename TComponent> class TEFNOUT_API Warehouse final : public Sparse
     {
         return const_reverse_iterator{m_components.data(), this->Size()};
     }
-
-    Warehouse() = default;
-    ~Warehouse() = default;
 
     /**
      * @brief      Add component (@p component) to @p entity using move operator.
