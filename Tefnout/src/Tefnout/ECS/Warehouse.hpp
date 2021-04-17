@@ -3,6 +3,7 @@
 
 #include "SparseSet.hpp"
 #include "Tefnout/Core/Core.hpp"
+#include "Tefnout/ECS/Entity.hpp"
 
 #include <bits/c++config.h>
 #include <sstream>
@@ -137,7 +138,7 @@ template <typename TComponent> class TEFNOUT_API Warehouse final : public Sparse
      *
      * @param[in]  entity  The entity
      *
-     * @return     { description_of_the_return_value }
+     * @return     Component associated with @p entity.
      */
     TComponent& Get(const Entity entity)
     {
@@ -145,6 +146,7 @@ template <typename TComponent> class TEFNOUT_API Warehouse final : public Sparse
 
         return m_components[this->IndexEntity(entity)];
     }
+
 
     /**
      * @brief      Call a @p updater function on the found entity component to update
