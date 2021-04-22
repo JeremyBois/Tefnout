@@ -17,7 +17,7 @@ int main(int argc, char const *argv[]) // NOLINT (Remove clang-tidy warning)
     TEFNOUT_INFO("Welcome to the TEFNOUT engine !");
 
     // RAII init/clean networking
-    Tefnout::Network::NetworkSession netSession();
+    Tefnout::Network::NetworkSession netSession{};
 
     // Init engine application
     auto *app = Tefnout::CreateApplication();

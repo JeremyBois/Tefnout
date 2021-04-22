@@ -14,15 +14,17 @@
 TEST_CASE("Can create a socket", "[Socket]")
 {
     using namespace Tefnout;
+    Network::NetworkSession netSession{};  // Needed for windows
 
     SECTION("Can create an IPv4 ip address")
     {
         const Network::IpAddress ip{};
+        const auto* pIPv4 = ip.GetIPv4();
 
-        REQUIRE(ip.GetA() == 127);
-        REQUIRE(ip.GetB() == 0);
-        REQUIRE(ip.GetC() == 0);
-        REQUIRE(ip.GetD() == 1);
+        REQUIRE(pIPv4[0] == 127);
+        REQUIRE(pIPv4[1] == 0);
+        REQUIRE(pIPv4[2] == 0);
+        REQUIRE(pIPv4[3] == 1);
 
         SECTION("Can create an IPv4 address")
         {
@@ -47,6 +49,7 @@ TEST_CASE("Can create a socket", "[Socket]")
 TEST_CASE("Can send and receive data", "[Socket]")
 {
     using namespace Tefnout;
+    Network::NetworkSession netSession{};  // Needed for Windows
 
     Network::Address address(Network::IpAddress{}, 30000);
     Network::Socket socket{};

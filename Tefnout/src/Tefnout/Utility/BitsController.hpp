@@ -24,15 +24,15 @@ struct TEFNOUT_LOCAL ValueOffsetPair
 {
   public:
     std::uint64_t value{};
-    unsigned int offset = 0;
+    std::uint32_t offset = 0;
 };
 
 /// @NOTE Remove all implementation that are not explicitly defined
 template <typename T, typename U>
 T TEFNOUT_LOCAL Extract(T source, const U offset, const U size) = delete;
 
-template <typename T, typename U>
-T TEFNOUT_LOCAL Set(T source, const T value, const U offset) = delete;
+template <typename T, typename TT, typename U>
+T TEFNOUT_LOCAL Set(T source, const TT value, const U offset) = delete;
 
 template <typename T, typename U>
 T TEFNOUT_LOCAL Clear(T source, const U offset, const U size) = delete;
@@ -52,15 +52,15 @@ inline T TEFNOUT_LOCAL ClearAndSet(T source, const T value, const U offset,
  * @return     Extracted bit range as a 64bits integer
  */
 template <>
-inline unsigned int TEFNOUT_LOCAL Extract(unsigned int source, const unsigned char offset,
-                                          const unsigned char size)
+inline std::uint32_t TEFNOUT_LOCAL Extract(std::uint32_t source, const std::uint8_t offset,
+                                          const std::uint8_t size)
 {
     TEFNOUT_ASSERT(size + offset <= 32, "Out of bounds (offset={0}, size={1})", offset, size);
 
     // ~0          --> -0b001
     // (~0  << 2)  -->  0b100  (Only 1 at pos 2)
     // ~(~0 << 2)  -->  0b011  (1s become 0s and 0s become 1s)
-    const unsigned int mask = ~(~0u << size);
+    const std::uint32_t mask = ~(~0u << size);
 
     // Right shift to discard least significant digits
     // 0b1011 >> 2 --> 0b10
@@ -77,8 +77,8 @@ inline unsigned int TEFNOUT_LOCAL Extract(unsigned int source, const unsigned ch
  * @return     Extracted bit range as a 64bits integer
  */
 template <>
-inline std::uint64_t TEFNOUT_LOCAL Extract(std::uint64_t source, const unsigned int offset,
-                                           const unsigned int size)
+inline std::uint64_t TEFNOUT_LOCAL Extract(std::uint64_t source, const std::uint32_t offset,
+                                           const std::uint32_t size)
 {
     TEFNOUT_ASSERT(size + offset <= 64, "Out of bounds (offset={0}, size={1})", offset, size);
 
@@ -103,8 +103,8 @@ inline std::uint64_t TEFNOUT_LOCAL Extract(std::uint64_t source, const unsigned 
  * @return     @p source with bits range reset to 0.
  */
 template <>
-inline std::uint64_t TEFNOUT_LOCAL Clear(std::uint64_t source, const unsigned int offset,
-                                         const unsigned int size)
+inline std::uint64_t TEFNOUT_LOCAL Clear(std::uint64_t source, const std::uint32_t offset,
+                                         const std::uint32_t size)
 {
     TEFNOUT_ASSERT(size + offset <= 64, "Out of bounds (offset={0}, size={1})", offset, size);
 
@@ -129,8 +129,26 @@ inline std::uint64_t TEFNOUT_LOCAL Clear(std::uint64_t source, const unsigned in
  * @return     Updated source with @p value at position defined by @p offset.
  */
 template <>
-inline unsigned int TEFNOUT_LOCAL Set(unsigned int source, const unsigned int value,
-                                      const unsigned char offset)
+inline std::uint32_t TEFNOUT_LOCAL Set(std::uint32_t source, const std::uint32_t value,
+                                      const std::uint8_t offset)
+{
+    TEFNOUT_ASSERT(offset <= 24, "Out of bounds (offset={0})", offset);
+
+    return source | (value << offset);
+}
+
+/**
+ * @brief      Set a value at a specific offset inside the source provided.
+ *
+ * @param[in]  source     The source used as container for @p value
+ * @param[in]  value      The value to set just after @p offset
+ * @param[in]  offset     The offset from the least significant bit used to place @p value
+ *
+ * @return     Updated source with @p value at position defined by @p offset.
+ */
+template <>
+inline std::uint32_t TEFNOUT_LOCAL Set(std::uint32_t source, const std::uint8_t value,
+                                      const std::uint8_t offset)
 {
     TEFNOUT_ASSERT(offset <= 24, "Out of bounds (offset={0})", offset);
 
@@ -150,7 +168,7 @@ inline unsigned int TEFNOUT_LOCAL Set(unsigned int source, const unsigned int va
  */
 template <>
 inline std::uint64_t TEFNOUT_LOCAL Set(std::uint64_t source, const std::uint64_t value,
-                                       const unsigned int offset)
+                                       const std::uint32_t offset)
 {
     TEFNOUT_ASSERT(offset <= 64, "Out of bounds (offset={0})", offset);
 
@@ -202,8 +220,8 @@ inline std::uint64_t TEFNOUT_LOCAL Set(const std::array<ValueOffsetPair, Size>& 
  */
 template <>
 inline std::uint64_t TEFNOUT_LOCAL ClearAndSet(std::uint64_t source, const std::uint64_t value,
-                                               const unsigned int offset,
-                                               const unsigned int rangeSize)
+                                               const std::uint32_t offset,
+                                               const std::uint32_t rangeSize)
 {
     TEFNOUT_ASSERT(rangeSize + offset <= 64, "Out of bounds (offset={0}, rangeSize={1})", offset,
                    rangeSize);

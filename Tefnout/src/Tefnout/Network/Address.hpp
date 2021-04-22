@@ -2,70 +2,117 @@
 #define __ADDRESS__HPP
 
 #include "Tefnout/Core/Platform.hpp"
+#include <bits/stdint-uintn.h>
+#include <cstdint>
 
 namespace Tefnout
 {
 namespace Network
 {
 
+// @TODO Split Ip in two classes v4 and V6
+
 /**
- * @brief      Abstraction over an IPv4 address.
+ * @brief      Supported IpTypes for addresses.
+ */
+enum class IpType
+{
+    Invalid,
+    v4,
+    v6
+};
+
+/**
+ * @brief      Abstraction over an IP address (v4 or v6).
  *
- * @note       Representation is as follow - 127.0.0.1 --> A.B.C.D
  */
 struct TEFNOUT_API IpAddress
 {
   public:
-    static constexpr unsigned char s_Aoffset = 24;
-    static constexpr unsigned char s_Boffset = 16;
-    static constexpr unsigned char s_Coffset = 8;
-    static constexpr unsigned char s_Doffset = 0;
-    static constexpr unsigned char s_fieldSize = 8;
-
+    // v4
     IpAddress();
-    IpAddress(unsigned char a, unsigned char b, unsigned char c, unsigned char d);
-    explicit IpAddress(unsigned int ipAddressAsInt);
+    explicit IpAddress(std::uint32_t address);
+    IpAddress(std::uint8_t a, std::uint8_t b, std::uint8_t c, std::uint8_t d);
+    IpAddress(const std::uint8_t address[4]);
+
+    // v6
+    IpAddress(std::uint16_t a, std::uint16_t b, std::uint16_t c, std::uint16_t d, std::uint16_t e,
+              std::uint16_t f, std::uint16_t g, std::uint16_t h);
+    IpAddress(const std::uint16_t address[8]);
+
     ~IpAddress() = default;
 
-    unsigned char GetA() const;
-    unsigned char GetB() const;
-    unsigned char GetC() const;
-    unsigned char GetD() const;
+    /**
+     * @brief      Gets information about address type. Can be either an IP v4/v6 or
+     *             Invalid.
+     *
+     * @return     The type of the IP address.
+     */
+    inline IpType GetType() const
+    {
+        return m_type;
+    }
+
+    inline const std::uint8_t* GetIPv4() const
+    {
+        return m_ip.v4;
+    }
+
+    inline const std::uint16_t* GetIPv6() const
+    {
+        return m_ip.v6;
+    }
 
     /**
-     * @brief      Return address bitmask.
+     * @brief      Determines if address is a loopback address.
      *
-     * @return     Address bitmask.
+     * @return     True if loopback, False otherwise.
      */
-    unsigned int AsInt() const;
+    bool IsLoopback();
 
+    /**
+     * @brief      Return IPv4 address as an 32bits integer. Assert if used on another
+     *             address type.
+     *
+     * @return     IPv4 as an integer.
+     */
+    std::uint32_t AsInt() const;
 
     friend bool operator==(const IpAddress& lhs, const IpAddress& rhs);
     friend bool operator!=(const IpAddress& lhs, const IpAddress& rhs);
 
   private:
-    unsigned int m_ip;
+    IpType m_type;
+
+    // @NOTE Prefers an std::variant over the union ??
+    union {
+        std::uint8_t v4[4];
+        std::uint16_t v6[8];
+    } m_ip;
+
+    /// Used when building or extracting from a bitflag
+    static constexpr std::uint8_t s_ipv4BitsSize = 8;
 };
 
 /**
- * @brief      Abstraction of an address composed of an IP and a Port.
+ * @brief      Abstraction of an address composed of an IP and a Port. Address can be IPv4 or IPv6.
  */
 class TEFNOUT_API Address
 {
   public:
     Address();
-    Address(IpAddress ipAddress, unsigned short port);
+    Address(IpAddress ipAddress, std::uint16_t port);
     ~Address() = default;
 
     IpAddress GetIp() const;
-    unsigned short GetPort() const;
+    std::uint16_t GetPort() const;
 
     friend bool operator==(const Address& lhs, const Address& rhs);
     friend bool operator!=(const Address& lhs, const Address& rhs);
 
   private:
     IpAddress m_ip;
-    unsigned short m_port;
+    std::uint16_t m_port;
 };
 
 } // namespace Network

@@ -3,7 +3,7 @@
 
 #include "Tefnout/Core/Core.hpp"
 
-// Networking
+// clang-format off
 #if TEFNOUT_PLATFORM == TEFNOUT_PLATFORM_WINDOWS
     #include "Ws2tcpip.h"
     #include <winsock2.h>
@@ -24,7 +24,10 @@
     #define SOCKET_ERROR -1
     #define closesocket(s) close(s)
     typedef int SOCKET;
+#else
+    #error "Unknown TEFNOUT_PLATFORM"
 #endif
+// clang-format on
 
 namespace Tefnout
 {
