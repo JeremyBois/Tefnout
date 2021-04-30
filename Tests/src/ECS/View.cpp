@@ -145,7 +145,7 @@ TEST_CASE("SparseSet view can have any number of collections", "[SparseSet View]
             for (const auto entity : view)
             {
                 auto [dynamicComp, simpleComp, intComp, floatComp, doubleComp, stringComp] =
-                    view.Components(sharedEntity);
+                    view.Components(entity);
 
                 REQUIRE(dynamicContainer.Get(entity) == dynamicComp);
                 REQUIRE(simpleContainer.Get(entity) == simpleComp);
@@ -160,7 +160,7 @@ TEST_CASE("SparseSet view can have any number of collections", "[SparseSet View]
         {
             for (const auto entity : view)
             {
-                auto [dynamicComp] = view.Components<Dynamic>(sharedEntity);
+                auto [dynamicComp] = view.Components<Dynamic>(entity);
 
                 REQUIRE(dynamicContainer.Get(entity) == dynamicComp);
             }
@@ -171,7 +171,7 @@ TEST_CASE("SparseSet view can have any number of collections", "[SparseSet View]
             for (const auto entity : view)
             {
                 auto [dynamicComp, intComp, doubleComp, stringComp] =
-                    view.Components<Dynamic, int, double, std::string>(sharedEntity);
+                    view.Components<Dynamic, int, double, std::string>(entity);
 
                 REQUIRE(dynamicContainer.Get(entity) == dynamicComp);
                 REQUIRE(intContainer.Get(entity) == intComp);
