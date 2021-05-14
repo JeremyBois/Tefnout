@@ -3,7 +3,7 @@ A Game Engine project with a focus on learning more about architecture and advan
 
 Continuation of previous work at [SimpelGL](https://github.com/JeremyBois/SimpleGL) but the architecture is rewritten from scratch.
 
-Currently only OpenGL is supported on both Windows and GNU/Linux but Vulkan is planned.
+> Currently only OpenGL is supported on both Windows and GNU/Linux but Vulkan is planned.
 
 **What I am currently working on:**
   - OpenGL 2D rendering pipeline (VertexArray, FrameBuffer, Renderer, Texture, Shader)
@@ -138,9 +138,9 @@ cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=O
 cmake -G "Ninja" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
 ```
 
-In order to also build tests add the `-D TEFNOUT_BUILD_TESTING=ON` to the command above or update the Cmake cache in the build directory (`CmakeCache.txt`).
+> In order to also build tests add the `-D TEFNOUT_BUILD_TESTING=ON` to the command above or update the Cmake cache in the build directory (`CmakeCache.txt`).
 
-In order to also build lib as a shared library add the `-D TEFNOUT_BUILD_SHARED_LIBS=ON` to the command above.
+> In order to also build lib as a shared library add the `-D TEFNOUT_BUILD_SHARED_LIBS=ON` to the command above.
 
 
 Cmake can also be used to build targets:
@@ -206,6 +206,23 @@ cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=O
 # WITH tests
 cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON -D TEFNOUT_BUILD_TESTING=ON && compdb -p ./build list > compile_commands.json && cp compile_commands.json ./build/compile_commands.json
 ```
+
+## Tools
+Some tools in `Tools` can be used to make developpement easier:
+  - `Purger.hs` - Can be used to clean temporary files
+    - cmake build data
+    - clangd compile commands
+    - tefnout logs
+  - `Init.hs` - Can be used to automaticaly init the whole project by performing the following actions in sequence:
+    - Init and pull submodules
+    - Build spdlog in both Debug and Release
+    - Build glfw in both Debug and Release
+    - Build Tefnout in both Debug and Release
+      - Tefnout as Shared or Static
+      - Tests for all targets (4)
+      - Samples for all targets (4)
+
+> Tools is a work in progress and are only tested on GNU/Linux.
 
 #### Side note
 `Ninja` appears to be more performant for incremental build than `make` where there is no difference in speed when compiling from scratch.
