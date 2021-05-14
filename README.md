@@ -51,12 +51,12 @@ cd Tefnout/vendors/spdlog/
 mkdir build && cd build
 
 # Debug version
-cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Debug -D SPDLOG_BUILD_SHARED=OFF -D SPDLOG_FMT_EXTERNAL=ON -D SPDLOG_BUILD_EXAMPLE=OFF -D SPDLOG_BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=./install/Debug -D CMAKE_POSITION_INDEPENDENT_CODE=ON
+cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Debug -D SPDLOG_BUILD_SHARED=OFF -D SPDLOG_FMT_EXTERNAL=ON -D SPDLOG_BUILD_EXAMPLE=OFF -D SPDLOG_BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=./build/install/Debug -D CMAKE_POSITION_INDEPENDENT_CODE=ON
 # Compile and install to build/install/Debug
 ninja install
 
 # Release version
-cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Release -D SPDLOG_BUILD_SHARED=OFF -D SPDLOG_FMT_EXTERNAL=ON -D SPDLOG_BUILD_EXAMPLE=OFF -D SPDLOG_BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=./install/Release -D CMAKE_POSITION_INDEPENDENT_CODE=ON
+cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Release -D SPDLOG_BUILD_SHARED=OFF -D SPDLOG_FMT_EXTERNAL=ON -D SPDLOG_BUILD_EXAMPLE=OFF -D SPDLOG_BUILD_TESTS=OFF -D CMAKE_INSTALL_PREFIX=./build/install/Release -D CMAKE_POSITION_INDEPENDENT_CODE=ON
 # Compile and install to build/install/Release
 ninja install
 ```
@@ -93,19 +93,19 @@ To be able to build Tefnout without using pre-compiled library use the following
 
 GLFW library could also be built first for both DEBUG and RELEASE targets using following commands. This step is optional but could improve compilation time.
 ```bash
-# Move to spdlog sub-module
+# Move to glfw sub-module
 cd Tefnout/vendors/glfw/
 
 # Create the build directory
 mkdir build && cd build
 
 # Debug version (Dynamic)
-cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Debug -D GLFW_BUILD_DOCS=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=./install/Debug
+cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Debug -D GLFW_BUILD_DOCS=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=./build/install/Debug
 # Compile and install to build/install/Debug
 ninja install
 
 # Release version (Dynamic)
-cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Release -D GLFW_BUILD_DOCS=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=./install/Release
+cmake .. -G "Ninja" -D CMAKE_BUILD_TYPE=Release -D GLFW_BUILD_DOCS=OFF -D GLFW_BUILD_TESTS=OFF -D GLFW_BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=ON -D CMAKE_INSTALL_PREFIX=./build/install/Release
 # Compile and install to build/install/Release
 ninja install
 ```
@@ -134,11 +134,14 @@ Then follow the instructions below to generate the build files for any build too
 cmake -G <build_tool> -B "./build" -S "."
 # make
 cmake -G "Unix Makefiles" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
-# Create ninja
+# ninja
 cmake -G "Ninja" -B "./build" -S "." -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
 ```
 
 In order to also build tests add the `-D TEFNOUT_BUILD_TESTING=ON` to the command above or update the Cmake cache in the build directory (`CmakeCache.txt`).
+
+In order to also build lib as a shared library add the `-D TEFNOUT_BUILD_SHARED_LIBS=ON` to the command above.
+
 
 Cmake can also be used to build targets:
 ```bash

@@ -177,14 +177,19 @@ endif()
 # ------------------------------------------------------------------------------
 if (TEFNOUT_BUILD_SHARED_LIBS)
     set (TEFNOUT_LIB_NAME tefnout-shared)
-    set (LIB_TYPE SHARED)  # User wants to build Dynamic Libraries, so change the LIB_TYPE variable to CMake keyword 'SHARED'
+    # Set the TEFNOUT_LIB_TYPE variable to SHARED in local and parent scope
+    set (TEFNOUT_LIB_TYPE Shared)
+    set (TEFNOUT_LIB_TYPE ${TEFNOUT_LIB_TYPE} PARENT_SCOPE)
 else()
     set (TEFNOUT_LIB_NAME tefnout-static)
-    set (LIB_TYPE STATIC)  # Set the LIB_TYPE variable to STATIC
+    # Set the TEFNOUT_LIB_TYPE variable to STATIC in local and parent scope
+    set (TEFNOUT_LIB_TYPE Static)
+    set (TEFNOUT_LIB_TYPE ${TEFNOUT_LIB_TYPE} PARENT_SCOPE)
 endif ()
 
 # Display information about the build parameters
-message(STATUS "${TEFNOUT_LIB_NAME} will be build as ${LIB_TYPE} library (${CMAKE_BUILD_TYPE})")
+string(TOUPPER ${TEFNOUT_LIB_TYPE} TEFNOUT_LIB_TYPE_UPPER)
+message(STATUS "${TEFNOUT_LIB_NAME} will be build as ${TEFNOUT_LIB_TYPE_UPPER} library (${CMAKE_BUILD_TYPE})")
 
 
 file(
@@ -203,7 +208,7 @@ file(
     src/Tefnout/ECS/*
     src/Tefnout/Network/*
 )
-add_library(${TEFNOUT_LIB_NAME} ${LIB_TYPE} ${TEFNOUT_SOURCES})
+add_library(${TEFNOUT_LIB_NAME} ${TEFNOUT_LIB_TYPE_UPPER} ${TEFNOUT_SOURCES})
 
 # See https://cmake.org/pipermail/cmake/2016-May/063400.html
 if (TEFNOUT_BUILD_SHARED_LIBS)
@@ -248,9 +253,9 @@ endif()
 
 set_target_properties(${TEFNOUT_LIB_NAME}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${TEFNOUT_LIB_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib/${CMAKE_BUILD_TYPE}/${TEFNOUT_LIB_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/${TEFNOUT_LIB_TYPE}/${CMAKE_GENERATOR_PLATFORM}/${PROJECT_NAME}/"
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
     LINKER_LANGUAGE CXX
