@@ -78,8 +78,8 @@ struct TEFNOUT_API IpAddress
      */
     std::uint32_t AsInt() const;
 
-    friend bool operator==(const IpAddress& lhs, const IpAddress& rhs);
-    friend bool operator!=(const IpAddress& lhs, const IpAddress& rhs);
+    friend TEFNOUT_API bool operator==(const IpAddress& lhs, const IpAddress& rhs);
+    friend TEFNOUT_API bool operator!=(const IpAddress& lhs, const IpAddress& rhs);
 
   private:
     IpType m_type;
@@ -107,8 +107,8 @@ class TEFNOUT_API Address
     IpAddress GetIp() const;
     std::uint16_t GetPort() const;
 
-    friend bool operator==(const Address& lhs, const Address& rhs);
-    friend bool operator!=(const Address& lhs, const Address& rhs);
+    friend TEFNOUT_API bool operator==(const Address& lhs, const Address& rhs);
+    friend TEFNOUT_API bool operator!=(const Address& lhs, const Address& rhs);
 
   private:
     IpAddress m_ip;

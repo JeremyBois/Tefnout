@@ -40,7 +40,7 @@ namespace Network
  *
  * @note       Cannot be copied only moved.
  */
-class TEFNOUT_LOCAL NetworkSession
+class TEFNOUT_API NetworkSession
 {
   public:
     NetworkSession();

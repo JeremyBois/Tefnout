@@ -28,15 +28,15 @@ struct TEFNOUT_API Entity
         return m_id;
     }
 
-    friend bool operator==(const Entity& first, const Entity& second)
+    friend TEFNOUT_API bool operator==(const Entity& first, const Entity& second)
     {
         return first.m_id == second.m_id;
     }
-    friend bool operator!=(const Entity& first, const Entity& second)
+    friend TEFNOUT_API bool operator!=(const Entity& first, const Entity& second)
     {
         return first.m_id != second.m_id;
     }
-    friend bool operator<(const Entity& first, const Entity& second)
+    friend TEFNOUT_API bool operator<(const Entity& first, const Entity& second)
     {
         return first.m_id < second.m_id;
     }
